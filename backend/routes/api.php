@@ -7,7 +7,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-gi
+
 Route::get('/test', function () {
     return response()->json([
         'message' => 'Timeora API is working'
