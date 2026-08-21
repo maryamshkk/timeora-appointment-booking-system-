@@ -4,7 +4,7 @@
 
 TIMEORA is a dual-sided appointment booking and business management platform. It combines full business booking/management software (in the spirit of SimplyBook.me) with a customer-facing discovery experience, so businesses can manage their operations while customers can discover and book professionals across companies from one place.
 
-> **Positioning:** TIMEORA is not a copy of SimplyBook.me. SimplyBook.me is used purely as a functional benchmark. TIMEORA is intentionally dual-sided: **Business side** — "Manage my appointments," and **Customer side** — "Find and book an appointment."
+> **Positioning:**  TIMEORA is intentionally dual-sided: **Business side** — "Manage my appointments," and **Customer side** — "Find and book an appointment."
 
 ---
 
@@ -27,13 +27,22 @@ TIMEORA is a dual-sided appointment booking and business management platform. It
 
 ## Overview
 
-TIMEORA follows a clear system hierarchy:
+TIMEORA follows a clear system hierarchy. Registration on the landing page branches into two independent paths — a business registers as a Company, while a Customer registers separately to discover and book services:
 
-```
-Super Admin → Company → Staff → Services → Customers → Appointments
-```
+                        Super Admin
+                             │
+                Landing Page Registration
+                 ┌───────────┴───────────┐
+              Company                 Customer
+                 │                       │
+               Staff                     │
+                 │                       │
+              Services                   │
+                 └───────────┬───────────┘
+                        Appointments
+Every company on TIMEORA gets its own public booking page (e.g. timeora.com/company/city-care), supports multi-channel booking (TIMEORA page, business website, social media, and eventually a customer app), and funnels every booking into a single, centralized company calendar.
 
-Every company on TIMEORA gets its own public booking page (e.g. `timeora.com/company/city-care`), supports multi-channel booking (TIMEORA page, business website, social media, and eventually a customer app), and funnels every booking into a single, centralized company calendar.
+Registration is open to both sides from the landing page — a single Register page lets a user choose Register as Company (to manage a business) or Register as Customer (to find and book appointments), each routing into its own registration flow and portal.
 
 ## Key Features
 
@@ -112,19 +121,16 @@ Notifications are delivered via **in-app** and **email** channels, following a c
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React.js, Tailwind CSS, React Router, Axios, Context API |
-| Backend | Laravel (PHP), REST API, Eloquent ORM |
-| Database | MySQL |
-| Authentication | Laravel Sanctum |
-| Authorization | Laravel Middleware + Policies |
-| Notifications | Laravel Notifications + Mail |
-| Background Jobs | Laravel Queues + Scheduler |
-| Receipts | Laravel PDF generation |
-| Calendar UI | React Calendar library |
-| Testing | Pest / PHPUnit + Laravel Feature Tests |
-| Version Control | Git + GitHub |
+Layer	                Technology
+Frontend	            React.js, Tailwind CSS, React Router, Axios Context API
+Backend	              Laravel (PHP), REST API, Eloquent ORM
+Database	            MySQL
+Authentication	      Laravel Sanctum
+Authorization	        Laravel Middleware
+Notifications	        Laravel Notifications + Mail
+Receipts	            Laravel PDF generation
+Calendar UI	          React Calendar library
+Version Control	      Git + GitHub
 
 ## Project Status
 
