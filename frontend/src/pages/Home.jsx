@@ -1,6 +1,11 @@
 function Home(){
-    return <h1 className="text-3xl font-bold"
-    >Timero home</h1>
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+            <h1 className="text-4xl font-bold">
+                Timeora
+            </h1>
+        </div>
+    )
 }
 
-export default Home
+export default Home;
