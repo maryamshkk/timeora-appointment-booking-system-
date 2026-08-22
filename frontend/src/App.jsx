@@ -3,6 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import axios from "axios";
+import AppRoutes from "./routes/AppRoutes";
 import './App.css'
 
 function App() {
@@ -17,10 +18,11 @@ function App() {
 
   return (
     <>
+    <AppRoutes />
       
 
     </>
   )
 }
 
-export default App
+export default App;
