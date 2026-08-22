@@ -1,5 +1,6 @@
 function Home(){
-    return <h1>Timero home</h1>
+    return <h1 className="text-3xl font-bold"
+    >Timero home</h1>
 }
 
 export default Home
