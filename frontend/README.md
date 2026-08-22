@@ -1,16 +1,98 @@
-# React + Vite
+Haan. Abhi tak **frontend ka README separately update karna better hai**, especially because `frontend` and `backend` are separate applications.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Create:
 
-Currently, two official plugins are available:
+```text
+frontend/README.md
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Use this:
 
-## React Compiler
+# Timeora Frontend
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Frontend application for the **Timeora Appointment Booking System**.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* React
+* Vite
+* Tailwind CSS
+* Axios
+* React Router DOM
+
+## Current Setup
+
+The frontend currently includes:
+
+* React + Vite setup
+* Tailwind CSS configuration
+* Axios configuration
+* React Router configuration
+* Frontend environment variables
+* Basic project folder structure
+* React → Laravel API connection
+
+## Project Structure
+
+```text
+frontend/
+└── src/
+    ├── components/
+    ├── pages/
+    ├── layouts/
+    ├── routes/
+    ├── services/
+    ├── context/
+    └── utils/
+```
+
+## API Connection
+
+Axios is configured to communicate with the Laravel backend.
+
+```text
+React
+  ↓
+Axios
+  ↓
+Laravel API
+```
+
+The API URL is configured through:
+
+```env
+VITE_API_URL=http://localhost:8000/api
+```
+
+## Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Frontend runs on:
+
+```text
+http://localhost:5173
+```
+
+## Current Status
+
+**Day 1 — Project Setup: Complete ✅**
+
+* React + Vite ✅
+* Tailwind CSS ✅
+* Axios ✅
+* React Router ✅
+* Laravel API connection ✅
+
+---
+
