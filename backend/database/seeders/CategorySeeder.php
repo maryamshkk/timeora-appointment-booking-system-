@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,9 +14,30 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         // Categories seeder
-        Schema::create('categories', function (Blueprint $table) {
-        });
+        $categories =  [
+            'Beauty Salon',
+            'Barbershop',
+            'Clinic',
+            'Dental Clinic',
+            'Spa',
+            'Fitness Center',
+            'Consultant',
+            'Hotel',
+            'Other',
+        ];
+
+        foreach($categories as $name)
+            {
+               Category::firstOrCreate(
+                ['name' => $name],
+                [
+                    'slug' => Str::slug($name),
+                    'status' => 'active',
+                ]
+               );
+            }
+        
+    }
         
     
-}
 }
