@@ -13,6 +13,27 @@ return new class extends Migration
     {
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
+            $table->enum('actor_type', [
+                'super_admin',
+                'company_admin',
+                'staff',
+                'customer',
+                'system'
+            ]);
+
+            $table->unsignedBigInteger('actor_id')->nullable();
+            $table->string('action', 150);
+
+            $table->string('target_type', 60)->nullable();
+            $table->unsignedBigInteger('target_id')->nullable();
+
+            $table->json('old_value')->nullable();
+            $table->json('new_value')->nullable();
+
+            $table->index(['actor_type', 'actor_id']);
+            $table->index(['target_type', 'target_id']);
+
+            $table->index('action');
             $table->timestamps();
         });
     }
