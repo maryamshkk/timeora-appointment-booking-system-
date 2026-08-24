@@ -12,6 +12,10 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        //
-    }
+        // Categories seeder
+        Schema::create('categories', function (Blueprint $table) {
+        });
+        
+    
+}
 }
