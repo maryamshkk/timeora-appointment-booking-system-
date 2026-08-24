@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -33,8 +34,7 @@ class CategorySeeder extends Seeder
                 [
                     'slug' => Str::slug($name),
                     'status' => 'active',
-                ]
-               );
+                ]);
             }
         
     }
