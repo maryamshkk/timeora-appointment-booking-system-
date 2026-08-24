@@ -19,6 +19,7 @@ return new class extends Migration
                     ->nullOnDelete();
             $table->string('name');
             $table->string('slug')->unique();
+            $table->enum('status', ['active', 'disabled'])->default('active');
             $table->timestamps();
         });
     }
