@@ -13,6 +13,25 @@ return new class extends Migration
     {
         Schema::create('company_admins', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('company_id')
+            ->constrained('companies')
+            ->cascadeOnDelete();
+
+            $table->string('name', 150);
+
+            $table->string('email')->unique();
+            $table->string('pssword_hash')->required();
+
+            $table->timestamp('email_verified_at')->nullable();
+
+            $table->enum('status', [
+                'active',
+                'pending',
+                'suspended',
+                'deactivated',
+            ])->default('pending');
+
+            
             $table->timestamps();
         });
     }
