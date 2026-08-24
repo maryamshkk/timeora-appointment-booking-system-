@@ -46,7 +46,7 @@ class CompanyAdmin extends Model
     {
         return $this->morphMany(AuditLog::class);
     }
-    public function getAuthpassword()
+    public function getAuthPassword()
     {
         return $this->password_hash; 
     }
