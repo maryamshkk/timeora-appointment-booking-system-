@@ -20,7 +20,7 @@ class CompanyAuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate(['company_name' => [
+        $validated = $request->validate(['company_name' => [
                 'required'|
                 'string'|
                 'min:2'|
@@ -70,8 +70,60 @@ class CompanyAuthController extends Controller
                     'same:password',
 
                 'terms_accepted' => 
-                    'required',
-                    'accepted',
+                    'required|accepted',
         ]);
+
+        try{
+            $result = DB::transaction(function() use ($validated){
+                $company = Company::create([
+                    'category_id' => $validated->business_type,
+                    'name' => $validated->company_name,
+                    'slug' => Str::slug($request->company_name) . '-' . Str::random(6),
+                    'email' => $validated->business_email,
+                    'phone' => $validated->phone_number,
+                    'status' => 'pending',
+                    'email_verified_at' => null,
+                ]);
+
+                $admin = CompanyAdmin::create([
+                    'company_id'=> $company->$id,
+                    'name' => $validated->full_name,
+                    'email' => $validated->admin_email,
+                    'password_hash' => Hash::make($validated->password),
+                    'status' => 'pending',
+                    'email_verified_at' => null,
+                ]);
+
+
+                $otp = random_int(100000, 999999);
+                Otp::create([
+                    'owner_type'=> 'company_admin',
+                    'owner_id'=> $admin->id, 
+                    'code' => $otp,
+                    'purpose' => 'email_verification',
+                    'attempts' => 0,
+                    'expires_at' => now()->addMinutes(10),
+                ]);
+
+                });
+
+                
+                return [
+                    'company_id' => $company->id,
+                    'admin_email' => $admin->email,
+                    'otp' => $otp,
+                    ];
+
+                return response()->json([
+                'success' => true,
+                'message' => 'Registration successful. Please verify your email.',
+                ]);
+            
+        }
+        catch{
+
+        }
+
+
     }
 }
