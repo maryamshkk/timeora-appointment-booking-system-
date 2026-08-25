@@ -42,6 +42,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'company_admin' => [
+            'driver' => 'sanctum',
+            'provider' => 'company_admins'
+        ]
     ],
 
     /*
@@ -67,6 +71,10 @@ return [
             'model' => env('AUTH_MODEL', User::class),
         ],
 
+        'company_admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\CompanyAdmin::class,
+        ]
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
