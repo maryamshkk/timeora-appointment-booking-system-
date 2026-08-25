@@ -28,7 +28,7 @@ return new class extends Migration
 
             $table->unsignedTinyInteger('attempts')->default(0);
             $table->timestamp('expires_at');
-            $table->timestamp('verified_at');
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
 
             $table->index(['owner_type', 'owner_id']);

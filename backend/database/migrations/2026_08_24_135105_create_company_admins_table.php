@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('name', 150);
 
             $table->string('email')->unique();
-            $table->string('pssword_hash')->required();
+            $table->string('password_hash')->required();
 
             $table->timestamp('email_verified_at')->nullable();
 
