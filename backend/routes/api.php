@@ -2,14 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\CompanyAuthController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
 
-Route::get('/test', function () {
-    return response()->json([
-        'message' => 'Timeora API is working'
+Route::post('/auth/company/register',  [
+    CompanyAuthController::class,
+        'register'
     ]);
-});

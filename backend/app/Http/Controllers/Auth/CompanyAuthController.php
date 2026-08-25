@@ -20,7 +20,8 @@ class CompanyAuthController extends Controller
 {
     public function register(Request $request)
     {
-        $validated = $request->validate(['company_name' => [
+        $validated = $request->validate([
+            'company_name' => [
                 'required'|
                 'string'|
                 'min:2'|
@@ -58,7 +59,7 @@ class CompanyAuthController extends Controller
             'full_name' => 'required|string|min:2|max:150',
             'admin_email' => 'required|email|unique:company_admins,email',
 
-                'password' =>[
+            'password' =>[
                     'required',
                     'min:8',
                     'regex:/[A-Z]/',
@@ -66,10 +67,10 @@ class CompanyAuthController extends Controller
                     'regex:/[0-9]/',
                     'regex:/[^A-Za-z0-9/]',
                 ],
-                'confirm_password' => 'required',
+            'confirm_password' => 'required',
                     'same:password',
 
-                'terms_accepted' => 
+            'terms_accepted' => 
                     'required|accepted',
         ]);
 
@@ -107,7 +108,7 @@ class CompanyAuthController extends Controller
 
                 });
 
-                
+
                 return [
                     'company_id' => $company->id,
                     'admin_email' => $admin->email,
@@ -117,10 +118,23 @@ class CompanyAuthController extends Controller
                 return response()->json([
                 'success' => true,
                 'message' => 'Registration successful. Please verify your email.',
-                ]);
+
+                'data' => [
+                    'company_id' => $result['company_id'],
+                    'admin_email' => $result['admin_email'],
+                    'otp_expires_in_seconds' => 600, 
+                ],
+                'errors' => null,
+                ], 201);
             
         }
-        catch{
+        catch(\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration failed. Please try again.',
+                'data' => null,
+                'error' => null,
+            ], 500);
 
         }
 
