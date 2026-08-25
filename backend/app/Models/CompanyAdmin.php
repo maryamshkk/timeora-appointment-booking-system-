@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 
 
-class CompanyAdmin extends Model
+class CompanyAdmin extends Authenticatable
 {
     //
 
