@@ -33,8 +33,11 @@ return new class extends Migration
             $table->index(['actor_type', 'actor_id']);
             $table->index(['target_type', 'target_id']);
 
+            $table->timestamp('created_at')->useCurrent();
+
+
             $table->index('action');
-            $table->timestamps();
+            
         });
     }
 

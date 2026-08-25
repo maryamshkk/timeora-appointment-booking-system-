@@ -39,12 +39,12 @@ class CompanyAdmin extends Model
 
     public function otps(): MorphMany
     {
-        return $this->morphMany(Otp::class);
+        return $this->morphMany(Otp::class, 'owner');
     }
 
     public function auditLogs(): MorphMany
     {
-        return $this->morphMany(AuditLog::class);
+        return $this->morphMany(AuditLog::class, 'actor');
     }
     public function getAuthPassword()
     {
