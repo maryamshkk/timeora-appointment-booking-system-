@@ -208,4 +208,33 @@ class CompanyAuthController extends Controller
             ], 200);
     }
 
+
+    // Resend Otp
+    public function resendOtp(Request $request)
+    {
+        // verufy email
+        $validated = $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        // verfiy email from admintable
+        $admin = CompanyAdmin::where('email', $request->email)->first();
+
+            if (!$admin) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid request.',
+                ], 404);
+            }
+
+        #Delete old verified OTPs
+        Otp::where('owner_type', 'company_admin')
+        ->where('owner_id', $admin->id)
+        ->where('purpose', 'email_verfication')
+        ->whereNull('verfied_at')
+        ->delete();
+
+        
+    }
+
 }
