@@ -247,6 +247,17 @@ class CompanyAuthController extends Controller
             'expires_at' => now()->addMinutes(10),
         ]);
 
+        // Send new otp 
+        Mail::raw(
+            "Your TIMEORA verification code is: {$otp}\n\nThis code will expire in 10 minutes.",
+        function ($message) use ($admin) {
+            $message->to($admin->email)
+                    ->subject('TIMEORA Email Verification Code');
+        }
+        );
+
+        
+
     }
 
 }
