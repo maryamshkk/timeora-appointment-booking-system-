@@ -7,12 +7,13 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\CompanyAdmin;
 use App\Models\Otp;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use App\Models\AuditLog;
+
 
 class CompanyAuthController extends Controller
 {
@@ -124,147 +125,143 @@ class CompanyAuthController extends Controller
         }
     }
 
-    // email +OTP
-    public function verifyOtp(Request $request)
-    {
-        // check credentials
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|digits:6',
-        ]);
+        // email +OTP
+        public function verifyOtp(Request $request)
+        {
+            $request->validate([
+                'email' => 'required|email',
+                'otp' => 'required|digits:6',
+            ]);
 
-        // check admin email from table
-        $admin = CompanyAdmin::where('email', $validated->email)->first();
+            $admin = CompanyAdmin::where('email', $request->email)->first();
 
-        // if admin doesnt exist
-        if($admin){
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid verification request',
-            ], 404);
-        }
-
-        // otp find krna
-        $otp = Otp::where('owner_type', 'company_admin')
-        ->where('owner_id', $admin->id)
-        ->where('purpose', 'email_verfication')
-        ->whereNull('verified_at')
-        ->latest()
-        ->first();
-
-        // otp time check
-        if($otp || $otp->expires_at->isPast())
-            {
+            if (!$admin) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This code is expired. Please request a new one', 
+                    'message' => 'Invalid verification request.',
+                ], 404);
+            }
+
+            $otp = Otp::where('owner_type', 'company_admin')
+                ->where('owner_id', $admin->id)
+                ->where('purpose', 'email_verification')
+                ->whereNull('verified_at')
+                ->latest()
+                ->first();
+
+            if (!$otp || $otp->expires_at->isPast()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This code has expired. Please request a new one.',
                 ], 422);
             }
 
-        // otp compare
-        if ($otp->code != $validated->otp){
-            $otp->increment('attempts');
+            if ($otp->attempts >= 5) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Too many incorrect attempts. Please request a new code.',
+                ], 422);
+            }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid code.',
-            ], 422);
-        }
-        
+            if ($otp->code != $request->otp) {
+
+                $otp->increment('attempts');
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid code.',
+                ], 422);
+            }
+
             $otp->update([
                 'verified_at' => now(),
             ]);
 
             $admin->update([
-                'email_verfied_at' => now(),
+                'email_verified_at' => now(),
                 'status' => 'active',
             ]);
 
             $admin->company->update([
-                'email_verfied_at' => now(),
+                'email_verified_at' => now(),
                 'status' => 'active',
             ]);
 
-            // log create
             AuditLog::create([
                 'actor_type' => 'company_admin',
                 'actor_id' => $admin->id,
-                'action' => 'Registered and verified Company',
+                'action' => 'Registered & Verified Company',
                 'target_type' => 'Company',
                 'target_id' => $admin->company_id,
             ]);
 
-            // create sanctum token 
-            $token = $admin->createToken('comapny-admin')->plainTextToken;
+            $token = $admin->createToken('company-admin')->plainTextToken;
 
             return response()->json([
                 'success' => true,
-                'message' => 'Email verified successfully',
+                'message' => 'Email verified successfully.',
                 'data' => [
                     'token' => $token,
-                    'company_admin' =>$admin,
+                    'company_admin' => $admin,
                     'company' => $admin->company,
                 ],
             ], 200);
-    }
+        }
 
 
     // Resend Otp
     public function resendOtp(Request $request)
-    {
-        // verufy email
-        $validated = $request->validate([
-            'email' => 'required|email',
-        ]);
+{
+    // verify email
+    $request->validate([
+        'email' => 'required|email',
+    ]);
 
-        // verfiy email from admintable
-        $admin = CompanyAdmin::where('email', $request->email)->first();
+    // verfiy email from admintable
+    $admin = CompanyAdmin::where('email', $request->email)->first();
 
-            if (!$admin) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid request.',
-                ], 404);
-            }
+    if (!$admin) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid request.',
+        ], 404);
+    }
 
-        #Delete old verified OTPs
-        Otp::where('owner_type', 'company_admin')
+    // Delete old unverified OTPs
+    Otp::where('owner_type', 'company_admin')
         ->where('owner_id', $admin->id)
-        ->where('purpose', 'email_verfication')
-        ->whereNull('verfied_at')
+        ->where('purpose', 'email_verification')
+        ->whereNull('verified_at')
         ->delete();
 
-        // generate new otp
-        $otp = random_int(100000, 999999);
+    // Generate new OTP
+    $otp = random_int(100000, 999999);
 
-        // save inn table 
-        Otp::create([
-            'owner_type' => 'company_admin',
-            'owner_id' => $admin->id,
-            'code' => $otp,
-            'purpose' => 'email_verfication',
-            'attempts' => 0,
-            'expires_at' => now()->addMinutes(10),
-        ]);
+    Otp::create([
+        'owner_type' => 'company_admin',
+        'owner_id' => $admin->id,
+        'code' => $otp,
+        'purpose' => 'email_verification',
+        'attempts' => 0,
+        'expires_at' => now()->addMinutes(10),
+    ]);
 
-        // Send new otp 
-        Mail::raw(
-            "Your TIMEORA verification code is: {$otp}\n\nThis code will expire in 10 minutes.",
+    // Send new OTP
+    Mail::raw(
+        "Your TIMEORA verification code is: {$otp}\n\nThis code will expire in 10 minutes.",
         function ($message) use ($admin) {
             $message->to($admin->email)
                     ->subject('TIMEORA Email Verification Code');
-        });
+        }
+    );
 
-        // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'A new verification code has been sent,',
-            'data' =>[
-                'otp_expires_in_seconds' => 600,
-            ],
-        ],200);
-
-
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'A new verification code has been sent.',
+        'data' => [
+            'otp_expires_in_seconds' => 600,
+        ],
+    ], 200);
+}
 
 }
