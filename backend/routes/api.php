@@ -34,7 +34,7 @@ Route::post('auth/company/resend-otp', [
 
 
 // CUSTOMER APIS
-Route::post("/auth/customer/register",[
+Route::post("auth/customer/register",[
     CustomerAuthController::class,
         'register'
 ]);

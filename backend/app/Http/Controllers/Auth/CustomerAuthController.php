@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Auth;
+use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 
 class CustomerAuthController extends Controller
@@ -12,7 +14,7 @@ class CustomerAuthController extends Controller
             'name' => 'required|string|max:150',
             'email' => 'required|email|max:150|unique:customers,email',
             'phone' => 'nullable|string|max:30',
-            
+
             'password' => [
                 'required',
                 'min:8',
@@ -35,7 +37,13 @@ class CustomerAuthController extends Controller
 
         return response()->json([
             'message' => 'Customer registered successfully.',
-            'customer' => $customer,
+            'customer' => [
+                'id' => $customer->id,
+                'name' => $customer->name,
+                'email' => $customer->email,
+                'phone' => $customer->phone,
+                'status' => $customer->status,
+            ],
         ], 201);
     }
 }
