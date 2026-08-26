@@ -10,7 +10,6 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 
-
 class CompanyAdmin extends Authenticatable
 {
     //

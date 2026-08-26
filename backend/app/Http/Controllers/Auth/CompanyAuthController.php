@@ -101,8 +101,6 @@ class CompanyAuthController extends Controller
                 }
             );
 
-
-
             return response()->json([
                 'success' => true,
                 'message' => 'Registration successful. Please verify your email.',
