@@ -8,6 +8,8 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+
+// COMPANEY APISSS
 // register page route
 Route::post('/auth/company/register',  [
     CompanyAuthController::class,
@@ -25,6 +27,9 @@ Route::post('auth/company/resend-otp', [
     CompanyAuthController::class,
         'resendOtp',
 ]);
+
+
+// CUSTOMER APIS
 
 
 

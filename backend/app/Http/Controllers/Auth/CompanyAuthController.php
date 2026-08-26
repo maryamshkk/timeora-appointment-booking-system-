@@ -264,4 +264,7 @@ class CompanyAuthController extends Controller
     ], 200);
 }
 
+    // login Api 
+    
+
 }
