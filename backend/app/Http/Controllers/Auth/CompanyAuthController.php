@@ -197,7 +197,7 @@ class CompanyAuthController extends Controller
             // create sanctum token 
             $token = $admin->createToken('comapny-admin')->plainTextToken;
 
-            return response().json([
+            return response()->json([
                 'success' => true,
                 'message' => 'Email verified successfully',
                 'data' => [
@@ -253,10 +253,17 @@ class CompanyAuthController extends Controller
         function ($message) use ($admin) {
             $message->to($admin->email)
                     ->subject('TIMEORA Email Verification Code');
-        }
-        );
+        });
 
-        
+        // return response
+        return response()->json([
+            'success' => true,
+            'message' => 'A new verification code has been sent,',
+            'data' =>[
+                'otp_expires_in_seconds' => 600,
+            ],
+        ],200);
+
 
     }
 
