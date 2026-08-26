@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\CompanyAuthController;
+use App\Http\Controllers\Auth\CustomerAuthController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -29,6 +30,12 @@ Route::post('auth/company/resend-otp', [
 ]);
 
 
-// CUSTOMER APIS
 
+
+
+// CUSTOMER APIS
+Route::post("/auth/customer/register",[
+    CustomerAuthController::class,
+        'register'
+]);
 
