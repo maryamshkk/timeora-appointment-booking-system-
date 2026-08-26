@@ -13,6 +13,19 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 150);
+            $table->string('email', 150)->unique();
+            $table->string('phone', 30)->nullable();
+
+            $table->string('password_hash', 255);
+
+            $table->string('profile_image', 255)->nullable();
+
+            $table->timestamp('email_verified_at')->nullable();
+
+            $table->enum('status', ['active', 'suspended'])
+                  ->default('active');
+
             $table->timestamps();
         });
     }
