@@ -35,12 +35,12 @@ class Company extends Model
     ];
 
     protected $casts = [ 
-        'email_verified_at' => 'array',
+        'email_verified_at' => 'datetime',
         'longitude' =>'decimal:7',
         'latitude' => 'decimal:7',
     ];
 
-    public function category(): BelongTO 
+    public function category(): BelongsTO 
     {
         return $this->belongsTo(Category::class);
     }
