@@ -27,7 +27,7 @@ class CompanyOtpMail extends Mailable
      */
     public function build(){
         return $this
-        ->subject('TIMEORA Email Verification Code');
+        ->subject('TIMEORA Email Verification Code')
         ->view('emails.company-otp')
     }
 
