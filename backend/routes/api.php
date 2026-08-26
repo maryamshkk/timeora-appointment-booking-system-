@@ -32,4 +32,3 @@ Route::post('auth/company/resend-otp', [
 // CUSTOMER APIS
 
 
-
