@@ -12,9 +12,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Models\AuditLog;
 
 class CompanyAuthController extends Controller
 {
+    // company + admin details 
     public function register(Request $request)
     {
         $request->validate([
@@ -90,6 +92,15 @@ class CompanyAuthController extends Controller
             });
 
             // OTP email will be added in the next step.
+            MAIL::raw(
+                "Your TIMEORA verification code is:{$result['otp']}\n\nThis code will expire in 10 minutes",
+                function ($message) use ($result) {
+                    $message->to($result['admin_email'])
+                            ->subject('TIMEORA Email verification Code');
+                }
+            );
+
+
 
             return response()->json([
                 'success' => true,
@@ -112,4 +123,89 @@ class CompanyAuthController extends Controller
             ], 500);
         }
     }
+
+    // email +OTP
+    public function verifyOtp(Request $request)
+    {
+        // check credentials
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
+
+        // check admin email from table
+        $admin = CompanyAdmin::where('email', $validated->email)->first();
+
+        // if admin doesnt exist
+        if($admin){
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification request',
+            ], 404);
+        }
+
+        // otp find krna
+        $otp = Otp::where('owner_type', 'company_admin')
+        ->where('owner_id', $admin->id)
+        ->where('purpose', 'email_verfication')
+        ->whereNull('verified_at')
+        ->latest()
+        ->first();
+
+        // otp time check
+        if($otp || $otp->expires_at->isPast())
+            {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This code is expired. Please request a new one', 
+                ], 422);
+            }
+
+        // otp compare
+        if ($otp->code != $validated->otp){
+            $otp->increment('attempts');
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid code.',
+            ], 422);
+        }
+        
+            $otp->update([
+                'verified_at' => now(),
+            ]);
+
+            $admin->update([
+                'email_verfied_at' => now(),
+                'status' => 'active',
+            ]);
+
+            $admin->company->update([
+                'email_verfied_at' => now(),
+                'status' => 'active',
+            ]);
+
+            // log create
+            AuditLog::create([
+                'actor_type' => 'company_admin',
+                'actor_id' => $admin->id,
+                'action' => 'Registered and verified Company',
+                'target_type' => 'Company',
+                'target_id' => $admin->company_id,
+            ]);
+
+            // create sanctum token 
+            $token = $admin->createToken('comapny-admin')->plainTextToken;
+
+            return response().json([
+                'success' => true,
+                'message' => 'Email verified successfully',
+                'data' => [
+                    'token' => $token,
+                    'company_admin' =>$admin,
+                    'company' => $admin->company,
+                ],
+            ], 200);
+    }
+
 }
