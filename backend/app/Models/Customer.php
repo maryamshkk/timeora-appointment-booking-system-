@@ -9,7 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Customer extends Authenticatable
 {
-        use HasApiTokens, Notifiable;
+        use HasApiTokens, HasFactory, Notifiable;
 
         protected $table = 'customers';
 
@@ -30,6 +30,11 @@ class Customer extends Authenticatable
         protected $casts = [
             'email_verified_at' => 'datetime',
         ];
+
+        public function otps(): MorphMany
+        {
+            return $this->morphMany(Otp::class, 'owner');
+        }
 
         public function getAuthPassword()
         {
