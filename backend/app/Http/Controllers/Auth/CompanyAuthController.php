@@ -234,7 +234,19 @@ class CompanyAuthController extends Controller
         ->whereNull('verfied_at')
         ->delete();
 
-        
+        // generate new otp
+        $otp = random_int(100000, 999999);
+
+        // save inn table 
+        Otp::create([
+            'owner_type' => 'company_admin',
+            'owner_id' => $admin->id,
+            'code' => $otp,
+            'purpose' => 'email_verfication',
+            'attempts' => 0,
+            'expires_at' => now()->addMinutes(10),
+        ]);
+
     }
 
 }
