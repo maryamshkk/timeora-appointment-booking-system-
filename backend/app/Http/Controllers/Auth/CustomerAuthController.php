@@ -33,14 +33,17 @@ class CustomerAuthController extends Controller
 
         try{
         // all details at once
-            $result = DB::transaction(function() use ($validated, &$customer) {
+            $result = DB::transaction(function() use ($validated) {
             
                 $customer = Customer::create([
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'phone' => $validated['phone'] ?? null,
                     'password_hash' => Hash::make($validated['password']),
-                    'status' => 'active',
+                    
+                    // Customer OTP verify hone tak pending rahega
+                    'status' => 'pending',
+                    'email_verified_at' => null,
                 ]);
 
 
@@ -63,14 +66,14 @@ class CustomerAuthController extends Controller
                 ];
             });
 
-            // OTP email will be added in the next step.
-            MAIL::raw(
-                "Your TIMEORA verification code is:{$result['otp']}\n\nThis code will expire in 10 minutes",
-                function ($message) use ($result) {
-                    $message->to($result['customer_email'])
-                            ->subject('TIMEORA Email verification Code');
-                }
-            );
+                // OTP email will be added in the next step.
+                MAIL::raw(
+                    "Your TIMEORA verification code is:{$result['otp']}\n\nThis code will expire in 10 minutes",
+                    function ($message) use ($result) {
+                        $message->to($result['customer_email'])
+                                ->subject('TIMEORA Email verification Code');
+                    }
+                );
 
                 return response()->json([
                     'success' => true,
