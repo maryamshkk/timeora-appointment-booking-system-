@@ -20,6 +20,12 @@ Route::post('/auth/customer/resend-otp', [AuthController::class, 'customerResend
 
 //Login
 Route::post('/auth/login', [AuthController::class, 'login']);
+
+// FORGET PASSWORD 
+Route::post('/auth/forget-password', [AuthController::class, 'forgetPassword']);
+
+
+
 // LOGOUT (Authenticated)
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 

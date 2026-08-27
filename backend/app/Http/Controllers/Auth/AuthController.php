@@ -461,12 +461,54 @@ public function login(Request $request)
         ], 200);
     }
 
+    // Forget Password
     public function forgetPassword(Request $request)
     {
         $request->validate([
             'email' => 'required'
         ]);
+        $user = User::where('email', $request->email)->first();
 
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No account found with this email.',
+                'data' => null,
+                'errors' => null,
+            ], 404);
+        }
+
+        $ownerType = $user->user_type === 'company_admin' ? 'company_admin' : 'customer';
+
+            $otp = random_int(100000, 999999);
+
+            Otp::create([
+                'owner_type' => $ownerType,
+                'owner_id' => $user->id,
+                'code' => $otp,
+                'purpose' => 'password_reset',
+                'attempts' => 0,
+                'expires_at' => now()->addMinutes(10),
+                'verified_at' => null,
+            ]);
+
+            Mail::raw(
+                "Your TIMEORA password reset code is: {$otp}\n\nThis code will expire in 10 minutes",
+                function ($message) use ($user) {
+                    $message->to($user->email)
+                            ->subject('TIMEORA Password Reset Code');
+                }
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset code sent to your email.',
+                'data' => [
+                    'email' => $user->email,
+                    'otp_expires_in_seconds' => 600,
+                ],
+                'errors' => null,
+            ], 200);
     }
 
 }
