@@ -13,10 +13,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Services\OtpService;
 
 
 class CompanyAuthController extends Controller
 {
+    
+    protected $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
+    
     // company + admin details 
     public function register(Request $request)
         {
@@ -140,40 +149,15 @@ class CompanyAuthController extends Controller
                 ], 404);
             }
 
-            $otp = Otp::where('owner_type', 'company_admin')
-                ->where('owner_id', $admin->id)
-                ->where('purpose', 'email_verification')
-                ->whereNull('verified_at')
-                ->latest()
-                ->first();
+            $result = $this->otpService->verifyOtp(
+                'company_admin',
+                $admin->id,
+                $request->otp
+            );
 
-            if (!$otp || $otp->expires_at->isPast()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This code has expired. Please request a new one.',
-                ], 422);
+            if (!$result['success']) {
+                return response()->json($result, 422);
             }
-
-            if ($otp->attempts >= 5) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Too many incorrect attempts. Please request a new code.',
-                ], 422);
-            }
-
-            if ($otp->code != $request->otp) {
-
-                $otp->increment('attempts');
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid code.',
-                ], 422);
-            }
-
-            $otp->update([
-                'verified_at' => now(),
-            ]);
 
             $admin->update([
                 'email_verified_at' => now(),
@@ -208,60 +192,61 @@ class CompanyAuthController extends Controller
 
 
     // Resend Otp
-    public function resendOtp(Request $request)
-        {
-            // verify email
-            $request->validate([
-                'email' => 'required|email',
-            ]);
+    // public function resendOtp(Request $request)
+    //     {
+    //         // verify email
+    //         $request->validate([
+    //             'email' => 'required|email',
+    //         ]);
 
-            // verfiy email from admintable
-            $admin = CompanyAdmin::where('email', $request->email)->first();
+    //         // verfiy email from admintable
+    //         $admin = CompanyAdmin::where('email', $request->email)->first();
 
-            if (!$admin) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid request.',
-                ], 404);
-            }
+    //         if (!$admin) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Invalid request.',
+    //             ], 404);
+    //         }
 
-            // Delete old unverified OTPs
-            Otp::where('owner_type', 'company_admin')
-                ->where('owner_id', $admin->id)
-                ->where('purpose', 'email_verification')
-                ->whereNull('verified_at')
-                ->delete();
+    //         // Delete old unverified OTPs
+    //         Otp::where('owner_type', 'company_admin')
+    //             ->where('owner_id', $admin->id)
+    //             ->where('purpose', 'email_verification')
+    //             ->whereNull('verified_at')
+    //             ->delete();
 
-            // Generate new OTP
-            $otp = random_int(100000, 999999);
+    //         // Generate new OTP
+    //         $otp = random_int(100000, 999999);
 
-            Otp::create([
-                'owner_type' => 'company_admin',
-                'owner_id' => $admin->id,
-                'code' => $otp,
-                'purpose' => 'email_verification',
-                'attempts' => 0,
-                'expires_at' => now()->addMinutes(10),
-            ]);
+    //         Otp::create([
+    //             'owner_type' => 'company_admin',
+    //             'owner_id' => $admin->id,
+    //             'code' => $otp,
+    //             'purpose' => 'email_verification',
+    //             'attempts' => 0,
+    //             'expires_at' => now()->addMinutes(10),
+    //         ]);
 
-            // Send new OTP
-            Mail::raw(
-                "Your TIMEORA verification code is: {$otp}\n\nThis code will expire in 10 minutes.",
-                function ($message) use ($admin) {
-                    $message->to($admin->email)
-                            ->subject('TIMEORA Email Verification Code');
-                }
-            );
+    //         // Send new OTP
+    //         Mail::raw(
+    //             "Your TIMEORA verification code is: {$otp}\n\nThis code will expire in 10 minutes.",
+    //             function ($message) use ($admin) {
+    //                 $message->to($admin->email)
+    //                         ->subject('TIMEORA Email Verification Code');
+    //             }
+    //         );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'A new verification code has been sent.',
-                'data' => [
-                    'otp_expires_in_seconds' => 600,
-                ],
-            ], 200);
-        }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'A new verification code has been sent.',
+    //             'data' => [
+    //                 'otp_expires_in_seconds' => 600,
+    //             ],
+    //         ], 200);
+    //     }
 
+    
     // login Api 
     
 
