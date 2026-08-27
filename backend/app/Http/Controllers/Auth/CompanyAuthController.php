@@ -192,59 +192,38 @@ class CompanyAuthController extends Controller
 
 
     // Resend Otp
-    // public function resendOtp(Request $request)
-    //     {
-    //         // verify email
-    //         $request->validate([
-    //             'email' => 'required|email',
-    //         ]);
+    public function resendOtp(Request $request)
+        {
+            // verify email
+            $request->validate([
+                'email' => 'required|email',
+            ]);
 
-    //         // verfiy email from admintable
-    //         $admin = CompanyAdmin::where('email', $request->email)->first();
+            // verfiy email from admintable
+            $admin = CompanyAdmin::where('email', $request->email)->first();
 
-    //         if (!$admin) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'Invalid request.',
-    //             ], 404);
-    //         }
+            if (!$admin) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid request.',
+                ], 404);
+            }
 
-    //         // Delete old unverified OTPs
-    //         Otp::where('owner_type', 'company_admin')
-    //             ->where('owner_id', $admin->id)
-    //             ->where('purpose', 'email_verification')
-    //             ->whereNull('verified_at')
-    //             ->delete();
-
-    //         // Generate new OTP
-    //         $otp = random_int(100000, 999999);
-
-    //         Otp::create([
-    //             'owner_type' => 'company_admin',
-    //             'owner_id' => $admin->id,
-    //             'code' => $otp,
-    //             'purpose' => 'email_verification',
-    //             'attempts' => 0,
-    //             'expires_at' => now()->addMinutes(10),
-    //         ]);
-
-    //         // Send new OTP
-    //         Mail::raw(
-    //             "Your TIMEORA verification code is: {$otp}\n\nThis code will expire in 10 minutes.",
-    //             function ($message) use ($admin) {
-    //                 $message->to($admin->email)
-    //                         ->subject('TIMEORA Email Verification Code');
-    //             }
-    //         );
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'A new verification code has been sent.',
-    //             'data' => [
-    //                 'otp_expires_in_seconds' => 600,
-    //             ],
-    //         ], 200);
-    //     }
+              // New OTP generate + old OTP delete + DB save + email send
+                $this->otpService->sendOtp(
+                    'company_admin',
+                    $admin->id,
+                    $admin->email
+                );
+            return response()->json([
+                'success' => true,
+                'message' => 'A new verification code has been sent.',
+                'data' => [
+                    'admin_email' => $admin->email,
+                    'otp_expires_in_seconds' => 600,
+                ],
+            ], 200);
+        }
 
     
     // login Api 
