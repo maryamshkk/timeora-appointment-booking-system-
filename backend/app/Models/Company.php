@@ -7,48 +7,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
 class Company extends Model
 {
-    
     use HasFactory;
 
     protected $fillable = [
         'category_id',
         'name',
-        'slug',
-        'logo_path',
-        'description',
         'email',
         'phone',
-        'website',
         'address',
-        'city',
-        'country',
-        'latitude',
-        'longitude',
         'timezone',
-        'currency',
         'status',
-        'suspended_reason',
         'email_verified_at',
     ];
 
-    protected $casts = [ 
+    protected $casts = [
         'email_verified_at' => 'datetime',
-        'longitude' =>'decimal:7',
-        'latitude' => 'decimal:7',
     ];
 
-    public function category(): BelongsTO 
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
     public function admins(): HasMany
     {
-        return $this->hasMany(CompanyAdmin::class);
+        return $this->hasMany(User::class, 'company_id')->where('user_type', 'company_admin');
     }
-
-
 }

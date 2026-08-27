@@ -6,10 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-
 class Otp extends Model
 {
-    //
     use HasFactory;
 
     protected $fillable = [
@@ -22,18 +20,16 @@ class Otp extends Model
         'verified_at',
     ];
 
-    protected $hidden = [
-        'code'
-    ];
-
-    protected $casts = [
-        'expires_at' => 'datetime',
-        'verified_at' => 'datetime'
-    ];
+    protected function casts(): array
+    {
+        return [
+            'expires_at' => 'datetime',
+            'verified_at' => 'datetime',
+        ];
+    }
 
     public function owner(): MorphTo
     {
         return $this->morphTo();
     }
-
 }
