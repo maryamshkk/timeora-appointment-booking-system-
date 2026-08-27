@@ -23,6 +23,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
 // FORGET PASSWORD 
 Route::post('/auth/forget-password', [AuthController::class, 'forgetPassword']);
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 
 

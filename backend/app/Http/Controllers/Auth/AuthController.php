@@ -511,4 +511,57 @@ public function login(Request $request)
             ], 200);
     }
 
+    // RESET PASSWORD
+public function resetPassword(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'otp' => 'required|digits:6',
+        'password' => [
+            'required',
+            'min:8',
+            'regex:/[A-Z]/',
+            'regex:/[a-z]/',
+            'regex:/[0-9]/',
+            'regex:/[^A-Za-z0-9]/',
+        ],
+        'password_confirmation' => 'required|same:password',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No account found with this email.',
+            'data' => null,
+            'errors' => null,
+        ], 404);
+    }
+
+    $result = $this->otpService->verifyOtp(
+        $user->email,
+        $user->id,
+        $request->otp,
+        'password_reset'
+    );
+
+    if (!$result['success']) {
+        return response()->json($result, 422);
+    }
+
+    $user->update([
+        'password' => Hash::make($request->password),
+    ]);
+
+    // Delete all tokens after password reset
+    $user->tokens()->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Password reset successfully. Please login with your new password.',
+        'data' => null,
+        'errors' => null,
+    ], 200);
+}
 }
