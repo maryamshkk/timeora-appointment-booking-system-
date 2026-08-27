@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
+
+            $table->string('name', 150);
+
+            // Service is provided by company
+            // Null = global/default service
+
+            $table->foreignId("company_id")
+                ->nullable()
+                ->constrained('companies')
+                ->cascadeOnDelete();
+                
             $table->timestamps();
         });
     }
