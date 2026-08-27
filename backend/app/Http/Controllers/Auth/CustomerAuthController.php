@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Services\OtpService;
 
 class CustomerAuthController extends Controller
 {
@@ -97,5 +98,54 @@ class CustomerAuthController extends Controller
                     ], 500);
 
             };
-}
+    }
+
+    protected $otpService;
+
+    public function __construct(OtpService $otpService)
+    {
+        $this->otpService = $otpService;
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
+
+        $customer = Customer::where('email', $request->email)->first();
+
+        if (!$customer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification request.',
+            ], 404);
+        }
+
+        $result = $this->otpService->verifyOtp(
+            'customer',
+            $customer->id,
+            $request->otp
+        );
+
+        if (!$result['success']) {
+            return response()->json($result, 422);
+        }
+
+        $customer->update([
+            'email_verified_at' => now(),
+        ]);
+
+        $token = $customer->createToken('customer')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email verified successfully.',
+            'data' => [
+                'token' => $token,
+                'customer' => $customer,
+            ],
+        ], 200);
+    }
 }

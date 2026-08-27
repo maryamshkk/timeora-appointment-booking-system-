@@ -39,3 +39,8 @@ Route::post("auth/customer/register",[
         'register'
 ]);
 
+// verify otp 
+Route::post('auth/customer/verifyOtp',[
+    CustomerAuthController::class,
+        'verifyOtp'
+]);
