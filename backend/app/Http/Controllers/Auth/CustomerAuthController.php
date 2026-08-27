@@ -135,6 +135,7 @@ class CustomerAuthController extends Controller
 
         $customer->update([
             'email_verified_at' => now(),
+            'status' => 'active'
         ]);
 
         $token = $customer->createToken('customer')->plainTextToken;
@@ -148,4 +149,34 @@ class CustomerAuthController extends Controller
             ],
         ], 200);
     }
+
+    // public function resendOtp(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //     ]);
+
+    //     $customer = Customer::where('email', $request->email)->first();
+
+    //     if (!$customer) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Invalid request.',
+    //         ], 404);
+    //     }
+
+    //     $this->otpService->sendOtp(
+    //         'customer',
+    //         $customer->id,
+    //         $customer->email
+    //     );
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'A new verification code has been sent.',
+    //         'data' => [
+    //             'otp_expires_in_seconds' => 600,
+    //         ],
+    //     ], 200);
+    // }
 }

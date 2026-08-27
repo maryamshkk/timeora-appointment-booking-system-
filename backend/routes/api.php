@@ -40,7 +40,13 @@ Route::post("auth/customer/register",[
 ]);
 
 // verify otp 
-Route::post('auth/customer/verifyOtp',[
+Route::post('auth/customer/verify-otp',[
     CustomerAuthController::class,
-        'verifyOtp'
+        'verifyOtp',
+]);
+
+// resend-otp
+Route::post('auth/customer/resend-otp',[
+    CustomerAuthController::class,
+        'resendOtp',
 ]);
