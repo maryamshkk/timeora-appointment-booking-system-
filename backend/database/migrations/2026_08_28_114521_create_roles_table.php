@@ -11,18 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('services', function (Blueprint $table) {
+        Schema::create('roles', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name', 150);
+             $table->string('name', 100);
 
-            // Service is provided by company
-            // Null = global/default service
-
-            $table->foreignId("company_id")
-                ->nullable()
+            $table->foreignId('company_id')
                 ->constrained('companies')
                 ->cascadeOnDelete();
+
                 
             $table->timestamps();
         });
@@ -33,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('services');
+        Schema::dropIfExists('roles');
     }
 };
