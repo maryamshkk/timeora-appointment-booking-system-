@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Role;
+
 
 class RoleController extends Controller
 {
@@ -10,7 +12,7 @@ class RoleController extends Controller
     {
         $roles=Role::where(
             'company_id',
-            $auth()->user->company_id
+            $auth()->user()->company_id
         )->get();
 
         return response()->json([
