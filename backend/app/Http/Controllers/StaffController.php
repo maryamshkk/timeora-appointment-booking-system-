@@ -15,7 +15,7 @@ class StaffController extends Controller
             // Personal Information
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'photo_path' => 'nullable|image|max:2048',
+            'photo' => 'nullable|image|max:2048',
 
             // Professional Information
             'role_id' => 'required|exists:roles,id',
@@ -28,12 +28,20 @@ class StaffController extends Controller
              // Account Information
             'account_email' => 'required|email|max:150|unique:staff,account_email',
 
-            
+            // Availability
+            'availability' => 'required|array|min:1',
+            'availability.*.day_group' => 'required|string|max:20',
+            'availability.*.start_time' => 'nullable|date_format:H:i',
+            'availability.*.end_time' => 'nullable|date_format:H:i',
+            'availability.*.is_off' => 'required|boolean',
+
+
         ]);
 
         $companyId = auth()->user()->company_id;
 
         $staff = DB::transaction(function () use ($request, $companyId) {
+        
         // Generate Staff ID
         $lastStaff = Staff::where('company_id', $companyId)
                 ->latest('id')
@@ -42,6 +50,7 @@ class StaffController extends Controller
         $number = $lastStaff ? ((int) str_replace('STF-', '', $lastStaff->staff_id))+1 : 1;
 
         $staffId = 'STF-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+
 
         // Create staff
         $staff = Staff::create([
@@ -68,6 +77,16 @@ class StaffController extends Controller
 
         // Assign services
         $staff->services()->sync($request->service_ids);
+
+        //Create Availability
+        foreach($request->availability as $availability){
+            $staff->availability()->create([
+                'day_group' => $availability['day_group'],
+                    'start_time' => $availability['start_time'] ?? null,
+                    'end_time' => $availability['end_time'] ?? null,
+                    'is_off' => $availability['is_off'],
+            ]);
+        }
 
         return $staff;
     });

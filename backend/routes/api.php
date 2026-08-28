@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\StaffController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -50,5 +51,9 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-// 
+// Staff Route
+Route::middleware('auth:sanctum')->group(function () {
 
+    Route::post('/staff', [StaffController::class, 'store']);
+
+});

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\StaffAvailability;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class Staff extends Model
 {
