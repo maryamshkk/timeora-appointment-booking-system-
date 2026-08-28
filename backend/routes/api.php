@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ServiceController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -40,6 +41,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/roles', [RoleController::class, 'index']);
     Route::post('/roles', [RoleController::class, 'store']);
 });
+
+
+// Add Services
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/services', [ServiceController::class, 'index']);
+    Route::post('/services', [ServiceController::class, 'store']);
+});
+
 
 // 
 
