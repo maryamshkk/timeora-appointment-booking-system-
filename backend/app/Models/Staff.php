@@ -18,16 +18,58 @@ class Staff extends Model
         'phone',
         'account_email',
         'password_hash',
-        'title',
         'bio',
-        'experience_years',
-        'rating_avg',
         'invitation_status',
         'invitation_token',
         'invitation_sent_at',
-        'invitation_accepted_at',
         'email_verified_at',
         'status',
         'is_active',
     ];
+
+    protected $hidden = [
+        'password_hash',
+        'invitation_token',
+    ];
+
+    protected $casts = [
+        'invitation_sent_at' => 'datetime',
+        'email_verified_at' => 'datetime',
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * Staff belongs to a company.
+     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Staff belongs to a role.
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Staff can provide many services.
+     */
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Service::class,
+            'staff_service'
+        );
+    }
+
+    /**
+     * Staff has many availability records.
+     */
+    public function availability(): HasMany
+    {
+        return $this->hasMany(StaffAvailability::class);
+    }
 }
