@@ -3,20 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Role;
+use App\Models\Service;
 
-
-class RoleController extends Controller
+class ServiceController extends Controller
 {
     public function index()
     {
-        $roles=Role::where(
+        $services = Service::where(
             'company_id',
             auth()->user()->company_id
         )->get();
 
         return response()->json([
-            'data'=> $roles
+            'data'=> $services
         ]);
     }
 
@@ -26,14 +25,14 @@ class RoleController extends Controller
             'name' => 'required|string|max:100',
         ]);
 
-        $role = Role::create([
+        $service = Service::create([
             'name' => $validated['name'],
             'company_id' => auth()->user()->company_id,
         ]);
 
         return response()->json([
-            'message' => 'Role created Successfully',
-            'data' => $role,
+            'message' => 'Service created Successfully',
+            'data' => $service,
         ], 201);
 
     }
