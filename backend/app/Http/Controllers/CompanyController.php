@@ -33,4 +33,21 @@ class CompanyController extends Controller
             ], 200);
     }
 
+    public function update(Request $request)
+    {
+        $user = $request->user();
+
+        $company = $user->company;
+
+        // 
+        if (!$company) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Company not found.',
+            'data' => null,
+            'errors' => null,
+        ], 404);
+    }
+    }
+
 }
