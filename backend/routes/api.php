@@ -11,60 +11,66 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// COMPANY APIS
+// ===============================
+// COMPANY REGISTRATION
+// ===============================
+
 Route::post('/auth/company/register', [AuthController::class, 'companyRegister']);
 Route::post('/auth/company/verify-otp', [AuthController::class, 'companyVerifyOtp']);
 Route::post('/auth/company/resend-otp', [AuthController::class, 'companyResendOtp']);
 
-// CUSTOMER APIS
+
+// ===============================
+// CUSTOMER REGISTRATION
+// ===============================
 Route::post('/auth/customer/register', [AuthController::class, 'customerRegister']);
 Route::post('/auth/customer/verify-otp', [AuthController::class, 'customerVerifyOtp']);
 Route::post('/auth/customer/resend-otp', [AuthController::class, 'customerResendOtp']);
 
-//Login
+
+// ===============================
+// LOGIN
+// ===============================
+
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-// FORGET PASSWORD 
+// ===============================
+// PASSWORD
+// ===============================
+
 Route::post('/auth/forget-password', [AuthController::class, 'forgetPassword']);
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 
 
-// LOGOUT (Authenticated)
-Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+// ===============================
+// AUTHENTICATED
+// ===============================
 
-Route::middleware(['auth:sanctum', 'role:company_admin'])
-        ->prefix('company')
-        ->group(function() {
 
-        // PROFILE (Authenticated)
-        Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
-
-        // Add Services
-        Route::get('/services', [ServiceController::class, 'index']);
-        Route::post('/services', [ServiceController::class, 'store']);
-
-        // Add Roles
-        Route::get('/roles', [RoleController::class, 'index']);
-        Route::post('/roles', [RoleController::class, 'store']);
-
-        Route::post('/staff', [StaffController::class, 'store']);
-
-    });
-
-        
-
-// Add Roles
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+    Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
+
 });
 
+// ===============================
+// COMPANY ADMIN APIS
+// ===============================
 
+Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
+    // Roles
+    Route::get('/roles', [RoleController::class, 'index']);
+    Route::post('/roles', [RoleController::class, 'store']);
 
+    // Services
+    Route::get('/services', [ServiceController::class, 'index']);
+    Route::post('/services', [ServiceController::class, 'store']);
 
-// Staff Route
-Route::middleware('auth:sanctum')->group(function () {
-
+    // Staff
     Route::post('/staff', [StaffController::class, 'store']);
 
 });
