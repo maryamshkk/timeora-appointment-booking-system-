@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Validation\Rule;
 
 class StaffController extends Controller
 {
@@ -18,10 +18,23 @@ class StaffController extends Controller
             'photo' => 'nullable|image|max:2048',
 
             // Professional Information
-            'role_id' => 'required|exists:roles,id',
+            
+            'role_id' => [
+                        'required',
+                        Rule::exists('roles','id')
+                        ->where(function ($query){
+                            $query->where('company_id', auth()->user()->company_id);
+                        }),
+            ],
+            
+            'service_ids' => ['nullable', 'array'],
 
-            'service_ids' => 'required|array|min:1',
-            'service_ids.*' => 'exists:services,id',
+            'service_ids.*' => ['exists:services,id',
+                                Rule::exists('services', 'id')
+                                ->where(function ($query) {
+                                    $query->where('company_id', auth()->user()->company_id);
+                                })
+                            ],
 
             // Contact Information
             'phone' => 'required|string|max:30',
