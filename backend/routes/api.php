@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\CompanyController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -61,6 +62,9 @@ Route::middleware('auth:sanctum')->group(function () {
 // ===============================
 
 Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
+
+    // Get company profile data
+    Route::get('/company', [CompanyController::class, 'show']);
 
     // Roles
     Route::get('/roles', [RoleController::class, 'index']);

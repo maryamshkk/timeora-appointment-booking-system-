@@ -11,7 +11,7 @@ class CompanyController extends Controller
     {
         $user = $request->user();
 
-        $company = $request->company();
+        $company = $user->company;
 
         if(!$company)
             {
@@ -32,5 +32,5 @@ class CompanyController extends Controller
                 'errors' => null,
             ], 200);
     }
-    
+
 }
