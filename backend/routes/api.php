@@ -33,22 +33,33 @@ Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 // LOGOUT (Authenticated)
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-// PROFILE (Authenticated)
-Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
+Route::middleware(['auth:sanctum', 'role:company_admin'])
+        ->prefix('company')
+        ->group(function() {
 
+        // PROFILE (Authenticated)
+        Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
+
+        // Add Services
+        Route::get('/services', [ServiceController::class, 'index']);
+        Route::post('/services', [ServiceController::class, 'store']);
+
+        // Add Roles
+        Route::get('/roles', [RoleController::class, 'index']);
+        Route::post('/roles', [RoleController::class, 'store']);
+
+        Route::post('/staff', [StaffController::class, 'store']);
+
+    });
+
+        
 
 // Add Roles
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/roles', [RoleController::class, 'index']);
-    Route::post('/roles', [RoleController::class, 'store']);
 });
 
 
-// Add Services
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/services', [ServiceController::class, 'index']);
-    Route::post('/services', [ServiceController::class, 'store']);
-});
+
 
 
 // Staff Route

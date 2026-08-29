@@ -7,7 +7,7 @@ use App\Models\StaffAvailability;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Staff extends Model
 {
