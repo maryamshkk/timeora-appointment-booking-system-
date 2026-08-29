@@ -65,6 +65,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
     // Get company profile data
     Route::get('/company', [CompanyController::class, 'show']);
+    Route::put('/company', [CompanyController::class, 'update']);
 
     // Roles
     Route::get('/roles', [RoleController::class, 'index']);
