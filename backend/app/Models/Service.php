@@ -13,6 +13,11 @@ class Service extends Model
     protected $fillable = [
         'name',
         'company_id',
+        'category_id',
+        'description',
+        'duration',
+        'price',
+        'status',
     ];
 
     /**
@@ -23,6 +28,10 @@ class Service extends Model
         return $this->belongTo(Company::class);
     }
 
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
     // Service can belong to staff members
     public function staff(): BelongsToMany
     {
