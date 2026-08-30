@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Service;
+use Illuminate\Validation\Rule;
 
 class ServiceController extends Controller
 {
@@ -28,12 +29,25 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:categories,id',
+
+            'category_id' => ['nullable',
+                            Rule::exists('categories','id')
+            ],
+
             'duration' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'status' => 'nullable|in:active,disabled',
+
             'staff_ids' => 'nullable|array',
-            'staff_ids.*' => 'exists:staff,id',
+            'staff_ids.*' => [
+                    Rule::exists('staff','id')
+                    ->where(function ($query){
+                        $query->where(
+                            'company_id',
+                            auth()->user()->company_id,
+                        );
+                    }),
+                    ],
         ]);
 
         $service = Service::create([
@@ -105,8 +119,16 @@ class ServiceController extends Controller
         'price' => 'sometimes|numeric|min:0',
         'status' => 'sometimes|in:active,disabled',
         'staff_ids' => 'nullable|array',
-        'staff_ids.*' => 'exists:staff,id',
-    ]);
+        'staff_ids.*' => [
+        Rule::exists('staff','id')
+            ->where(function ($query){
+                $query->where(
+                    'company_id',
+                    auth()->user()->company_id
+                );
+            }),  
+        ]
+        ]);
 
         $service->update($validated);
 
