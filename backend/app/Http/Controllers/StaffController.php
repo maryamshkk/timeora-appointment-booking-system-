@@ -283,4 +283,62 @@ class StaffController extends Controller
         ], 200);
 
     }
+
+    // RESTORE USER
+    public function restore($id)
+{
+    $companyId = auth()->user()->company_id;
+
+    $staff = Staff::withTrashed()
+        ->where('company_id', $companyId)
+        ->find($id);
+
+    if (!$staff) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Staff not found.',
+            'data' => null,
+        ], 404);
+    }
+
+    $staff->restore();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Staff restored successfully.',
+        'data' => $staff->fresh()->load(
+            'role',
+            'services',
+            'availability'
+        ),
+    ], 200);
+}
+    // DELETE STAFF MEMEBER 
+    public function destroy($id)
+    {
+        // get id
+        $staff = Staff::where(
+            'company_id',
+            auth()->user()->company_id
+        )->find($id);
+
+        // if not found
+        if (!$staff) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Staff not found.',
+            'data' => null,
+        ], 404);
+        }
+
+        $staff->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff deleted successfully.',
+            'data' => null,
+        ], 200);
+    
+
+    }
 }
