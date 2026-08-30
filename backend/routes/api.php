@@ -72,8 +72,9 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::post('/roles', [RoleController::class, 'store']);
 
     // Services
-    Route::get('/services', [ServiceController::class, 'index']);
-    Route::post('/services', [ServiceController::class, 'store']);
+    Route::get('/company/services', [ServiceController::class, 'index']);
+    Route::post('/company/services', [ServiceController::class, 'store']);
+    Route::get('/company/services/{service}', [ServiceController::class, 'show']);
 
     // Staff
     Route::post('/staff', [StaffController::class, 'store']);

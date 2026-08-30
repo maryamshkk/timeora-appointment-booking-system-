@@ -57,4 +57,27 @@ class ServiceController extends Controller
         ], 201);
 
     }
+
+    // GET SINGLE SERVICE
+    public function show($id)
+    {
+        $service = Service::where('company_id', 
+                    auth()->user()->company_id)
+                    ->with('category', 'staff')
+                    ->find($id);
+
+                    if(!$service)
+                        {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Service not found',
+                                'data' => null,
+                            ], 404);
+                        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Service fetched sucessfully',
+            'data' => $service,
+        ]);
+    }
 }
