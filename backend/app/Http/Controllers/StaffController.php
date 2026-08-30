@@ -29,6 +29,8 @@ class StaffController extends Controller
     // CREATE STAFF MEMBER
     public function store(Request $request)
     {
+        $companyId = auth()->user()->company_id;
+
         $request->validate([
             // Personal Information
             'first_name' => 'required|string|max:100',
@@ -38,21 +40,21 @@ class StaffController extends Controller
             // Professional Information
             
             'role_id' => [
-                        'required',
-                        Rule::exists('roles','id')
-                        ->where(function ($query){
-                            $query->where('company_id', auth()->user()->company_id);
-                        }),
+                'required',
+                Rule::exists('roles','id')
+                    ->where(function ($query) use ($companyId){
+                    $query->where('company_id', $companyId);
+                }),
             ],
             
             'service_ids' => ['nullable', 'array'],
 
-            'service_ids.*' => ['exists:services,id',
-                                Rule::exists('services', 'id')
-                                ->where(function ($query) {
-                                    $query->where('company_id', auth()->user()->company_id);
-                                })
-                            ],
+            'service_ids.*' => [
+                    Rule::exists('services', 'id')
+                    ->where(function ($query) use ($companyId){
+                    $query->where('company_id', $companyId);
+                    }),
+                ],
 
             // Contact Information
             'phone' => 'required|string|max:30',
@@ -61,15 +63,15 @@ class StaffController extends Controller
 
             // Availability
             'availability' => 'required|array|min:1',
+
             'availability.*.day_group' => 'required|string|max:20',
-            'availability.*.start_time' => 'nullable|date_format:H:i',
-            'availability.*.end_time' => 'nullable|date_format:H:i',
+
+            'availability.*.start_time' => ['nullable', 'date_format:H:i'],
+
+            'availability.*.end_time' => ['nullable', 'date_format:H:i'],
+
             'availability.*.is_off' => 'required|boolean',
-
-
         ]);
-
-            $companyId = auth()->user()->company_id;
 
             $staff = DB::transaction(function () use ($request, $companyId) {
             
@@ -78,7 +80,9 @@ class StaffController extends Controller
                     ->latest('id')
                     ->first();
 
-            $number = $lastStaff ? ((int) str_replace('STF-', '', $lastStaff->staff_id))+1 : 1;
+            $number = $lastStaff 
+                        ? ((int) str_replace('STF-', '', $lastStaff->staff_id))+1 
+                        : 1;
 
             $staffId = 'STF-' . str_pad($number, 4, '0', STR_PAD_LEFT);
 
@@ -98,12 +102,13 @@ class StaffController extends Controller
 
             // Upload Photo 
             if ($request->hasFile('photo')) {
+
                 $path = $request->file('photo')
                         ->store('staff/photos', 'public');
 
-                    $staff->update([
-                        'photo_path' => $path,
-                    ]);
+                $staff->update([
+                    'photo_path' => $path,
+                ]);
             }
 
             // Assign services
@@ -111,11 +116,12 @@ class StaffController extends Controller
 
             //Create Availability
             foreach($request->availability as $availability){
+                
                 $staff->availability()->create([
                     'day_group' => $availability['day_group'],
-                        'start_time' => $availability['start_time'] ?? null,
-                        'end_time' => $availability['end_time'] ?? null,
-                        'is_off' => $availability['is_off'],
+                    'start_time' => $availability['start_time'] ?? null,
+                    'end_time' => $availability['end_time'] ?? null,
+                    'is_off' => $availability['is_off'],
                 ]);
             }
 
@@ -123,8 +129,13 @@ class StaffController extends Controller
             });
 
         return response()->json([
+            'sucsess' => true,
             'message' => 'Staff created Successfully',
-            'data' => $staff
+            'data' => $staff->load(
+                'role',
+                'services',
+                'availability'
+            )
         ], 201);
 
     }
