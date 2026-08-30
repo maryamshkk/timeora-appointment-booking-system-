@@ -9,7 +9,25 @@ use Illuminate\Validation\Rule;
 
 class StaffController extends Controller
 {
-     public function store(Request $request)
+    // GET STAFF DATA
+    public function index()
+    {
+        $staff = Staff::where(
+            'company_id',
+            auth()->user()->company_id,
+        )
+        ->with('role', 'services')
+        ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff fetched successfully.',
+            'data' => $staff,
+        ]);
+    }
+
+    // CREATE STAFF MEMBER
+    public function store(Request $request)
     {
         $request->validate([
             // Personal Information
@@ -51,63 +69,65 @@ class StaffController extends Controller
 
         ]);
 
-        $companyId = auth()->user()->company_id;
+            $companyId = auth()->user()->company_id;
 
-        $staff = DB::transaction(function () use ($request, $companyId) {
-        
-        // Generate Staff ID
-        $lastStaff = Staff::where('company_id', $companyId)
-                ->latest('id')
-                ->first();
+            $staff = DB::transaction(function () use ($request, $companyId) {
+            
+            // Generate Staff ID
+            $lastStaff = Staff::where('company_id', $companyId)
+                    ->latest('id')
+                    ->first();
 
-        $number = $lastStaff ? ((int) str_replace('STF-', '', $lastStaff->staff_id))+1 : 1;
+            $number = $lastStaff ? ((int) str_replace('STF-', '', $lastStaff->staff_id))+1 : 1;
 
-        $staffId = 'STF-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+            $staffId = 'STF-' . str_pad($number, 4, '0', STR_PAD_LEFT);
 
 
-        // Create staff
-        $staff = Staff::create([
-            'company_id' => $companyId,
-            'staff_id' => $staffId,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'role_id' => $request->role_id,
-            'phone' => $request->phone,
-            'account_email' => $request->account_email,
-            'status' => 'pending',
-            'is_active' => true,
-        ]);
-
-        // Upload Photo 
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')
-                    ->store('staff/photos', 'public');
-
-                $staff->update([
-                    'photo_path' => $path,
-                ]);
-        }
-
-        // Assign services
-        $staff->services()->sync($request->service_ids);
-
-        //Create Availability
-        foreach($request->availability as $availability){
-            $staff->availability()->create([
-                'day_group' => $availability['day_group'],
-                    'start_time' => $availability['start_time'] ?? null,
-                    'end_time' => $availability['end_time'] ?? null,
-                    'is_off' => $availability['is_off'],
+            // Create staff
+            $staff = Staff::create([
+                'company_id' => $companyId,
+                'staff_id' => $staffId,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'role_id' => $request->role_id,
+                'phone' => $request->phone,
+                'account_email' => $request->account_email,
+                'status' => 'pending',
+                'is_active' => true,
             ]);
-        }
 
-        return $staff;
-    });
+            // Upload Photo 
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')
+                        ->store('staff/photos', 'public');
 
-    return response()->json([
-        'message' => 'Staff created Successfully',
-        'data' => $staff
-    ], 201);
+                    $staff->update([
+                        'photo_path' => $path,
+                    ]);
+            }
+
+            // Assign services
+            $staff->services()->sync($request->service_ids);
+
+            //Create Availability
+            foreach($request->availability as $availability){
+                $staff->availability()->create([
+                    'day_group' => $availability['day_group'],
+                        'start_time' => $availability['start_time'] ?? null,
+                        'end_time' => $availability['end_time'] ?? null,
+                        'is_off' => $availability['is_off'],
+                ]);
+            }
+
+            return $staff;
+            });
+
+        return response()->json([
+            'message' => 'Staff created Successfully',
+            'data' => $staff
+        ], 201);
 
     }
+
+    // 
 }

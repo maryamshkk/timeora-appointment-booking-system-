@@ -68,8 +68,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::put('/company', [CompanyController::class, 'update']);
 
     // Roles
-    Route::get('/roles', [RoleController::class, 'index']);
-    Route::post('/roles', [RoleController::class, 'store']);
+    Route::get('/company/roles', [RoleController::class, 'index']);
+    Route::post('/company/roles', [RoleController::class, 'store']);
 
     // Services
     Route::get('/company/services', [ServiceController::class, 'index']);
@@ -80,6 +80,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
 
     // Staff
-    Route::post('/staff', [StaffController::class, 'store']);
+    Route::get('/company/staff', [StaffController::class, 'index']);
+    Route::post('/company/staff', [StaffController::class, 'store']);
 
 });
