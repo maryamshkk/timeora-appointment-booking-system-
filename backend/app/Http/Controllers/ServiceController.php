@@ -39,7 +39,17 @@ class ServiceController extends Controller
         $service = Service::create([
             'name' => $validated['name'],
             'company_id' => auth()->user()->company_id,
+            'description' => $validated['description'] ?? null,
+            'category_id' => $validated['category_id'] ?? null,
+            'duration' => $validated['duration'],
+            'price' => $validated['price'],
+            'status' => $validated['status'] ?? 'active',
         ]);
+
+        // Assign staff
+        if(!empty($validated['staff_ids'])) {
+            $service->staff()->sync($validated['staff_ids']);
+        }
 
         return response()->json([
             'message' => 'Service created Successfully',
