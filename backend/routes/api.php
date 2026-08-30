@@ -82,5 +82,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     // Staff
     Route::get('/company/staff', [StaffController::class, 'index']);
     Route::post('/company/staff', [StaffController::class, 'store']);
+    Route::get('/company/staff/{id}', [StaffController::class, 'show']);
+    Route::put('/company/staff/{id}', [StaffController::class, 'update']);
 
 });

@@ -140,5 +140,147 @@ class StaffController extends Controller
 
     }
 
-    // 
+    // GET SINGLE STAFF RECORD 
+    public function show($id)
+    {
+        $staff = Staff::where(
+            'company_id',
+            auth()->user()->company_id
+        )
+        ->with('role', 'services', 'availability')
+        ->find($id);
+
+        if (!$staff) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff not found.',
+                'data' => null,
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff fetched successfully.',
+            'data' => $staff,
+        ], 200);
+
+
+    }
+
+    // UPDATE STAFF MEMBER 
+    public function update(Request $request, $id)
+    {
+        $companyId = auth()->user()->company_id;
+
+        $staff = Staff::where('company_id', $companyId)->find($id);
+
+        if(!$staff) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff not found.',
+                'data' => null,
+        ], 404); 
+        }
+
+        $validated = $request->validate([
+
+        // Personal Information
+        'first_name' => 'sometimes|string|max:100',
+        'last_name' => 'sometimes|string|max:100',
+        'photo' => 'nullable|image|max:2048',
+        'bio' => 'nullable|string',
+
+        // Professional Information
+        'role_id' => [
+            'sometimes', 
+            Rule::exists('roles','id')
+            ->where(function ($query) use ($companyId){
+
+                $query->where('company_id', $companyId);
+            }),
+        ],
+
+        'service_ids' => ['nullable', 'array'],
+        
+        'service_ids.*' => [
+            Rule::exists('services', 'id')
+                ->where(function ($query) use ($companyId){
+                $query->where('company_id', $companyId);
+            }),
+        ],
+
+        // Contact
+        'phone' => 'sometimes|string|max:30',
+
+        // Account Information
+        'account_email' => [
+            'sometimes',
+            'email',
+            'max:150',
+            Rule::unique('staff', 'account_email')
+            ->ignore($staff->id),
+        ],
+
+        // Status
+        'status' => 'sometimes|in:active,pending,deactivated',
+        'is_active' =>'sometimes|boolean',
+
+        // Availability
+        'availability' => 'nullable|array',
+
+        'availability.*.day_group' => 'required|string|max:20',
+        'availability.*.start_time' => 'nullable|date_format:H:i',
+        'availability.*.end_time' => 'nullable|date_format:H:i',
+        'availability.*.is_off' =>'required|boolean',
+        ]);
+
+        DB::transaction(function () use ($request, $validated, $staff) {
+            
+            // Update staff
+            $staff->update($validated);
+
+            // Upload photo
+            if($request->hasFile('photo')){
+
+                $path = $request->file('photo')
+                ->store('staff/photos', 'public');
+
+                $staff->update([
+                    'photo_path' => $path,
+                ]);
+            }
+
+            // Update services
+            if($request->has('service_ids')) {
+                $staff->services()->sync($request->service_ids);
+            }
+
+            // Update Availability 
+            if ($request->has('availability')) {
+
+                $staff->availability()->delete();
+
+                foreach($request->availability as $availability) {
+
+                    $staff->availability()->create([
+                        'day_group' => $availability['day_group'],
+                        'start_time' => $availability['start_time'] ?? null,
+                        'end_time' => $availability['end_time'] ?? null,
+                        'is_off' => $availability['is_off'],
+                    ]);
+                }
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff Updated Successfully',
+            'data' => $staff->fresh()->load(
+                'role',
+                'services',
+                'availability'
+            ),
+        ], 200);
+
+    }
 }
