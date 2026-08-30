@@ -80,4 +80,45 @@ class ServiceController extends Controller
             'data' => $service,
         ]);
     }
+
+    // UPDATE SERVICE
+    public function update(Request $request, $id)
+    {
+        $service = Service::where(
+            'company_id',
+            auth()->user()->company_id
+        )->find($id);
+
+        if (!$service) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Service not found.',
+                'data' => null,
+            ], 404);
+        }
+
+        $validated = $request->validate([
+        'name' => 'sometimes|string|max:150',
+        'description' => 'nullable|string',
+        'category_id' => 'nullable|exists:categories,id',
+        'duration' => 'sometimes|integer|min:1',
+        'price' => 'sometimes|numeric|min:0',
+        'status' => 'sometimes|in:active,disabled',
+        'staff_ids' => 'nullable|array',
+        'staff_ids.*' => 'exists:staff,id',
+    ]);
+
+        $service->update($validated);
+
+        if(isset($validated['staff_ids'])) {
+            $service->staff()->sync($validated['staff_ids']);
+        }
+
+        return  response()->json([
+            'success' => true,
+            'message' => 'Service updated successfully.',
+            'data' => $service->fresh()->load('category', 'staff'),
+        ]);
+
+    }
 }
