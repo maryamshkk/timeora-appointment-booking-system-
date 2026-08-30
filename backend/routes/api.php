@@ -76,6 +76,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::post('/company/services', [ServiceController::class, 'store']);
     Route::get('/company/services/{service}', [ServiceController::class, 'show']);
     Route::put('/company/services/{service}', [ServiceController::class, 'update']);
+    Route::delete('/company/services/{service}', [ServiceController::class, 'destroy']);
+
 
     // Staff
     Route::post('/staff', [StaffController::class, 'store']);

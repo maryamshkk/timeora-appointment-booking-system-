@@ -121,4 +121,30 @@ class ServiceController extends Controller
         ]);
 
     }
+
+    // DELETE SERVICE
+    public function destroy($id)
+    {
+        $service = Service::where('company_id',
+            auth()->user()->company_id)
+            ->find($id);
+
+        if (!$service) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Service not found.',
+                'data' => null,
+            ], 404);
+        }
+
+        $service->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Service deleted successfully.',
+            'data' => null,
+        ]);
+
+
+    }
 }
