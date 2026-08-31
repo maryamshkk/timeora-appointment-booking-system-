@@ -8,6 +8,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyWorkingHoursController;
+use App\Http\Controllers\StaffAvailabilityController;
 
 
 Route::get('/user', function (Request $request) {
@@ -94,9 +95,11 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
     // Business working hour
     Route::get('/company/working-hours', [CompanyWorkingHoursController::class, 'index']);
-
-    // Business working hour
     Route::put('/company/working-hours', [CompanyWorkingHoursController::class, 'update']);
+
+    // Staff Availability Timing
+    Route::get('/company/staff/{staffId}/availability', [StaffAvailabilityController::class, 'index']);
+    Route::post('/company/staff/{staffId}/availability', [StaffAvailabilityController::class, 'store']);
 });
 
     // Staff invitation
