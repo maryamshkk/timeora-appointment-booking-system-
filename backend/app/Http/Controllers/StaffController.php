@@ -6,6 +6,9 @@ use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class StaffController extends Controller
 {
@@ -38,7 +41,6 @@ class StaffController extends Controller
             'photo' => 'nullable|image|max:2048',
 
             // Professional Information
-            
             'role_id' => [
                 'required',
                 Rule::exists('roles','id')
@@ -81,12 +83,11 @@ class StaffController extends Controller
                     ->first();
 
             $number = $lastStaff 
-                        ? ((int) str_replace('STF-', '', $lastStaff->staff_id))+1 
+                        ? ((int) str_replace('STF-', '', $lastStaff->staff_id)) + 1 
                         : 1;
 
             $staffId = 'STF-' . str_pad($number, 4, '0', STR_PAD_LEFT);
-
-
+            
             // Create staff
             $staff = Staff::create([
                 'company_id' => $companyId,
@@ -112,7 +113,7 @@ class StaffController extends Controller
             }
 
             // Assign services
-            $staff->services()->sync($request->service_ids);
+            $staff->services()->sync($request->service_ids ?? []);
 
             //Create Availability
             foreach($request->availability as $availability){
@@ -129,7 +130,7 @@ class StaffController extends Controller
             });
 
         return response()->json([
-            'sucsess' => true,
+            'success' => true,
             'message' => 'Staff created Successfully',
             'data' => $staff->load(
                 'role',
@@ -286,33 +287,33 @@ class StaffController extends Controller
 
     // RESTORE USER
     public function restore($id)
-{
-    $companyId = auth()->user()->company_id;
+    {
+        $companyId = auth()->user()->company_id;
 
-    $staff = Staff::withTrashed()
-        ->where('company_id', $companyId)
-        ->find($id);
+        $staff = Staff::withTrashed()
+            ->where('company_id', $companyId)
+            ->find($id);
 
-    if (!$staff) {
+        if (!$staff) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff not found.',
+                'data' => null,
+            ], 404);
+        }
+
+        $staff->restore();
+
         return response()->json([
-            'success' => false,
-            'message' => 'Staff not found.',
-            'data' => null,
-        ], 404);
+            'success' => true,
+            'message' => 'Staff restored successfully.',
+            'data' => $staff->fresh()->load(
+                'role',
+                'services',
+                'availability'
+            ),
+        ], 200);
     }
-
-    $staff->restore();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Staff restored successfully.',
-        'data' => $staff->fresh()->load(
-            'role',
-            'services',
-            'availability'
-        ),
-    ], 200);
-}
     // DELETE STAFF MEMEBER 
     public function destroy($id)
     {
@@ -341,4 +342,86 @@ class StaffController extends Controller
     
 
     }
+
+    // CREATE INVITATION
+    public function invite(Request $request)
+    {
+        // find company admin id
+        $companyId = auth()->user()->company_id;
+
+        // find staff id
+        $request->validate([
+            'staff_id' => 'required|exists:staff,id',
+        ]);
+
+        // save staff id
+        $staff = Staff::where('company_id', $companyId)
+            ->find($request->staff_id);
+
+        // if not found id
+        if(!$staff){
+            return response()->json([
+            'success' => false,
+            'message' => 'Staff not found.',
+            'data' => null,
+            ], 404);
+        }
+
+        // if invitation is accepted
+        if($staff->invitation_status === 'accepted') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Staff invitation has already been accepted',
+                'data' => null,
+            ], 422);
+        }
+
+        // token generate
+        $token = Str::random(64);
+
+        $staff->update([
+            'invitation_token' => $token,
+            'invitation_status' => 'pending',
+            'invitation_sent_at' => now(),
+            'status' => 'pending',
+        ]);
+
+        // Create invitation link
+        $link = env('FRONTEND_URL')
+                .'/staff/accept-invitation?token='
+                .$token;
+
+        // send email
+        Mail::raw(
+            
+        "Hello {$staff->first_name},\n\n"
+        ."You have been invited to Join TIMEORA as a Staff member.\n\n"
+        ."Click the link below to activate your account:\n\n"
+        .$link ."\n\n"
+
+        ."Your invitation token is: {$token}\n\n"
+        ."This invitation link can be used to create your password and activate your account.\n\n"
+        ."Thank you,\n"
+        . "TIMEORA Team",
+        function ($message) use ($staff){
+
+            $message->to($staff->account_email)
+                ->subject('TIMEORA Staff Invitation');
+            }
+        );
+
+        // invitation response
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff invitation sent successfully',
+            'data' => [
+                "staff_id" => $staff->staff_id,
+                "account_email"=> $staff->account_email,
+                "invitation_status" => $staff->invitation_status,
+                "invitation_sent_at" => $staff->invitation_sent_at,
+            ],
+        ], 200);
+    }
+
+
 }
