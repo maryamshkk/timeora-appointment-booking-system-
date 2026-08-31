@@ -7,6 +7,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CompanyWorkingHoursController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -89,6 +91,9 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
     // Staff invitation Send
     Route::post('/company/staff/invite', [StaffController::class, 'invite']);
+
+    // Business working hour
+    Route::get('/company/working-hours', [CompanyWorkingHoursController::class, 'index']);
 });
 
     // Staff invitation
