@@ -351,7 +351,7 @@ class StaffAvailabilityController extends Controller
     }
 
     // Delete one availability 
-    public function destroy(Request $request, $staffId)
+    public function destroy(Request $request, $staffId, $availabilityId)
     {
         $companyId = $request->user()->company_id;
 
@@ -359,11 +359,22 @@ class StaffAvailabilityController extends Controller
             ->where('company_id', $companyId)
             ->firstOrFail();
 
-        StaffAvailability::where('staff_id', $staff->id)->delete();
+        $availability = StaffAvailability::where('id', $availabilityId)
+        ->where('staff_id', $staff->id)
+        ->firstOrFail();
+
+        $availability->update([
+            'is_working' => false,
+            'start_time' => null,
+            'end_time' => null,
+            'break_start' => null,
+            'break_end' => null,
+        ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Staff availability deleted successfully.',
+            'message' => 'Staff availability set as off successfully.',
+            'data' => $availability,
         ], 200);
     }
 }
