@@ -14,16 +14,19 @@ class StaffAvailability extends Model
 
     protected $table = 'staff_availability';
 
-    protected $fillable = [
-        'staff_id',
-        'day_group',
-        'start_time',
-        'end_time',
-        'is_off',
-    ];
+    protected $fillable = [ 
+        'staff_id', 
+        'day_of_week', 
+        'is_working', 
+        'start_time', 
+        'end_time', 
+        'break_start', 
+        'break_end', 
+        ];
 
     protected $casts = [
-        'is_off' => 'boolean'
+        'day_of_week' => 'integer', 
+        'is_working' => 'boolean',
     ];
 
     /**

@@ -34,29 +34,29 @@ class StaffController extends Controller
     {
         $companyId = auth()->user()->company_id;
 
-        $request->validate([
+        $validated = $request->validate([
             // Personal Information
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'photo' => 'nullable|image|max:2048',
 
             // Professional Information
-            'role_id' => [
-                'required',
-                Rule::exists('roles','id')
-                    ->where(function ($query) use ($companyId){
-                    $query->where('company_id', $companyId);
-                }),
-            ],
+            'role_id' => [ 
+                'required', 
+                Rule::exists('roles', 'id') 
+                ->where(function ($query) use ($companyId) { 
+                    $query->where('company_id', $companyId); 
+                    }), 
+                ],
             
             'service_ids' => ['nullable', 'array'],
 
-            'service_ids.*' => [
-                    Rule::exists('services', 'id')
-                    ->where(function ($query) use ($companyId){
-                    $query->where('company_id', $companyId);
-                    }),
-                ],
+            'service_ids.*' => [ 
+                Rule::exists('services', 'id') 
+                ->where(function ($query) use ($companyId) { 
+                    $query->where('company_id', $companyId); 
+                }), 
+            ],
 
             // Contact Information
             'phone' => 'required|string|max:30',
@@ -64,18 +64,31 @@ class StaffController extends Controller
             'account_email' => 'required|email|max:150|unique:staff,account_email',
 
             // Availability
-            'availability' => 'required|array|min:1',
+            'availability.*.day_of_week' => [ 
+                'required', 'integer', 'between:0,6', 
+            ],
 
-            'availability.*.day_group' => 'required|string|max:20',
+            'availability.*.is_working' => [ 
+                'required', 'boolean', ], 
+            
+            'availability.*.start_time' => [ 
+                'nullable', 'date_format:H:i', 
+            ], 
+            
+            'availability.*.end_time' => [ 
+                'nullable', 'date_format:H:i', 
+            ], 
 
-            'availability.*.start_time' => ['nullable', 'date_format:H:i'],
-
-            'availability.*.end_time' => ['nullable', 'date_format:H:i'],
-
-            'availability.*.is_off' => 'required|boolean',
+            'availability.*.break_start' => [ 
+                'nullable', 'date_format:H:i', 
+            ], 
+            
+            'availability.*.break_end' => [ 
+                'nullable', 'date_format:H:i', 
+            ],
         ]);
 
-            $staff = DB::transaction(function () use ($request, $companyId) {
+            $staff = DB::transaction(function () use ($validated, $request, $companyId) {
             
             // Generate Staff ID
             $lastStaff = Staff::where('company_id', $companyId)
@@ -92,11 +105,11 @@ class StaffController extends Controller
             $staff = Staff::create([
                 'company_id' => $companyId,
                 'staff_id' => $staffId,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'role_id' => $request->role_id,
-                'phone' => $request->phone,
-                'account_email' => $request->account_email,
+                'first_name' => $validated['first_name'], 
+                'last_name' => $validated['last_name'], 
+                'role_id' => $validated['role_id'], 
+                'phone' => $validated['phone'], 
+                'account_email' => $validated['account_email'],
                 'status' => 'pending',
                 'is_active' => true,
             ]);
@@ -113,16 +126,28 @@ class StaffController extends Controller
             }
 
             // Assign services
-            $staff->services()->sync($request->service_ids ?? []);
+            $staff->services()->sync( 
+                $validated['service_ids'] ?? [] 
+            );
 
             //Create Availability
-            foreach($request->availability as $availability){
+            foreach ($validated['availability'] as $day) {
                 
-                $staff->availability()->create([
-                    'day_group' => $availability['day_group'],
-                    'start_time' => $availability['start_time'] ?? null,
-                    'end_time' => $availability['end_time'] ?? null,
-                    'is_off' => $availability['is_off'],
+                if (!$day['is_working']) { 
+                    
+                $day['start_time'] = null; 
+                $day['end_time'] = null; 
+                $day['break_start'] = null; 
+                $day['break_end'] = null; 
+                }
+
+                $staff->availability()->create([ 
+                    'day_of_week' => $day['day_of_week'], 
+                    'is_working' => $day['is_working'], 
+                    'start_time' => $day['start_time'] ?? null, 
+                    'end_time' => $day['end_time'] ?? null, 
+                    'break_start' => $day['break_start'] ?? null, 
+                    'break_end' => $day['break_end'] ?? null, 
                 ]);
             }
 
