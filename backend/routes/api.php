@@ -102,6 +102,9 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::post('/company/staff/{staffId}/availability', [StaffAvailabilityController::class, 'store']);
     Route::put('/company/staff/{staffId}/availability/{availabilityId}', [StaffAvailabilityController::class, 'update']);
     Route::put('/company/staff/{staffId}/availability', [StaffAvailabilityController::class, 'updateAll']);
+
+    // Delete availability
+    Route::delete('/company/staff/{staffId}/availability',[StaffAvailabilityController::class, 'destroy']);
 });
 
     // Staff invitation

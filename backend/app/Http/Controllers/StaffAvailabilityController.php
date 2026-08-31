@@ -342,11 +342,28 @@ class StaffAvailabilityController extends Controller
                 ]
             );
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Staff Availability Updated Successfully',
                 'data' => $staff->availability()->get(),
             ], 200);
+    }
+
+    // Delete one availability 
+    public function destroy(Request $request, $staffId)
+    {
+        $companyId = $request->user()->company_id;
+
+        $staff = Staff::where('id', $staffId)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
+
+        StaffAvailability::where('staff_id', $staff->id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff availability deleted successfully.',
+        ], 200);
     }
 }
