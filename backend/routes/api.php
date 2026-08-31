@@ -87,6 +87,9 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::put('/company/staff/{id}/restore', [StaffController::class, 'restore']);
     Route::delete('/company/staff/{id}', [StaffController::class, 'destroy']);
 
-    // Staff invitation
+    // Staff invitation Send
     Route::post('/company/staff/invite', [StaffController::class, 'invite']);
 });
+
+    // Staff invitation
+    Route::post('/staff/accept-invitation', [StaffController::class, 'acceptInvitation']);

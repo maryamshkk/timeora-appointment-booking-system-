@@ -245,7 +245,7 @@ class AuthController extends Controller
                 $otp = random_int(100000, 999999);
 
                 Otp::create([
-                     'owner_type' => 'customer',
+                    'owner_type' => 'customer',
                     'owner_id' => $customer->id,
                     'code' => $otp,
                     'purpose' => 'email_verification',

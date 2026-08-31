@@ -384,6 +384,7 @@ class StaffController extends Controller
             'invitation_status' => 'pending',
             'invitation_sent_at' => now(),
             'status' => 'pending',
+            'is_active' => false,
         ]);
 
         // Create invitation link
@@ -393,13 +394,12 @@ class StaffController extends Controller
 
         // send email
         Mail::raw(
-            
+
         "Hello {$staff->first_name},\n\n"
         ."You have been invited to Join TIMEORA as a Staff member.\n\n"
         ."Click the link below to activate your account:\n\n"
         .$link ."\n\n"
 
-        ."Your invitation token is: {$token}\n\n"
         ."This invitation link can be used to create your password and activate your account.\n\n"
         ."Thank you,\n"
         . "TIMEORA Team",
@@ -420,6 +420,59 @@ class StaffController extends Controller
                 "invitation_status" => $staff->invitation_status,
                 "invitation_sent_at" => $staff->invitation_sent_at,
             ],
+        ], 200);
+    }
+
+    // ACCPET INVITATION
+    public function acceptInvitation(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+
+            'password' => [
+                'required',
+                'min:8',
+                'regex:/[A-Z]/',
+                'regex:/[a-z]/',
+                'regex:/[0-9]/',
+                'regex:/[^A-Za-z0-9]/',
+            ],
+
+            "confirm_password" => 'required|same:password',
+        ]);
+
+        $staff = Staff::where('invitation_token', $request->token)
+                ->where('invitation_status', 'pending')
+                ->first();
+
+            if (!$staff) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or expired invitation.',
+                    'data' => null,
+                    'errors' => null,
+                ], 422);
+            }
+
+            $staff->update([
+                'password_hash' => Hash::make($request->password),
+
+                'invitation_status' => 'accepted',
+                'invitation_token' => null,
+                'email_verified_at' => now(),
+                'status' => 'active',
+                'is_active' => true,
+            ]);
+
+            return response()->json([
+        'success' => true,
+        'message' => 'Invitation accepted. Your account is now active.',
+        'data' => [
+            'staff_id' => $staff->staff_id,
+            'email' => $staff->account_email,
+            'status' => $staff->status,
+        ],
+            'errors' => null,
         ], 200);
     }
 
