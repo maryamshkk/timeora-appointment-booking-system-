@@ -94,6 +94,9 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
     // Business working hour
     Route::get('/company/working-hours', [CompanyWorkingHoursController::class, 'index']);
+
+    // Business working hour
+    Route::put('/company/working-hours', [CompanyWorkingHoursController::class, 'update']);
 });
 
     // Staff invitation
