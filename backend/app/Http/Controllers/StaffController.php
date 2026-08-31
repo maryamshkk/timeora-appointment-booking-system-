@@ -19,7 +19,7 @@ class StaffController extends Controller
             'company_id',
             auth()->user()->company_id,
         )
-        ->with('role', 'services')
+        ->with('role', 'services', 'availability')
         ->get();
 
         return response()->json([
@@ -65,7 +65,7 @@ class StaffController extends Controller
 
             // Availability
             'availability.*.day_of_week' => [ 
-                'required', 'integer', 'between:0,6', 
+                'required', 'integer', 'between:0,6', 'distinct'
             ],
 
             'availability.*.is_working' => [ 
@@ -254,16 +254,42 @@ class StaffController extends Controller
         // Availability
         'availability' => 'nullable|array',
 
-        'availability.*.day_group' => 'required|string|max:20',
-        'availability.*.start_time' => 'nullable|date_format:H:i',
-        'availability.*.end_time' => 'nullable|date_format:H:i',
-        'availability.*.is_off' =>'required|boolean',
+        'availability.*.day_of_week' => [ 
+            'required', 'integer', 'between:0,6', 'distinct', 
+        ], 
+        
+        'availability.*.is_working' => [ 
+            'required', 'boolean', 
+        ], 
+        
+        'availability.*.start_time' => [ 
+            'nullable', 'date_format:H:i', 
+        ], 
+        
+        'availability.*.end_time' => [ 
+            'nullable', 'date_format:H:i', 
+        ], 
+        
+        'availability.*.break_start' => [ 
+            'nullable', 'date_format:H:i', 
+        ], 
+        
+        'availability.*.break_end' => [ 
+            'nullable', 'date_format:H:i', 
+        ],
+
         ]);
 
         DB::transaction(function () use ($request, $validated, $staff) {
             
             // Update staff
-            $staff->update($validated);
+            $staffData = collect($validated)
+                    ->except([ 'service_ids', 
+                                'availability', 
+                                'photo', 
+                            ])->toArray(); 
+                        
+            $staff->update($staffData);
 
             // Upload photo
             if($request->hasFile('photo')){
@@ -278,21 +304,36 @@ class StaffController extends Controller
 
             // Update services
             if($request->has('service_ids')) {
-                $staff->services()->sync($request->service_ids);
+
+                $staff->services()->sync(
+                    $validated['service_ids'] ?? []
+                );
             }
 
             // Update Availability 
             if ($request->has('availability')) {
-
+            
+            // remove old availability
                 $staff->availability()->delete();
 
-                foreach($request->availability as $availability) {
-
-                    $staff->availability()->create([
-                        'day_group' => $availability['day_group'],
-                        'start_time' => $availability['start_time'] ?? null,
-                        'end_time' => $availability['end_time'] ?? null,
-                        'is_off' => $availability['is_off'],
+                foreach ($validated['availability'] as $day) { 
+                    // If staff is not working, 
+                    // // remove all time values 
+                    if (!$day['is_working']) { 
+                        
+                        $day['start_time'] = null; 
+                        $day['end_time'] = null; 
+                        $day['break_start'] = null; 
+                        $day['break_end'] = null; 
+                    } 
+                    
+                    $staff->availability()->create([ 
+                        'day_of_week' => $day['day_of_week'], 
+                        'is_working' => $day['is_working'], 
+                        'start_time' => $day['start_time'] ?? null, 
+                        'end_time' => $day['end_time'] ?? null, 
+                        'break_start' => $day['break_start'] ?? null, 
+                        'break_end' => $day['break_end'] ?? null, 
                     ]);
                 }
             }
