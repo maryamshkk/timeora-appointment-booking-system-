@@ -40,4 +40,9 @@ class Company extends Model
     {
         return $this->hasMany(User::class, 'company_id')->where('user_type', 'company_admin');
     }
+
+    public function workingHours(): HasMany
+    {
+        return $this->hasMany(BusinessWorkingHour::class);
+    }
 }
