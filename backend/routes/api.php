@@ -11,7 +11,7 @@ use App\Http\Controllers\CompanyWorkingHoursController;
 use App\Http\Controllers\StaffAvailabilityController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\BlockedTimeController;
-
+use App\Http\Controllers\AvailabilityExceptionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -120,6 +120,10 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::post('/company/staff/{staffId}/blocked-times', [BlockedTimeController::class, 'store']);
     Route::put('/company/staff/{staffId}/blocked-times/{blockedTimeId}', [BlockedTimeController::class, 'update']);
     Route::delete('/company/staff/{staffId}/blocked-times/{blockedTimeId}', [BlockedTimeController::class, 'destroy']);
+
+
+    // Avilability Excpetion Apis
+    Route::get('/company/staff/{staffId}/exceptions', [AvailabilityExceptionController::class, 'index']);
 });
 
     // Staff invitation
