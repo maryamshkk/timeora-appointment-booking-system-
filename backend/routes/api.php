@@ -124,6 +124,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
     // Avilability Excpetion Apis
     Route::get('/company/staff/{staffId}/exceptions', [AvailabilityExceptionController::class, 'index']);
+    Route::post('/company/staff/{staffId}/exceptions', [AvailabilityExceptionController::class, 'store']);
 });
 
     // Staff invitation
