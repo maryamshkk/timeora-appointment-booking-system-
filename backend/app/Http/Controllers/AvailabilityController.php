@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Company;
 use App\Models\Staff;
+use App\Models\StaffAvailability;
 use App\Models\Service;
 use Carbon\Carbon;
+
 
 
 class AvailabilityController extends Controller
@@ -14,6 +16,7 @@ class AvailabilityController extends Controller
     // Get availability
     public function index(Request $request)
     {
+         // 1. Validate request
         $validated = $request->validate([
         'company_id' => [
             'required',
@@ -40,12 +43,12 @@ class AvailabilityController extends Controller
         ],
     ]);
 
-            // check authenticated company  
+            // 2. Find company
             $company = Company::findOrFail(
                     $validated['company_id']
                 );
 
-            // check staff belongs to sepcified company
+            // 3. Verify staff belongs to company
             $staff = Staff::where('id', $validated['staff_id'])
                         ->where('company_id', $company->id)
                     ->first();
@@ -57,7 +60,7 @@ class AvailabilityController extends Controller
                     ], 422);
             }
 
-            // check service belongs to sepcified company
+            // 4. Verify service belongs to company
             $service = Service::where('id', $validated['service_id'])
                 ->where('company_id', $company->id)
                 ->first();
@@ -69,7 +72,7 @@ class AvailabilityController extends Controller
                     ], 422);
             }
 
-                // 5. Verify staff is assigned to service
+            // 5. Verify staff is assigned to service
                 $staffHasService = $staff->services()
                         ->where('services.id', $service->id)
                         ->exists();
@@ -79,9 +82,9 @@ class AvailabilityController extends Controller
                             'success' => false,
                             'message' => 'The selected service is not assigned to this staff member.',
                         ], 422);
-                    }
+                }
 
-                // DETERMINE DAY OF THE WEEK 
+                // 6. Determine day
                 $date = Carbon::createFromFormat(
                     'Y-m-d',
                     $validated['date']
@@ -89,19 +92,52 @@ class AvailabilityController extends Controller
 
                 $dayOfWeek = $date->dayOfWeek;
 
+                // 7. Get staff availability
+                $availability = StaffAvailability::where('staff_id', $staff->id)
+                        ->where('day_of_week', $dayOfWeek)
+                        ->first();
+                    // 8. No availability
+                    if (!$availability) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Staff has no availability for this day.',
+                            'data' => [
+                                'date' => $validated['date'],
+                                'day_of_week' => $dayOfWeek,
+                                'is_working' => false,
+                                'slots' => [],
+                            ],
+                        ]);
+                    }
 
+                     // 9. Day off
+                    if (!$availability->is_working) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Staff is not working on this day.',
+                            'data' => [
+                                'date' => $validated['date'],
+                                'day_of_week' => $dayOfWeek,
+                                'is_working' => false,
+                                'slots' => [],
+                            ],
+                        ]);
+                    }
+
+           // 10. Temporary response
             return response()->json([
                 'success' => true,
-                'message' => 'Availability request is valid.',
+                'message' => 'Staff availability found.',
                 'data' => [
-                    'company_id' => $company->id,
-                    'staff_id' => $staff->id,
-                    'service_id' => $service->id,
                     'date' => $validated['date'],
                     'day_of_week' => $dayOfWeek,
-                    'day_name' => $date->format('l'),
+                    'is_working' => $availability->is_working,
+                    'start_time' => $availability->start_time,
+                    'end_time' => $availability->end_time,
+                    'break_start' => $availability->break_start,
+                    'break_end' => $availability->break_end,
                 ],
-        ]);
+            ]);
     }
 
 }
