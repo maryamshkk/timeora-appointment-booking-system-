@@ -161,4 +161,28 @@ class BlockedTimeController extends Controller
         ], 201);
     }
 
+    // Delete slot
+    public function destroy(
+        Request $request,
+        $staffId,
+        $blockedTimeId
+    ) {
+        $companyId = $request->user()->company_id;
+
+        $staff = Staff::where('id', $staffId)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
+
+        $blockedTime = BlockedTime::where('id', $blockedTimeId)
+            ->where('staff_id', $staff->id)
+            ->firstOrFail();
+
+        $blockedTime->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Blocked time deleted successfully.',
+        ]);
+    }
+
 }

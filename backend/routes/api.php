@@ -119,6 +119,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::get('/company/staff/{staffId}/blocked-times', [BlockedTimeController::class, 'index']);
     Route::post('/company/staff/{staffId}/blocked-times', [BlockedTimeController::class, 'store']);
     Route::put('/company/staff/{staffId}/blocked-times/{blockedTimeId}', [BlockedTimeController::class, 'update']);
+    Route::delete('/company/staff/{staffId}/blocked-times/{blockedTimeId}', [BlockedTimeController::class, 'destroy']);
 });
 
     // Staff invitation
