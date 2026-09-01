@@ -45,4 +45,9 @@ class Company extends Model
     {
         return $this->hasMany(BusinessWorkingHour::class);
     }
+
+    public function holidays(): HasMany
+    {
+        return $this->hasMany(Holiday::class);
+    }
 }

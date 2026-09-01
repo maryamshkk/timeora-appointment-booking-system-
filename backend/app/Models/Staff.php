@@ -77,4 +77,20 @@ class Staff extends Model
     {
         return $this->hasMany(StaffAvailability::class);
     }
+
+    /**
+     * Staff has many blocked times.
+     */
+    public function blockedTimes(): HasMany
+    {
+        return $this->hasMany(BlockedTime::class);
+    }
+
+    /**
+     * Staff has many availability exceptions
+     */
+    public function availabilityExceptions(): HasMany
+    {
+        return $this->hasMany(AvailabilityException::class);
+    }
 }

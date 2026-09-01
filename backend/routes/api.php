@@ -9,7 +9,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyWorkingHoursController;
 use App\Http\Controllers\StaffAvailabilityController;
-
+use App\Http\Controllers\HolidayController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -105,6 +105,13 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
     // Delete availability
     Route::delete('/company/staff/{staffId}/availability/{availabilityId}',[StaffAvailabilityController::class, 'destroy']);
+
+
+    // Holidays Controller
+    Route::get('company/holidays', [HolidayController::class, 'index']);
+    Route::post('company/holidays', [HolidayController::class, 'store']);
+    Route::put('company/holidays/{holidayId}', [HolidayController::class, 'update']);
+    Route::delete('company/holidays/{holidayId}', [HolidayController::class, 'destroy']);
 });
 
     // Staff invitation
