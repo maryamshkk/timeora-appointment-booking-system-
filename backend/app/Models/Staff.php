@@ -67,7 +67,7 @@ class Staff extends Model
         return $this->belongsToMany(
             Service::class,
             'staff_service'
-        );
+        )->withTimestamps();
     }
 
     /**

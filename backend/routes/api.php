@@ -137,5 +137,5 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::post('/staff/accept-invitation', [StaffController::class, 'acceptInvitation']);
 
 
-    // Availability Slots Engine Api
+    // Availability Slots Engine Api for booking
     Route::get('/availability',[AvailabilityController::class, 'index']);
