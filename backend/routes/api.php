@@ -12,6 +12,8 @@ use App\Http\Controllers\StaffAvailabilityController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\BlockedTimeController;
 use App\Http\Controllers\AvailabilityExceptionController;
+use App\Http\Controllers\AvailabilityController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -127,7 +129,13 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::post('/company/staff/{staffId}/exceptions', [AvailabilityExceptionController::class, 'store']);
     Route::put('/company/staff/{staffId}/exceptions/{exceptionId}', [AvailabilityExceptionController::class, 'update']);
     Route::delete('/company/staff/{staffId}/exceptions/{exceptionId}', [AvailabilityExceptionController::class, 'destroy']);
+
+
 });
 
     // Staff invitation
     Route::post('/staff/accept-invitation', [StaffController::class, 'acceptInvitation']);
+
+
+    // Availability Slots Engine Api
+    Route::get('/availability',[AvailabilityController::class, 'index']);
