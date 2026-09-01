@@ -140,4 +140,142 @@ class AvailabilityExceptionController extends Controller
                 'data' => $exception,
             ], 201);
     }
+
+    // update availability exception row
+    public function update(Request $request, $staffId, $exceptionId) 
+    {
+        $companyId = $request->user()->company_id;
+
+        $staff = Staff::where('id', $staffId)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
+
+        $exception = AvailabilityException::where('id', $exceptionId)
+            ->where('staff_id', $staff->id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'exception_date' => [
+                'required',
+                'date',
+            ],
+
+            'is_working' => [
+                'required',
+                'boolean',
+            ],
+
+            'start_time' => [
+                'nullable',
+                'date_format:H:i',
+            ],
+
+            'end_time' => [
+                'nullable',
+                'date_format:H:i',
+            ],
+
+            'break_start' => [
+                'nullable',
+                'date_format:H:i',
+            ],
+
+            'break_end' => [
+                'nullable',
+                'date_format:H:i',
+            ],
+
+            'reason' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+        ]);
+
+        // Working time
+            if ($validated['is_working']) {
+
+                if (!$validated['start_time'] || !$validated['end_time']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Start and end time are required.',
+                    ], 422);
+                }
+
+                if ($validated['start_time'] >= $validated['end_time']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Start time must be before end time.',
+                    ], 422);
+                }
+            }
+
+            // Break time
+            if ($validated['break_start'] && $validated['break_end']) {
+
+                if ($validated['break_start'] >= $validated['break_end']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Break start must be before break end.',
+                    ], 422);
+                }
+
+                if (
+                    $validated['break_start'] < $validated['start_time'] ||
+                    $validated['break_end'] > $validated['end_time']
+                ) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Break must be within working hours.',
+                    ], 422);
+                }
+            }
+
+            // If not working, remove times
+            if (!$validated['is_working']) {
+                $validated['start_time'] = null;
+                $validated['end_time'] = null;
+                $validated['break_start'] = null;
+                $validated['break_end'] = null;
+            }
+
+            $exception->update([
+                'exception_date' => $validated['exception_date'],
+                'is_working' => $validated['is_working'],
+                'start_time' => $validated['start_time'],
+                'end_time' => $validated['end_time'],
+                'break_start' => $validated['break_start'],
+                'break_end' => $validated['break_end'],
+                'reason' => $validated['reason'] ?? null,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Availability exception updated successfully.',
+                'data' => $exception,
+            ], 200);
+
+    }
+
+    // delete availability exception row
+    public function destroy(Request $request, $staffId, $exceptionId) 
+    {
+        $companyId = $request->user()->company_id;
+
+        $staff = Staff::where('id', $staffId)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
+
+        $exception = AvailabilityException::where('id', $exceptionId)
+            ->where('staff_id', $staff->id)
+            ->firstOrFail();
+
+        $exception->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Availability exception deleted successfully.',
+        ]);
+    }
+
 }
