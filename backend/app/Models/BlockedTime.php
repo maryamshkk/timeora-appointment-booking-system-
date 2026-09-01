@@ -19,7 +19,7 @@ class BlockedTime extends Model
         'blocked_date' => 'date'
     ];
 
-    public function staff(): BelongstO
+    public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);
     }
