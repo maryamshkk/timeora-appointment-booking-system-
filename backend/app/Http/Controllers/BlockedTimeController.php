@@ -93,72 +93,72 @@ class BlockedTimeController extends Controller
     }
 
      //  Update Blocked timings 
-    // public function update(Request $request, $staffId, $blockedTimeId)
-    // {
-    //     $companyId = $request->user()->company_id;
+    public function update(Request $request, $staffId, $blockedTimeId)
+    {
+        $companyId = $request->user()->company_id;
 
-    //     $staff = Staff::where('id', $staffId)
-    //         ->where('company_id', $companyId)
-    //         ->firstOrFail();
+        $staff = Staff::where('id', $staffId)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
 
-    //     $blockedTime = BlockedTime::where('id', $blockedTimeId)
-    //         ->where('staff_id', $staff->id)
-    //         ->firstOrFail();
+        $blockedTime = BlockedTime::where('id', $blockedTimeId)
+            ->where('staff_id', $staff->id)
+            ->firstOrFail();
 
-    //     $validated = $request->validate([
-    //         'blocked_date' => [
-    //             'required',
-    //             'date',
-    //         ],
+        $validated = $request->validate([
+            'blocked_date' => [
+                'required',
+                'date',
+            ],
 
-    //         'start_time' => [
-    //             'required',
-    //             'date_format:H:i',
-    //         ],
+            'start_time' => [
+                'required',
+                'date_format:H:i',
+            ],
 
-    //         'end_time' => [
-    //             'required',
-    //             'date_format:H:i',
-    //         ],
+            'end_time' => [
+                'required',
+                'date_format:H:i',
+            ],
 
-    //         'reason' => [
-    //             'nullable',
-    //             'string',
-    //             'max:255',
-    //             ],
-    //         ]);
+            'reason' => [
+                'nullable',
+                'string',
+                'max:255',
+                ],
+            ]);
 
-    //         if ($validated['start_time'] >= $validated['end_time']) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Start time must be before end time.',
-    //         ], 422);
-    //     }
+            if ($validated['start_time'] >= $validated['end_time']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Start time must be before end time.',
+            ], 422);
+        }
 
-    //         $overlap = BlockedTime::where('staff_id', $staff->id)
-    //                 ->where('blocked_date', $validated['blocked_date'])
-    //                 ->where('id', '!=', $blockedTime->id)
-    //                 ->where(function ($query) use ($validated){
-    //                     $query
-    //                     ->where('start_time', '<', $validated['end_time'])
-    //                     ->where('end_time', '>', $validated['start_time']);
-    //                 })
-    //                 ->exists();
+            $overlap = BlockedTime::where('staff_id', $staff->id)
+                    ->where('blocked_date', $validated['blocked_date'])
+                    ->where('id', '!=', $blockedTime->id)
+                    ->where(function ($query) use ($validated){
+                        $query
+                        ->where('start_time', '<', $validated['end_time'])
+                        ->where('end_time', '>', $validated['start_time']);
+                    })
+                    ->exists();
             
-    //         if ($overlap) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'This blocked time overlaps an existing blocked period.',
-    //             ], 422);
-    //         }
+            if ($overlap) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This blocked time overlaps an existing blocked period.',
+                ], 422);
+            }
 
-    //     $blockedTime->update($validated);
+        $blockedTime->update($validated);
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Blocked time created successfully.',
-    //         'data' => $blockedTime,
-    //     ], 201);
-    // }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blocked time created successfully.',
+            'data' => $blockedTime,
+        ], 201);
+    }
 
 }
