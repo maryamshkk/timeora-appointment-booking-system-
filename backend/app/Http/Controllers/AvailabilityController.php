@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Company;
 use App\Models\Staff;
 use App\Models\Service;
+use Carbon\Carbon;
 
 
 class AvailabilityController extends Controller
@@ -66,7 +67,7 @@ class AvailabilityController extends Controller
                         'success' => false,
                         'message' => 'The selected service does not belong to this company.',
                     ], 422);
-                }
+            }
 
                 // 5. Verify staff is assigned to service
                 $staffHasService = $staff->services()
@@ -80,6 +81,15 @@ class AvailabilityController extends Controller
                         ], 422);
                     }
 
+                // DETERMINE DAY OF THE WEEK 
+                $date = Carbon::createFromFormat(
+                    'Y-m-d',
+                    $validated['date']
+                );
+
+                $dayOfWeek = $date->dayOfWeek;
+
+
             return response()->json([
                 'success' => true,
                 'message' => 'Availability request is valid.',
@@ -88,6 +98,8 @@ class AvailabilityController extends Controller
                     'staff_id' => $staff->id,
                     'service_id' => $service->id,
                     'date' => $validated['date'],
+                    'day_of_week' => $dayOfWeek,
+                    'day_name' => $date->format('l'),
                 ],
         ]);
     }
