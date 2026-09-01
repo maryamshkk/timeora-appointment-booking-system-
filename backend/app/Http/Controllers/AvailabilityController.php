@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Company;
 use App\Models\Staff;
 use App\Models\StaffAvailability;
+use App\Models\BusinessWorkingHour;
 use App\Models\Service;
 use Carbon\Carbon;
 
@@ -123,6 +124,25 @@ class AvailabilityController extends Controller
                             ],
                         ]);
                     }
+
+
+            // Check company hours 
+            $businessHours = BusinessWorkingHour::where('company_id', $company->id)
+                ->where('day_of_week', $dayOfWeek)
+                ->first();
+
+                if (!$businessHours || !$businessHours->is_open) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Company is closed on this day.',
+                        'data' => [
+                            'date' => $validated['date'],
+                            'day_of_week' => $dayOfWeek,
+                            'is_working' => false,
+                            'slots' => [],
+                        ],
+                    ]);
+                }
 
            // 10. Temporary response
             return response()->json([
