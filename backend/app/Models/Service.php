@@ -10,7 +10,7 @@ use App\Models\Staff;
 
 class Service extends Model
 {
-     use HasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'name',
@@ -22,6 +22,10 @@ class Service extends Model
         'status',
     ];
 
+
+    protected $casts = [
+        'duration' => 'integer',
+    ];
     /**
      * Service belongs to a company.
      */
