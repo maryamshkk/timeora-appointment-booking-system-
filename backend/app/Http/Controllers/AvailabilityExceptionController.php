@@ -27,7 +27,7 @@ class AvailabilityExceptionController extends Controller
             'data' => $exceptions,
         ]);
     }
-
+    // Create availability exception row
     public function store(Request $request, $staffId)
     {
         $companyId = $request->user()->company_id;
