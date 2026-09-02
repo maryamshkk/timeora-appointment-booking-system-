@@ -7,7 +7,9 @@ use App\Models\Company;
 use App\Models\Staff;
 use App\Models\StaffAvailability;
 use App\Models\BusinessWorkingHour;
+use App\Http\AppointmentController;
 use App\Models\BlockedTime;
+use App\Models\Appointment;
 use App\Models\Service;
 use App\Models\Holiday;
 use Carbon\Carbon;
@@ -269,30 +271,28 @@ class AvailabilityController extends Controller
                 // 18. Reset array indexes
                 $slots = array_values($slots);
 
-                // 19. Remove past slots 
+                // 19. Remove past slots
                 $now = Carbon::now();
 
-                if($validated['date'] === $now->format('Y-m-d')) {
+                if ($validated['date'] === $now->format('Y-m-d')) {
                     $slots = array_filter(
                         $slots,
-                        function ($slots) use ($now) {
-                            
+                        function ($slot) use ($now, $validated) {
+
                             $slotEnd = Carbon::parse(
-                                $validated['date'] . '' . $slot['end_time']
+                                $validated['date'] . ' ' . $slot['end_time']
                             );
 
                             return $slotEnd->gt($now);
                         }
-
                     );
+
                     $slots = array_values($slots);
                 }
 
-
-
             
                             
-            // // Get booked appointments
+            // // // Get booked appointments
             // $appointments = Appointment::where('staff_id', $staff->id)
             //     ->whereDate('appointment_date', $validated['date'])
             //     ->whereIn('status', ['pending', 'confirmed'])
