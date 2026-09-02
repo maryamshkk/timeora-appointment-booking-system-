@@ -7,14 +7,15 @@ use App\Models\Company;
 use App\Models\Staff;
 use App\Models\StaffAvailability;
 use App\Models\BusinessWorkingHour;
+use App\Models\BlockedTime;
 use App\Models\Service;
+use App\Models\Holiday;
 use Carbon\Carbon;
-
-
 
 class AvailabilityController extends Controller
 {
-    // Get availability
+    
+    // 1. Get availability
     public function index(Request $request)
     {
          // 1. Validate request
@@ -74,62 +75,32 @@ class AvailabilityController extends Controller
             }
 
             // 5. Verify staff is assigned to service
-                $staffHasService = $staff->services()
-                        ->where('services.id', $service->id)
-                        ->exists();
+            $staffHasService = $staff->services()
+                    ->where('services.id', $service->id)
+                    ->exists();
 
-                    if(!$staffHasService) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'The selected service is not assigned to this staff member.',
-                        ], 422);
-                }
+            if(!$staffHasService) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The selected service is not assigned to this staff member.',
+                ], 422);
+            }
 
-                // 6. Determine day
-                $date = Carbon::createFromFormat(
-                    'Y-m-d',
-                    $validated['date']
-                );
+            // 6. Get date and day of week
+            $date = Carbon::createFromFormat(
+                'Y-m-d',
+                $validated['date']
+            );
 
-                $dayOfWeek = $date->dayOfWeek;
-
-                // 7. Get staff availability
-                $availability = StaffAvailability::where('staff_id', $staff->id)
-                        ->where('day_of_week', $dayOfWeek)
-                        ->first();
-                    // 8. No availability
-                    if (!$availability) {
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Staff has no availability for this day.',
-                            'data' => [
-                                'date' => $validated['date'],
-                                'day_of_week' => $dayOfWeek,
-                                'is_working' => false,
-                                'slots' => [],
-                            ],
-                        ]);
-                    }
-
-                     // 9. Day off
-                    if (!$availability->is_working) {
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Staff is not working on this day.',
-                            'data' => [
-                                'date' => $validated['date'],
-                                'day_of_week' => $dayOfWeek,
-                                'is_working' => false,
-                                'slots' => [],
-                            ],
-                        ]);
-                    }
+            $dayOfWeek = $date->dayOfWeek;
 
 
-            // Check company hours 
-            $businessHours = BusinessWorkingHour::where('company_id', $company->id)
-                ->where('day_of_week', $dayOfWeek)
-                ->first();
+
+
+                            // 10. Check company hours
+                $businessHours = BusinessWorkingHour::where('company_id', $company->id)
+                    ->where('day_of_week', $dayOfWeek)
+                    ->first();
 
                 if (!$businessHours || !$businessHours->is_open) {
                     return response()->json([
@@ -144,20 +115,219 @@ class AvailabilityController extends Controller
                     ]);
                 }
 
-           // 10. Temporary response
-            return response()->json([
-                'success' => true,
-                'message' => 'Staff availability found.',
-                'data' => [
-                    'date' => $validated['date'],
-                    'day_of_week' => $dayOfWeek,
-                    'is_working' => $availability->is_working,
-                    'start_time' => $availability->start_time,
-                    'end_time' => $availability->end_time,
-                    'break_start' => $availability->break_start,
-                    'break_end' => $availability->break_end,
-                ],
-            ]);
-    }
 
+                // 11. Check holidays
+                $holiday = Holiday::where('company_id', $company->id)
+                    ->whereDate('holiday_date', $validated['date'])
+                    ->first();
+
+                if ($holiday) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Company is closed because of a holiday.',
+                        'data' => [
+                            'date' => $validated['date'],
+                            'day_of_week' => $dayOfWeek,
+                            'is_working' => false,
+                            'slots' => [],
+                        ],
+                    ]);
+                }
+
+
+                // 12. Get staff availability
+                $availability = StaffAvailability::where('staff_id', $staff->id)
+                    ->where('day_of_week', $dayOfWeek)
+                    ->first();
+
+                if (!$availability || !$availability->is_working) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Staff has no availability for this day.',
+                        'data' => [
+                            'date' => $validated['date'],
+                            'day_of_week' => $dayOfWeek,
+                            'is_working' => false,
+                            'slots' => [],
+                        ],
+                    ]);
+                }
+
+
+                // Staff schedule
+                $staffStartTime = $availability->start_time;
+                $staffEndTime = $availability->end_time;
+
+                $staffBreakStart = $availability->break_start;
+                $staffBreakEnd = $availability->break_end;
+
+
+                // 13. Calculate common working window
+                $startTime = max(
+                    $businessHours->opening_time,
+                    $staffStartTime
+                );
+
+                $endTime = min(
+                    $businessHours->closing_time,
+                    $staffEndTime
+                );
+
+
+                // No common working time
+                if ($startTime >= $endTime) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'No common working time available.',
+                        'data' => [
+                            'date' => $validated['date'],
+                            'day_of_week' => $dayOfWeek,
+                            'is_working' => false,
+                            'slots' => [],
+                        ],
+                    ]);
+                }
+
+
+                // 14. Generate slots
+                $slots = [];
+
+                $current = Carbon::parse(
+                    $validated['date'] . ' ' . $startTime
+                );
+
+                $end = Carbon::parse(
+                    $validated['date'] . ' ' . $endTime
+                );
+
+                while (
+                    $current->copy()
+                        ->addMinutes($service->duration)
+                        ->lte($end)
+                ) {
+
+                    $slotStart = $current->copy();
+
+                    $slotEnd = $current->copy()
+                        ->addMinutes($service->duration);
+
+                    $slots[] = [
+                        'start_time' => $slotStart->format('H:i'),
+                        'end_time' => $slotEnd->format('H:i'),
+                    ];
+
+                    $current->addMinutes($service->duration);
+                }
+
+
+                // 15. Remove break-time slots
+                $slots = array_filter(
+                    $slots,
+                    function ($slot) use (
+                        $staffBreakStart,
+                        $staffBreakEnd
+                    ) {
+
+                        if (!$staffBreakStart || !$staffBreakEnd) {
+                            return true;
+                        }
+
+                        return !(
+                            $slot['start_time'] < $staffBreakEnd &&
+                            $slot['end_time'] > $staffBreakStart
+                        );
+                    }
+                );
+
+
+                // 16. Get blocked times
+                $blockedTimes = BlockedTime::where('staff_id', $staff->id)
+                    ->whereDate('blocked_date', $validated['date'])
+                    ->get();
+
+
+                // 17. Remove blocked-time slots
+                $slots = array_filter(
+                    $slots,
+                    function ($slot) use ($blockedTimes) {
+
+                        foreach ($blockedTimes as $blocked) {
+
+                            if (
+                                $slot['start_time'] < $blocked->end_time &&
+                                $slot['end_time'] > $blocked->start_time
+                            ) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+                );
+
+
+                // 18. Reset array indexes
+                $slots = array_values($slots);
+
+
+
+
+            
+                            
+            // // Get booked appointments
+            // $appointments = Appointment::where('staff_id', $staff->id)
+            //     ->whereDate('appointment_date', $validated['date'])
+            //     ->whereIn('status', ['pending', 'confirmed'])
+            //     ->get();
+
+
+            // // Remove booked slots
+            // $slots = array_filter($slots, function ($slot) use ($appointments) {
+
+            //     foreach ($appointments as $appointment) {
+            //         if (
+            //             $slot['start_time'] < $appointment->end_time &&
+            //             $slot['end_time'] > $appointment->start_time
+            //         ) {
+            //             return false;
+            //         }
+            //     }
+
+            //     return true;
+            // });
+
+            // $slots = array_values($slots);
+
+           // 12. Temporary response
+            // 19. Return availability
+return response()->json([
+    'success' => true,
+    'message' => 'Staff availability found.',
+    'data' => [
+        'date' => $validated['date'],
+        'day_of_week' => $dayOfWeek,
+
+        'is_working' => true,
+
+        'company' => [
+            'start_time' => $businessHours->opening_time,
+            'end_time' => $businessHours->closing_time,
+        ],
+
+        'staff' => [
+            'start_time' => $staffStartTime,
+            'end_time' => $staffEndTime,
+            'break_start' => $staffBreakStart,
+            'break_end' => $staffBreakEnd,
+        ],
+
+        'working_window' => [
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+        ],
+
+        'slots' => $slots,
+    ],
+]);
+    }
 }
