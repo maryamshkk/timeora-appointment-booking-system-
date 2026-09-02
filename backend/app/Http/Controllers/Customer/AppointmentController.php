@@ -154,13 +154,14 @@ class AppointmentController extends Controller
                         'end_time' => $endTime->format('H:i:s'),
                         'status' => 'pending'
                       ]);  
-                     return response()->json([
+        });
+
+                    
+                    return response()->json([
                         'success' => true,
                         'message' => 'Appointment booked successfully.',
                         'data' => $appointment,
                     ], 201);
-        });
-
     }
     
 }
