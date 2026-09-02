@@ -269,6 +269,24 @@ class AvailabilityController extends Controller
                 // 18. Reset array indexes
                 $slots = array_values($slots);
 
+                // 19. Remove past slots 
+                $now = Carbon::now();
+
+                if($validated['date'] === $now->format('Y-m-d')) {
+                    $slots = array_filter(
+                        $slots,
+                        function ($slots) use ($now) {
+                            
+                            $slotEnd = Carbon::parse(
+                                $validated['date'] . '' . $slot['end_time']
+                            );
+
+                            return $slotEnd->gt($now);
+                        }
+
+                    );
+                    $slots = array_values($slots);
+                }
 
 
 
