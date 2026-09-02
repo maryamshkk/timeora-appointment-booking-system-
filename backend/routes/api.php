@@ -13,7 +13,7 @@ use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\BlockedTimeController;
 use App\Http\Controllers\AvailabilityExceptionController;
 use App\Http\Controllers\AvailabilityController;
-
+use App\Http\Controllers\Customer\AppointmentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -139,3 +139,9 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
     // Availability Slots Engine Api for booking
     Route::get('/availability',[AvailabilityController::class, 'index']);
+
+
+    // Customer Route Apis
+Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
+    Route::post('/customer/appointments', [AppointmentController::class, 'store']);
+});
