@@ -148,6 +148,9 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::middleware(['auth:sanctum', 'role:staff'])->group(function()
     {
         Route::get('/staff/appointments', [StaffAppointmentController::class,'index']);
+        Route::get('/staff/appointments/{id}', [StaffAppointmentController::class,'show']);
+        Route::put('/staff/appointments/{id}/accept', [StaffAppointmentController::class,'accept']);
+        Route::put('/staff/appointments/{id}/reject', [StaffAppointmentController::class,'reject']);
     });
 
     // Availability Slots Engine Api for booking
