@@ -226,8 +226,7 @@ class AvailabilityController extends Controller
                 $slots = array_filter(
                     $slots,
                     function ($slot) use (
-                        $staffBreakStart,
-                        $staffBreakEnd
+                        $staffBreakStart, $staffBreakEnd
                     ) {
 
                         if (!$staffBreakStart || !$staffBreakEnd) {
@@ -249,24 +248,39 @@ class AvailabilityController extends Controller
 
 
                 // 17. Remove blocked-time slots
-                $slots = array_filter(
-                    $slots,
-                    function ($slot) use ($blockedTimes) {
+                $slots = array_filter($slots, function ($slot) use (
+    $blockedTimes,
+    $validated
+) {
 
-                        foreach ($blockedTimes as $blocked) {
+    $slotStart = Carbon::parse(
+        $validated['date'] . ' ' . $slot['start_time']
+    );
 
-                            if (
-                                $slot['start_time'] < $blocked->end_time &&
-                                $slot['end_time'] > $blocked->start_time
-                            ) {
-                                return false;
-                            }
-                        }
+    $slotEnd = Carbon::parse(
+        $validated['date'] . ' ' . $slot['end_time']
+    );
 
-                        return true;
-                    }
-                );
+    foreach ($blockedTimes as $blocked) {
 
+        $blockedStart = Carbon::parse(
+            $validated['date'] . ' ' . $blocked->start_time
+        );
+
+        $blockedEnd = Carbon::parse(
+            $validated['date'] . ' ' . $blocked->end_time
+        );
+
+        if (
+            $slotStart->lt($blockedEnd) &&
+            $slotEnd->gt($blockedStart)
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+});
 
                 // 18. Reset array indexes
                 $slots = array_values($slots);
@@ -293,31 +307,48 @@ class AvailabilityController extends Controller
             
                             
             // // // Get booked appointments
-            // $appointments = Appointment::where('staff_id', $staff->id)
-            //     ->whereDate('appointment_date', $validated['date'])
-            //     ->whereIn('status', 
-            // ['pending', 'accepted'
-            // ])
-            //     ->get();
+            $appointments = Appointment::where('staff_id', $staff->id)
+                ->whereDate('appointment_date', $validated['date'])
+                ->whereIn('status', 
+                    ['pending', 'accepted'
+                    ])
+                ->get();
 
 
-            // // Remove booked slots
-            // $slots = array_filter($slots, function ($slot) use ($appointments) {
+            // Remove booked slots
+            $slots = array_filter($slots, function ($slot) use ($appointments, $validated) {
 
-            //     foreach ($appointments as $appointment) {
-            //         if (
-            //             $slot['start_time'] < $appointment->end_time &&
-            //             $slot['end_time'] > $appointment->start_time
-            //         ) {
-            //             return false;
-            //         }
-            //     }
+                $slotStart = Carbon::parse($validated['date'].''. $slot['start_time']
+                ); 
+                
+                $slotEnd = Carbon::parse(
+                    $validated['date'] . ' ' . $slot['end_time']
+                );
 
-            //     return true;
-            // });
+                foreach ($appointments as $appointment) {
+
+
+                    $appointmentStart = Carbon::parse(
+                        $validated['date'] . ' ' . $appointment->start_time
+                    );
+                    $appointmentEnd = Carbon::parse(
+                        $validated['date'] . ' ' . $appointment->end_time
+                    );
+
+                    // Overlap
+                        if (
+                            $slotStart->lt($appointmentEnd) &&
+                            $slotEnd->gt($appointmentStart)
+                        ) {
+                            return false;
+                        }
+                    }
+
+                return true;
+            });
 
             // 22. Reset array indexes
-            // $slots = array_values($slots);
+            $slots = array_values($slots);
 
             // 19. Return availability
                 return response()->json([

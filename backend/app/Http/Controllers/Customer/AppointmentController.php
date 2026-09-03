@@ -47,9 +47,10 @@ class AppointmentController extends Controller
             {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Staff doesnt belong to this company',
+                    'message' => "Staff doesn't belong to this company",
                 ], 422);
-            
+
+            }   
                     /*
             |--------------------------------------------------------------------------
             | Check staff provides service
@@ -58,7 +59,7 @@ class AppointmentController extends Controller
 
             $staffProvideService = DB::table('staff_service')
                         ->where('staff_id', $staff->id)
-                        ->where('sevice_id', $service->id)
+                        ->where('service_id', $service->id)
                         ->exists();
 
                 if(!$staffProvideService) {
@@ -100,7 +101,7 @@ class AppointmentController extends Controller
 
         $appointmentDateTime = Carbon::createFromFormat(
             'Y-m-d H:i',
-            $validated['appointment_date'] . '' . $validated['start_time']
+            $validated['appointment_date'] . ' ' . $validated['start_time']
         );
 
         if($appointmentDateTime->isPast()) {
@@ -160,25 +161,24 @@ class AppointmentController extends Controller
                             ], 409));
                         }
 
-                      return Appointment::create([
-                        'company_id' => $validated['company_id'],
-                        'customer_id' => $customer->id,
-                        'staff_id' => $staff->id,
-                        'service_id' => $service->id,
-                        'appointment_date' => $validated['appointment_date'],
-                        'start_time' => $validated['start_time'],
-                        'end_time' => $endTime->format('H:i:s'),
-                        'status' => 'pending'
-                      ]);  
-        });
-
-                    
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Appointment booked successfully.',
-                        'data' => $appointment,
-                    ], 201);
-    }
-    
-}
+                return Appointment::create([
+                    'company_id' => $validated['company_id'],
+                    'customer_id' => $customer->id,
+                    'staff_id' => $staff->id,
+                    'service_id' => $service->id,
+                    'appointment_date' => $validated['appointment_date'],
+                    'start_time' => $validated['start_time'],
+                    'end_time' => $endTime->format('H:i:s'),
+                    'status' => 'pending'
+                ]);  
+            });
+                
+            
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Appointment booked successfully.',
+                    'data' => $appointment,
+                ], 201);
+            }
+            
 }
