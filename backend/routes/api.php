@@ -14,6 +14,7 @@ use App\Http\Controllers\BlockedTimeController;
 use App\Http\Controllers\AvailabilityExceptionController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Customer\AppointmentController;
+use App\Http\Controllers\Company\AppointmentController as CompanyAppointmentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -130,6 +131,13 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::put('/company/staff/{staffId}/exceptions/{exceptionId}', [AvailabilityExceptionController::class, 'update']);
     Route::delete('/company/staff/{staffId}/exceptions/{exceptionId}', [AvailabilityExceptionController::class, 'destroy']);
 
+    // Company Specific Appointment Apis
+    Route::get("/company/appointments", [CompanyAppointmentController::class, 'index']);
+    Route::get("/company/appointments/{id}", [CompanyAppointmentController::class, 'show']);
+    Route::put("/company/appointments/{id}/accept", [CompanyAppointmentController::class, 'accept']);
+    Route::put("/company/appointments/{id}/accept", [CompanyAppointmentController::class, 'accept']);
+    Route::put("/company/appointments/{id}/reject", [CompanyAppointmentController::class, 'reject']);
+    Route::put("/company/appointments/{id}/cancel", [CompanyAppointmentController::class, 'cancel']);
 
 });
 
