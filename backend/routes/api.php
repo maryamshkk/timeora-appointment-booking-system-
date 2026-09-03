@@ -15,6 +15,7 @@ use App\Http\Controllers\AvailabilityExceptionController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Customer\AppointmentController;
 use App\Http\Controllers\Company\AppointmentController as CompanyAppointmentController;
+use App\Http\Controllers\Staff\AppointmentController as StaffAppointmentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -144,6 +145,10 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     // Staff invitation
     Route::post('/staff/accept-invitation', [StaffController::class, 'acceptInvitation']);
 
+    Route::middleware(['auth:sanctum', 'role:staff'])->group(function()
+    {
+        Route::get('/staff/appointments', [StaffAppointmentController::class,'index']);
+    });
 
     // Availability Slots Engine Api for booking
     Route::get('/availability',[AvailabilityController::class, 'index']);

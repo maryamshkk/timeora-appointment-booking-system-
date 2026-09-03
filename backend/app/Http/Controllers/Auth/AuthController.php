@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\User;
+use App\Models\Staff;
 use App\Models\Otp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -372,7 +373,6 @@ class AuthController extends Controller
         ], 200);
     }
 
-    // LOGIN
 public function login(Request $request)
 {
     $request->validate([
@@ -380,52 +380,120 @@ public function login(Request $request)
         'password' => 'required|string',
     ]);
 
+    // Check users table
     $user = User::where('email', $request->email)->first();
 
-    if (!$user || !Hash::check($request->password, $user->password)) {
+    if ($user) {
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials.',
+                'data' => null,
+                'errors' => null,
+            ], 401);
+        }
+
+        if ($user->status === 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email not verified. Please verify your email first.',
+                'data' => null,
+                'errors' => null,
+            ], 403);
+        }
+
+        if ($user->status === 'suspended') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account suspended. Contact support.',
+                'data' => null,
+                'errors' => null,
+            ], 403);
+        }
+
+        if ($user->status === 'deactivated') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account deactivated.',
+                'data' => null,
+                'errors' => null,
+            ], 403);
+        }
+
+        $token = $user->createToken($user->user_type)->plainTextToken;
+
+        $responseData = [
+            'token' => $token,
+            'user' => $user,
+        ];
+
+        if ($user->isCompanyAdmin()) {
+            $responseData['company'] = $user->company;
+        }
+
         return response()->json([
-            'success' => false,
-            'message' => 'Invalid credentials.',
-            'data' => null,
+            'success' => true,
+            'message' => 'Login successful.',
+            'data' => $responseData,
             'errors' => null,
-        ], 401);
+        ], 200);
     }
 
-    if ($user->status === 'pending') {
+    // Check staff table
+    $staff = Staff::where('account_email', $request->email)->first();
+
+    if ($staff) {
+
+        if (
+            empty($staff->password_hash) ||
+            !Hash::check($request->password, $staff->password_hash)
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials.',
+                'data' => null,
+                'errors' => null,
+            ], 401);
+        }
+
+        if ($staff->status !== 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff account is not active.',
+                'data' => null,
+                'errors' => null,
+            ], 403);
+        }
+
+        if (!$staff->email_verified_at) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff email is not verified.',
+                'data' => null,
+                'errors' => null,
+            ], 403);
+        }
+
+        $token = $staff->createToken('staff')->plainTextToken;
+
         return response()->json([
-            'success' => false,
-            'message' => 'Email not verified. Please verify your email first.',
-            'data' => null,
+            'success' => true,
+            'message' => 'Staff login successful.',
+            'data' => [
+                'token' => $token,
+                'staff' => $staff,
+            ],
             'errors' => null,
-        ], 403);
-    }
-
-    if ($user->status === 'suspended') {
-        return response()->json([
-            'success' => false,
-            'message' => 'Account suspended. Contact support.',
-            'data' => null,
-            'errors' => null,
-        ], 403);
-    }
-
-    $token = $user->createToken($user->user_type)->plainTextToken;
-
-    $responseData = [
-        'token' => $token,
-        'user' => $user,
-    ];
-
-    if ($user->isCompanyAdmin()) {
-        $responseData['company'] = $user->company;
+        ], 200);
     }
 
     return response()->json([
-        'success' => true,
-        'message' => 'Login successful.',
-        'data' => $responseData,
+        'success' => false,
+        'message' => 'Invalid credentials.',
+        'data' => null,
         'errors' => null,
-    ], 200);
+    ], 401);
 }
     // LOGOUT
     public function logout(Request $request)

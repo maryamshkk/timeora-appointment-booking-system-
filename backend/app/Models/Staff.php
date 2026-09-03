@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
-class Staff extends Model
+class Staff extends Authenticatable
 {
-    use HasFactory, SoftDeletes;
+    use HasApiTokens, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'company_id',
@@ -51,6 +53,11 @@ class Staff extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+
     /**
      * Staff belongs to a role.
      */
@@ -69,6 +76,7 @@ class Staff extends Model
             'staff_service'
         )->withTimestamps();
     }
+
 
     /**
      * Staff has many availability records.

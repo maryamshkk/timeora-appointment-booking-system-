@@ -26,6 +26,20 @@ class RoleMiddleware
                     'errors' => null,
                 ], 401);
             }
+                        // Staff
+            if ($user instanceof \App\Models\Staff) {
+
+                if (in_array('staff', $roles)) {
+                    return $next($request);
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized.',
+                    'data' => null,
+                    'errors' => null,
+                ], 403);
+            }
 
             if (!in_array($user->user_type, $roles)) {
             return response()->json([
