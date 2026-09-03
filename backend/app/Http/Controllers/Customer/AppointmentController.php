@@ -179,6 +179,59 @@ class AppointmentController extends Controller
                     'message' => 'Appointment booked successfully.',
                     'data' => $appointment,
                 ], 201);
-            }
+    }
+
+        /**
+     * Get logged-in customer's appointments.
+     */
+    public function index(Request $request)
+    {
+        $customer = $request->user();
+
+        $appointments = Appointment::with([
+            'company:id,name',
+            'staff:id,first_name,last_name',
+            'service:id,name,duration',
+        ])
+            ->where('customer_id', $customer->id)
+            ->latest('appointment_date')
+            ->latest('start_time')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Customer appointments retrieved successfully.',
+            'data' => $appointments,
+        ]);
+    }
+
+        /**
+     * Get single customer appointment.
+     */
+    public function singleShow(Request $request, $id)
+    {
+        $customer = $request->user();
+
+        $appointment = Appointment::with([
+            'company:id,name',
+            'staff:id,first_name,last_name',
+            'service:id,name,duration',
+        ])
+            ->where('customer_id', $customer->id)
+            ->find($id);
+
+        if (!$appointment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Appointment not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Appointment retrieved successfully.',
+            'data' => $appointment,
+        ]);
+    }
             
 }
