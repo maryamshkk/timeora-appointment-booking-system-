@@ -49,8 +49,24 @@ class AppointmentController extends Controller
                     'success' => false,
                     'message' => 'Staff doesnt belong to this company',
                 ], 422);
-            }
-        
+            
+                    /*
+            |--------------------------------------------------------------------------
+            | Check staff provides service
+            |--------------------------------------------------------------------------
+            */
+
+            $staffProvideService = DB::table('staff_service')
+                        ->where('staff_id', $staff->id)
+                        ->where('sevice_id', $service->id)
+                        ->exists();
+
+                if(!$staffProvideService) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Thiss staff member does not provide the selected service.' ,
+                    ], 422);
+                }
              /*
         |--------------------------------------------------------------------------
         | Check service belongs to company
@@ -164,4 +180,5 @@ class AppointmentController extends Controller
                     ], 201);
     }
     
+}
 }

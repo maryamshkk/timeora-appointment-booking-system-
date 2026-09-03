@@ -295,7 +295,9 @@ class AvailabilityController extends Controller
             // // // Get booked appointments
             // $appointments = Appointment::where('staff_id', $staff->id)
             //     ->whereDate('appointment_date', $validated['date'])
-            //     ->whereIn('status', ['pending', 'confirmed'])
+            //     ->whereIn('status', 
+            // ['pending', 'accepted'
+            // ])
             //     ->get();
 
 
@@ -314,38 +316,38 @@ class AvailabilityController extends Controller
             //     return true;
             // });
 
+            // 22. Reset array indexes
             // $slots = array_values($slots);
 
-           // 12. Temporary response
             // 19. Return availability
-return response()->json([
-    'success' => true,
-    'message' => 'Staff availability found.',
-    'data' => [
-        'date' => $validated['date'],
-        'day_of_week' => $dayOfWeek,
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Staff availability found.',
+                    'data' => [
+                        'date' => $validated['date'],
+                        'day_of_week' => $dayOfWeek,
 
-        'is_working' => true,
+                        'is_working' => true,
 
-        'company' => [
-            'start_time' => $businessHours->opening_time,
-            'end_time' => $businessHours->closing_time,
-        ],
+                        'company' => [
+                            'start_time' => $businessHours->opening_time,
+                            'end_time' => $businessHours->closing_time,
+                        ],
 
-        'staff' => [
-            'start_time' => $staffStartTime,
-            'end_time' => $staffEndTime,
-            'break_start' => $staffBreakStart,
-            'break_end' => $staffBreakEnd,
-        ],
+                        'staff' => [
+                            'start_time' => $staffStartTime,
+                            'end_time' => $staffEndTime,
+                            'break_start' => $staffBreakStart,
+                            'break_end' => $staffBreakEnd,
+                        ],
 
-        'working_window' => [
-            'start_time' => $startTime,
-            'end_time' => $endTime,
-        ],
+                        'working_window' => [
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                        ],
 
-        'slots' => $slots,
-    ],
-]);
-    }
+                        'slots' => $slots,
+                    ],
+                ]);
+                    }
 }
