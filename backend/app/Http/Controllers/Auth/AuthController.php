@@ -373,128 +373,129 @@ class AuthController extends Controller
         ], 200);
     }
 
-public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string',
-    ]);
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-    // Check users table
-    $user = User::where('email', $request->email)->first();
+        // Check users table
+        $user = User::where('email', $request->email)->first();
 
-    if ($user) {
+        if ($user) {
 
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials.',
-                'data' => null,
-                'errors' => null,
-            ], 401);
-        }
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid credentials.',
+                    'data' => null,
+                    'errors' => null,
+                ], 401);
+            }
 
-        if ($user->status === 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email not verified. Please verify your email first.',
-                'data' => null,
-                'errors' => null,
-            ], 403);
-        }
+            if ($user->status === 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email not verified. Please verify your email first.',
+                    'data' => null,
+                    'errors' => null,
+                ], 403);
+            }
 
-        if ($user->status === 'suspended') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Account suspended. Contact support.',
-                'data' => null,
-                'errors' => null,
-            ], 403);
-        }
+            if ($user->status === 'suspended') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Account suspended. Contact support.',
+                    'data' => null,
+                    'errors' => null,
+                ], 403);
+            }
 
-        if ($user->status === 'deactivated') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Account deactivated.',
-                'data' => null,
-                'errors' => null,
-            ], 403);
-        }
+            if ($user->status === 'deactivated') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Account deactivated.',
+                    'data' => null,
+                    'errors' => null,
+                ], 403);
+            }
 
-        $token = $user->createToken($user->user_type)->plainTextToken;
+            $token = $user->createToken($user->user_type)->plainTextToken;
 
-        $responseData = [
-            'token' => $token,
-            'user' => $user,
-        ];
-
-        if ($user->isCompanyAdmin()) {
-            $responseData['company'] = $user->company;
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Login successful.',
-            'data' => $responseData,
-            'errors' => null,
-        ], 200);
-    }
-
-    // Check staff table
-    $staff = Staff::where('account_email', $request->email)->first();
-
-    if ($staff) {
-
-        if (
-            empty($staff->password_hash) ||
-            !Hash::check($request->password, $staff->password_hash)
-        ) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials.',
-                'data' => null,
-                'errors' => null,
-            ], 401);
-        }
-
-        if ($staff->status !== 'active') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Staff account is not active.',
-                'data' => null,
-                'errors' => null,
-            ], 403);
-        }
-
-        if (!$staff->email_verified_at) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Staff email is not verified.',
-                'data' => null,
-                'errors' => null,
-            ], 403);
-        }
-
-        $token = $staff->createToken('staff')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Staff login successful.',
-            'data' => [
+            $responseData = [
                 'token' => $token,
-                'staff' => $staff,
-            ],
+                'user' => $user,
+            ];
+
+            if ($user->isCompanyAdmin()) {
+                $responseData['company'] = $user->company;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful.',
+                'data' => $responseData,
+                'errors' => null,
+            ], 200);
+        }
+
+        // Check staff table
+        $staff = Staff::where('account_email', $request->email)->first();
+
+        if ($staff) {
+
+            if (
+                empty($staff->password_hash) ||
+                !Hash::check($request->password, $staff->password_hash)
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid credentials.',
+                    'data' => null,
+                    'errors' => null,
+                ], 401);
+            }
+
+            if ($staff->status !== 'active') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Staff account is not active.',
+                    'data' => null,
+                    'errors' => null,
+                ], 403);
+            }
+
+            if (!$staff->email_verified_at) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Staff email is not verified.',
+                    'data' => null,
+                    'errors' => null,
+                ], 403);
+            }
+
+            $token = $staff->createToken('staff')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Staff login successful.',
+                'data' => [
+                    'token' => $token,
+                    'staff' => $staff,
+                ],
+                'errors' => null,
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid credentials.',
+            'data' => null,
             'errors' => null,
-        ], 200);
+        ], 401);
     }
 
-    return response()->json([
-        'success' => false,
-        'message' => 'Invalid credentials.',
-        'data' => null,
-        'errors' => null,
-    ], 401);
-}
     // LOGOUT
     public function logout(Request $request)
     {
@@ -580,56 +581,56 @@ public function login(Request $request)
     }
 
     // RESET PASSWORD
-public function resetPassword(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'otp' => 'required|digits:6',
-        'password' => [
-            'required',
-            'min:8',
-            'regex:/[A-Z]/',
-            'regex:/[a-z]/',
-            'regex:/[0-9]/',
-            'regex:/[^A-Za-z0-9]/',
-        ],
-        'password_confirmation' => 'required|same:password',
-    ]);
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+            'password' => [
+                'required',
+                'min:8',
+                'regex:/[A-Z]/',
+                'regex:/[a-z]/',
+                'regex:/[0-9]/',
+                'regex:/[^A-Za-z0-9]/',
+            ],
+            'password_confirmation' => 'required|same:password',
+        ]);
 
-    $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-    if (!$user) {
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No account found with this email.',
+                'data' => null,
+                'errors' => null,
+            ], 404);
+        }
+
+        $result = $this->otpService->verifyOtp(
+            $user->email,
+            $user->id,
+            $request->otp,
+            'password_reset'
+        );
+
+        if (!$result['success']) {
+            return response()->json($result, 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Delete all tokens after password reset
+        $user->tokens()->delete();
+
         return response()->json([
-            'success' => false,
-            'message' => 'No account found with this email.',
+            'success' => true,
+            'message' => 'Password reset successfully. Please login with your new password.',
             'data' => null,
             'errors' => null,
-        ], 404);
+        ], 200);
     }
-
-    $result = $this->otpService->verifyOtp(
-        $user->email,
-        $user->id,
-        $request->otp,
-        'password_reset'
-    );
-
-    if (!$result['success']) {
-        return response()->json($result, 422);
-    }
-
-    $user->update([
-        'password' => Hash::make($request->password),
-    ]);
-
-    // Delete all tokens after password reset
-    $user->tokens()->delete();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Password reset successfully. Please login with your new password.',
-        'data' => null,
-        'errors' => null,
-    ], 200);
-}
 }
