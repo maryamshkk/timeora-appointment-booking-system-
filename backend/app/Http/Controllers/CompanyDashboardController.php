@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Appointment;
+use App\Models\User;
+use App\Models\Staff;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class CompanyDashboardController extends Controller
@@ -13,37 +16,64 @@ class CompanyDashboardController extends Controller
     {
         $user = $request->user();
 
-        return response()->json([
-            'message' => 'Company dashboard',
-            'user_id' => $user->id,
-        ]);
+        //1. Company ID
+        $companyId = $user->company_id;
 
-        // Appointment Statistics
+        // 2. Date filters
+        $date = $request->query('date');
+        $start = $request->query('start');
+        $end = $request->query('end');
+
+
+        //3. Appointment Statistics
         $pendingAppointments = Appointment::where('company_id', $companyId)
             ->where('status', 'pending')
             ->count();
 
-        $acceptedAppointments = Appointment::where('company_id', $companyId)
+            $acceptedAppointments = Appointment::where('company_id', $companyId)
             ->where('status', 'accepted')
             ->count();
 
-        $completedAppointments = Appointment::where('company_id', $companyId)
+            $completedAppointments = Appointment::where('company_id', $companyId)
             ->where('status', 'completed')
             ->count();
 
-        $cancelledAppointments = Appointment::where('company_id', $companyId)
+            $cancelledAppointments = Appointment::where('company_id', $companyId)
             ->where('status', 'cancelled')
             ->count();
 
+            
+            // Total Appointments
+        $totalAppointments = Appointment::where('company_id', $companyId)
+            ->count();
 
-        // Today's Appointments
-        $todayAppointments = Appointment::where('company_id', $companyId)
-            ->whereDate('appointment_date', today())
+            // 5. Today's Appointments
+        $todayQuery = Appointment::where('company_id', $companyId)
+            ->whereDate('appointment_date', today());
+        
+            if ($date === 'today') {
+            $todayQuery->whereDate('appointment_date', today());
+        }
+
+            $todayAppointments = $todayQuery
             ->orderBy('start_time')
             ->get();
 
+        // Date Range Filter
+        $dateRangeAppointments = null;
+
+        if ($start && $end) {
+            $dateRangeAppointments = Appointment::where('company_id', $companyId)
+                ->whereBetween('appointment_date', [$start, $end])
+                ->orderBy('appointment_date')
+                ->orderBy('start_time')
+                ->get();
+        }
+
+
+
         // Total Customers
-        $totalCustomers = Customer::where('company_id', $companyId)
+        $totalCustomers = User::where('company_id', $companyId)
             ->count();
 
         // Total Staff
@@ -52,22 +82,31 @@ class CompanyDashboardController extends Controller
 
         // Total Services
         $totalServices = Service::where('company_id', $companyId)
-            ->count(); 
-            
+            ->count();
+
+
+
+                    // Recent Activity
+        $recentActivity = Appointment::where('company_id', $companyId)
+                ->latest('created_at')
+                ->limit(5)
+                ->get();
+
         // Upcoming Appointments
         $upcomingAppointments = Appointment::where('company_id', $companyId)
-    ->where(function ($query) {
-        $query->whereDate('appointment_date', '>', today())
-              ->orWhere(function ($query) {
-                  $query->whereDate('appointment_date', today())
-                        ->where('start_time', '>=', now()->format('H:i:s'));
-              });
+            ->where(function ($query) {
+                $query->whereDate('appointment_date', '>', today())
+                    ->orWhere(function ($query) {
+                        $query->whereDate('appointment_date', today())
+                                ->where('start_time', '>=', now()->format('H:i:s'));
+                    });
     })
             ->whereIn('status', ['pending', 'accepted'])
             ->orderBy('appointment_date')
             ->orderBy('start_time')
             ->limit(5)
             ->get();
+
 
             // Return Dashboard Response
         return response()->json([
@@ -76,6 +115,7 @@ class CompanyDashboardController extends Controller
             'data' => [
                 'statistics' => [
                     'total_appointments' => $totalAppointments,
+                    'today_appointments' => $todayAppointments,
                     'pending_appointments' => $pendingAppointments,
                     'accepted_appointments' => $acceptedAppointments,
                     'completed_appointments' => $completedAppointments,
@@ -86,6 +126,8 @@ class CompanyDashboardController extends Controller
                     'today_appointments' => $todayAppointments,
                 ],
 
+                'date_range_appointments' => $dateRangeAppointments,
+                'recent_activity' => $recentActivity,                
                 'upcoming_appointments' => $upcomingAppointments,
             ],
         ]);

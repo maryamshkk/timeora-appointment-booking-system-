@@ -17,7 +17,7 @@ use App\Http\Controllers\Customer\AppointmentController;
 use App\Http\Controllers\Company\AppointmentController as CompanyAppointmentController;
 use App\Http\Controllers\Staff\AppointmentController as StaffAppointmentController;
 use App\Http\Controllers\ReceiptController;
-
+use App\Http\Controllers\CompanyDashboardController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
