@@ -175,4 +175,11 @@ Route::middleware(['auth:sanctum', 'role:company_admin,staff,'])->group(function
 });
 
 // Receipt Id
-Route::middleware('auth:sanctum')->get('/receipts/{id}', [ReceiptController::class, 'show']);
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/receipts', [ReceiptController::class, 'index']);
+
+    Route::get('/receipts/{id}', [ReceiptController::class, 'show']);
+    Route::get('/receipts/{id}/pdf', [ReceiptController::class, 'pdf']);
+
+});
