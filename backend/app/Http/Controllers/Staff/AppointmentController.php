@@ -444,4 +444,42 @@ class AppointmentController extends Controller
             'data' => $appointment->fresh(),
         ]);
     }
+
+    public function calendar(Request $request)
+    {
+        $validated = $request->validate([
+            'start' => 'required|date',
+            'end' => 'required|date|after_or_equal:start',
+        ]);
+
+        $staff = $request->user();
+
+
+        if (!$staff) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff profile not found.',
+            ], 404);
+        }
+
+        $appointments = Appointment::with([
+            'customer:id,name,email',
+            'company:id,name',
+            'service:id,name,duration',
+        ])
+            ->where('staff_id', $staff->id)
+            ->whereBetween('appointment_date', [
+                $validated['start'],
+                $validated['end'],
+            ])
+            ->orderBy('appointment_date')
+            ->orderBy('start_time')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff calendar retrieved successfully.',
+            'data' => $appointments,
+        ]);
+    }
 }

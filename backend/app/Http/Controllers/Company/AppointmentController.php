@@ -178,217 +178,251 @@ class AppointmentController extends Controller
         ]);
     }
 
+    /**
+     * Reschedule appointment.
+     */
     public function reschedule(Request $request, $id)
-{
-    $validated = $request->validate([
-        'appointment_date' => 'required|date',
-        'start_time' => 'required|date_format:H:i',
-    ]);
+    {
+        $validated = $request->validate([
+            'appointment_date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+        ]);
 
-    $user = $request->user();
+        $user = $request->user();
 
-    $appointment = Appointment::where('company_id', $user->company_id)
-        ->find($id);
+        $appointment = Appointment::where('company_id', $user->company_id)
+            ->find($id);
 
-    if (!$appointment) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Appointment not found.',
-        ], 404);
-    }
+        if (!$appointment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Appointment not found.',
+            ], 404);
+        }
 
-    if (in_array($appointment->status, [
-        'cancelled',
-        'rejected',
-        'completed',
-    ])) {
-        return response()->json([
-            'success' => false,
-            'message' => 'This appointment cannot be rescheduled.',
-        ], 422);
-    }
+        if (in_array($appointment->status, [
+            'cancelled',
+            'rejected',
+            'completed',
+        ])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This appointment cannot be rescheduled.',
+            ], 422);
+        }
 
-    $staff = Staff::find($appointment->staff_id);
-    $service = Service::find($appointment->service_id);
-    $company = Company::find($appointment->company_id);
+        $staff = Staff::find($appointment->staff_id);
+        $service = Service::find($appointment->service_id);
+        $company = Company::find($appointment->company_id);
 
-    $startTime = Carbon::createFromFormat(
-        'H:i',
-        $validated['start_time']
-    );
+        $startTime = Carbon::createFromFormat(
+            'H:i',
+            $validated['start_time']
+        );
 
-    $endTime = $startTime->copy()
-        ->addMinutes($service->duration);
+        $endTime = $startTime->copy()
+            ->addMinutes($service->duration);
 
-    $appointmentDateTime = Carbon::createFromFormat(
-        'Y-m-d H:i',
-        $validated['appointment_date'] . ' ' . $validated['start_time']
-    );
+        $appointmentDateTime = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $validated['appointment_date'] . ' ' . $validated['start_time']
+        );
 
-    if ($appointmentDateTime->isPast()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'You cannot reschedule to a past slot.',
-        ], 422);
-    }
+        if ($appointmentDateTime->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot reschedule to a past slot.',
+            ], 422);
+        }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Staff Availability
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Staff Availability
+        |--------------------------------------------------------------------------
+        */
 
-    $dayOfWeek = Carbon::parse(
-        $validated['appointment_date']
-    )->dayOfWeekIso;
+        $dayOfWeek = Carbon::parse(
+            $validated['appointment_date']
+        )->dayOfWeekIso;
 
-    $availability = StaffAvailability::where('staff_id', $staff->id)
-        ->where('day_of_week', $dayOfWeek)
-        ->first();
-
-    if (!$availability || !$availability->is_working) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Staff is not available on this day.',
-        ], 422);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Company Business Hours
-    |--------------------------------------------------------------------------
-    */
-
-    $businessHours = BusinessWorkingHour::where('company_id', $company->id)
+        $availability = StaffAvailability::where('staff_id', $staff->id)
             ->where('day_of_week', $dayOfWeek)
             ->first();
 
-    if (!$businessHours) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Company is closed on this day.',
-        ], 422);
-    }
+        if (!$availability || !$availability->is_working) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff is not available on this day.',
+            ], 422);
+        }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Common Working Window
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Company Business Hours
+        |--------------------------------------------------------------------------
+        */
 
-    $commonStart = max(
-        $businessHours->opening_time,
-        $availability->start_time
-    );
+        $businessHours = BusinessWorkingHour::where('company_id', $company->id)
+                ->where('day_of_week', $dayOfWeek)
+                ->first();
 
-    $commonEnd = min(
-        $businessHours->closing_time,
-        $availability->end_time
-    );
+        if (!$businessHours) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company is closed on this day.',
+            ], 422);
+        }
 
-    if (
-        $validated['start_time'] < $commonStart ||
-        $endTime->format('H:i:s') > $commonEnd
-    ) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Selected slot is outside working hours.',
-        ], 422);
-    }
+        /*
+        |--------------------------------------------------------------------------
+        | Common Working Window
+        |--------------------------------------------------------------------------
+        */
 
-    /*
-    |--------------------------------------------------------------------------
-    | Break Time
-    |--------------------------------------------------------------------------
-    */
+        $commonStart = max(
+            $businessHours->opening_time,
+            $availability->start_time
+        );
 
-    if (
-        $availability->break_start &&
-        $availability->break_end &&
-        $validated['start_time'] < $availability->break_end &&
-        $endTime->format('H:i:s') > $availability->break_start
-    ) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Selected slot overlaps staff break time.',
-        ], 422);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Blocked Time
-    |--------------------------------------------------------------------------
-    */
-
-    $blockedTimes = BlockedTime::where('staff_id', $staff->id)
-        ->whereDate('blocked_date', $validated['appointment_date'])
-        ->get();
-
-    foreach ($blockedTimes as $blocked) {
+        $commonEnd = min(
+            $businessHours->closing_time,
+            $availability->end_time
+        );
 
         if (
-            $validated['start_time'] < $blocked->end_time &&
-            $endTime->format('H:i:s') > $blocked->start_time
+            $validated['start_time'] < $commonStart ||
+            $endTime->format('H:i:s') > $commonEnd
         ) {
             return response()->json([
                 'success' => false,
-                'message' => 'Selected slot is blocked.',
+                'message' => 'Selected slot is outside working hours.',
             ], 422);
         }
-    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Appointment Conflict
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Break Time
+        |--------------------------------------------------------------------------
+        */
 
-    $conflict = Appointment::where('staff_id', $staff->id)
-        ->where('appointment_date', $validated['appointment_date'])
-        ->whereIn('status', [
-            'pending',
-            'accepted',
-        ])
-        ->where('id', '!=', $appointment->id)
-        ->where(function ($query) use ($validated, $endTime) {
+        if (
+            $availability->break_start &&
+            $availability->break_end &&
+            $validated['start_time'] < $availability->break_end &&
+            $endTime->format('H:i:s') > $availability->break_start
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected slot overlaps staff break time.',
+            ], 422);
+        }
 
-            $query->where(
-                'start_time',
-                '<',
-                $endTime->format('H:i:s')
-            )->where(
-                'end_time',
-                '>',
-                $validated['start_time']
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | Blocked Time
+        |--------------------------------------------------------------------------
+        */
 
-        })
-        ->exists();
+        $blockedTimes = BlockedTime::where('staff_id', $staff->id)
+            ->whereDate('blocked_date', $validated['appointment_date'])
+            ->get();
 
-    if ($conflict) {
+        foreach ($blockedTimes as $blocked) {
+
+            if (
+                $validated['start_time'] < $blocked->end_time &&
+                $endTime->format('H:i:s') > $blocked->start_time
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected slot is blocked.',
+                ], 422);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Appointment Conflict
+        |--------------------------------------------------------------------------
+        */
+
+        $conflict = Appointment::where('staff_id', $staff->id)
+            ->where('appointment_date', $validated['appointment_date'])
+            ->whereIn('status', [
+                'pending',
+                'accepted',
+            ])
+            ->where('id', '!=', $appointment->id)
+            ->where(function ($query) use ($validated, $endTime) {
+
+                $query->where(
+                    'start_time',
+                    '<',
+                    $endTime->format('H:i:s')
+                )->where(
+                    'end_time',
+                    '>',
+                    $validated['start_time']
+                );
+
+            })
+            ->exists();
+
+        if ($conflict) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected slot is already booked.',
+            ], 409);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Appointment
+        |--------------------------------------------------------------------------
+        */
+
+        $appointment->update([
+            'appointment_date' => $validated['appointment_date'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $endTime->format('H:i:s'),
+            'status' => 'pending',
+        ]);
+
         return response()->json([
-            'success' => false,
-            'message' => 'Selected slot is already booked.',
-        ], 409);
+            'success' => true,
+            'message' => 'Appointment rescheduled successfully.',
+            'data' => $appointment->fresh(),
+        ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Update Appointment
-    |--------------------------------------------------------------------------
-    */
+    // Calendar Api
+    public function calendar(Request $request)
+    {
+        $validated = $request->validate([
+            'start' => 'required|date',
+            'end' => 'required|date|after_or_equal:start',
+        ]);
 
-    $appointment->update([
-        'appointment_date' => $validated['appointment_date'],
-        'start_time' => $validated['start_time'],
-        'end_time' => $endTime->format('H:i:s'),
-        'status' => 'pending',
-    ]);
+        $user = $request->user();
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Appointment rescheduled successfully.',
-        'data' => $appointment->fresh(),
-    ]);
-}
+        $appointments = Appointment::with([
+            'customer:id,name,email',
+            'staff:id,first_name,last_name',
+            'service:id,name,duration',
+        ])
+            ->where('company_id', $user->company_id)
+            ->whereBetween('appointment_date', [
+                $validated['start'],
+                $validated['end'],
+            ])
+            ->orderBy('appointment_date')
+            ->orderBy('start_time')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Company calendar retrieved successfully.',
+            'data' => $appointments,
+        ]);
+    }
 }

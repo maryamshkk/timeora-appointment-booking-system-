@@ -140,8 +140,11 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::put("/company/appointments/{id}/accept", [CompanyAppointmentController::class, 'accept']);
     Route::put("/company/appointments/{id}/reject", [CompanyAppointmentController::class, 'reject']);
     Route::put("/company/appointments/{id}/cancel", [CompanyAppointmentController::class, 'cancel']);
-    Route::put('company/appointments/{id}/reschedule', [CompanyAppointmentController::class, 'reschedule']
-);
+    Route::put('company/appointments/{id}/reschedule', [CompanyAppointmentController::class, 'reschedule']);
+
+    // Company Calendar Apiss
+    Route::get('/company/calendar', [CompanyAppointmentController::class, 'calendar']);
+
 });
 
     // Staff invitation
@@ -155,7 +158,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
         Route::put('/staff/appointments/{id}/reject', [StaffAppointmentController::class,'reject']);
         Route::put('/staff/appointments/{id}/reschedule', [StaffAppointmentController::class, 'reschedule']);
         Route::put('staff/appointments/{id}/cancel', [StaffAppointmentController::class, 'cancel']);
-    });
+        Route::get('staff/calendar', [StaffAppointmentController::class, 'calendar']);
+        });
 
     // Availability Slots Engine Api for booking
     Route::get('/availability',[AvailabilityController::class, 'index']);
