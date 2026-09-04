@@ -52,7 +52,7 @@
 
         <div class="row">
             <span class="label">Staff:</span>
-            {{ $receipt->appointment->staff->name }}
+            {{ $receipt->appointment->staff->first_name }}
         </div>
 
         <div class="row">
@@ -62,7 +62,7 @@
 
         <div class="row">
             <span class="label">Date:</span>
-            {{ $receipt->appointment->date }}
+            {{ $receipt->appointment->created_at }}
         </div>
 
         <div class="row">

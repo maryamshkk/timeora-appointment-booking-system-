@@ -138,10 +138,10 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::get("/company/appointments", [CompanyAppointmentController::class, 'index']);
     Route::get("/company/appointments/{id}", [CompanyAppointmentController::class, 'show']);
     Route::put("/company/appointments/{id}/accept", [CompanyAppointmentController::class, 'accept']);
-    Route::put("/company/appointments/{id}/accept", [CompanyAppointmentController::class, 'accept']);
     Route::put("/company/appointments/{id}/reject", [CompanyAppointmentController::class, 'reject']);
     Route::put("/company/appointments/{id}/cancel", [CompanyAppointmentController::class, 'cancel']);
-
+    Route::put('company/appointments/{id}/reschedule', [CompanyAppointmentController::class, 'reschedule']
+);
 });
 
     // Staff invitation
@@ -153,6 +153,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
         Route::get('/staff/appointments/{id}', [StaffAppointmentController::class,'show']);
         Route::put('/staff/appointments/{id}/accept', [StaffAppointmentController::class,'accept']);
         Route::put('/staff/appointments/{id}/reject', [StaffAppointmentController::class,'reject']);
+        Route::put('/staff/appointments/{id}/reschedule', [StaffAppointmentController::class, 'reschedule']);
+        Route::put('staff/appointments/{id}/cancel', [StaffAppointmentController::class, 'cancel']);
     });
 
     // Availability Slots Engine Api for booking
@@ -165,11 +167,13 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
     Route::get('/customer/appointments', [AppointmentController::class, 'index']);
     Route::get('/customer/appointments/{id}', [AppointmentController::class, 'singleShow']);
     Route::put('/customer/appointments/{id}', [AppointmentController::class, 'cancel']);
+    Route::put('/customer/appointments/{id}/reschedule', [AppointmentController::class, 'reschedule']);
 });
 
 // Payment Apis
 Route::middleware(['auth:sanctum', 'role:company_admin,staff,'])->group(function () {
 
+    Route::get('/appointments/{id}/payment', [AppointmentController::class, 'payment']);
     Route::put('/appointments/{id}/payment', [AppointmentController::class, 'markPaymentPaid']);
     
 });

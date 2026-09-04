@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Receipt;
+use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReceiptController extends Controller
@@ -78,7 +79,7 @@ class ReceiptController extends Controller
                 'staff' => $receipt->appointment->staff,
                 'service' => $receipt->appointment->service,
 
-                'appointment_date' => $receipt->appointment->date,
+                'appointment_date' => $receipt->appointment->created_at,
                 'appointment_time' => $receipt->appointment->start_time,
 
                 'payment_amount' => $receipt->payment->amount,
@@ -153,9 +154,17 @@ class ReceiptController extends Controller
             'receipt' => $receipt
         ]);
 
-        return $pdf->stream(
-            $receipt->receipt_number . '.pdf'
-        );
+        $fileName = $receipt->receipt_number . '.pdf';
+
+        $path = 'receipts/' . $fileName;
+
+        Storage::disk('public')->put($path, $pdf->output());
+
+        return response()->json([
+            'message' => 'Receipt PDF saved successfully',
+            'file' => $fileName,
+            'url' => Storage::url($path),
+        ]);
 
     }
 

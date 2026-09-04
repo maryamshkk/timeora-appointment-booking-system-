@@ -8,6 +8,9 @@ use App\Models\Company;
 use App\Models\Service;
 use App\Models\Staff;
 use Carbon\Carbon;
+use App\Models\BlockedTime;
+use App\Models\StaffAvailability;
+use App\Models\BusinessWorkingHour;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -330,5 +333,368 @@ class AppointmentController extends Controller
         ]);
     }
 
-            
+    public function payment($id)
+    {
+        $appointment = Appointment::find($id);
+
+        if (!$appointment) {
+            return response()->json([
+                'message' => 'Appointment not found'
+            ], 404);
+        }
+
+        $payment = $appointment->payment;
+
+        if (!$payment) {
+            return response()->json([
+                'message' => 'Payment not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Payment retrieved successfully',
+            'payment' => $payment
+        ]);
+    }
+
+    public function reschedule(Request $request, $id)
+{
+    $validated = $request->validate([
+        'appointment_date' => ['required', 'date', 'date_format:Y-m-d'],
+        'start_time' => ['required', 'date_format:H:i'],
+    ]);
+
+    $customer = $request->user();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find Customer Appointment
+    |--------------------------------------------------------------------------
+    */
+
+    $appointment = Appointment::where('customer_id', $customer->id)
+        ->find($id);
+
+    if (!$appointment) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Appointment not found.',
+        ], 404);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Appointment Status
+    |--------------------------------------------------------------------------
+    */
+
+    if (in_array($appointment->status, [
+        'cancelled',
+        'rejected',
+        'completed',
+    ])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'This appointment cannot be rescheduled.',
+        ], 422);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Related Records
+    |--------------------------------------------------------------------------
+    */
+
+    $company = Company::find($appointment->company_id);
+    $staff = Staff::find($appointment->staff_id);
+    $service = Service::find($appointment->service_id);
+
+    if (!$company) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Company not found.',
+        ], 404);
+    }
+
+    if (!$staff) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Staff member not found.',
+        ], 404);
+    }
+
+    if (!$service) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Service not found.',
+        ], 404);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calculate New Appointment Time
+    |--------------------------------------------------------------------------
+    */
+
+    $startTime = Carbon::createFromFormat(
+        'H:i',
+        $validated['start_time']
+    );
+
+    $endTime = $startTime->copy()
+        ->addMinutes((int) $service->duration);
+
+    $appointmentDateTime = Carbon::createFromFormat(
+        'Y-m-d H:i',
+        $validated['appointment_date'] . ' ' . $validated['start_time']
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Past Date/Time Check
+    |--------------------------------------------------------------------------
+    */
+
+    if ($appointmentDateTime->isPast()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'You cannot reschedule to a past date or time.',
+        ], 422);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Staff Service Validation
+    |--------------------------------------------------------------------------
+    */
+
+    $staffProvidesService = DB::table('staff_service')
+        ->where('staff_id', $staff->id)
+        ->where('service_id', $service->id)
+        ->exists();
+
+    if (!$staffProvidesService) {
+        return response()->json([
+            'success' => false,
+            'message' => 'This staff member does not provide the selected service.',
+        ], 422);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Day Of Week
+    |--------------------------------------------------------------------------
+    */
+
+    $dayOfWeek = Carbon::createFromFormat(
+        'Y-m-d',
+        $validated['appointment_date']
+    )->dayOfWeekIso;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Staff Availability
+    |--------------------------------------------------------------------------
+    */
+
+    $availability = StaffAvailability::where('staff_id', $staff->id)
+        ->where('day_of_week', $dayOfWeek)
+        ->first();
+
+    if (!$availability || !$availability->is_working) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Staff is not available on this day.',
+        ], 422);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Company Business Hours
+    |--------------------------------------------------------------------------
+    */
+
+    $businessHours = BusinessWorkingHour::where('company_id', $company->id)
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+
+    if (!$businessHours) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Company is closed on this day.',
+        ], 422);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Normalize Times
+    |--------------------------------------------------------------------------
+    */
+
+    $requestedStart = $startTime->format('H:i:s');
+    $requestedEnd = $endTime->format('H:i:s');
+
+    $businessStart = Carbon::parse(
+        $businessHours->opening_time
+    )->format('H:i:s');
+
+    $businessEnd = Carbon::parse(
+        $businessHours->closing_time
+    )->format('H:i:s');
+
+    $staffStart = Carbon::parse(
+        $availability->start_time
+    )->format('H:i:s');
+
+    $staffEnd = Carbon::parse(
+        $availability->end_time
+    )->format('H:i:s');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Common Working Window
+    |--------------------------------------------------------------------------
+    */
+
+    $commonStart = max(
+        $businessStart,
+        $staffStart
+    );
+
+    $commonEnd = min(
+        $businessEnd,
+        $staffEnd
+    );
+
+    if (
+        $requestedStart < $commonStart ||
+        $requestedEnd > $commonEnd
+    ) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Selected slot is outside working hours.',
+        ], 422);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Break Time
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        !empty($availability->break_start) &&
+        !empty($availability->break_end)
+    ) {
+        $breakStart = Carbon::parse(
+            $availability->break_start
+        )->format('H:i:s');
+
+        $breakEnd = Carbon::parse(
+            $availability->break_end
+        )->format('H:i:s');
+
+        if (
+            $requestedStart < $breakEnd &&
+            $requestedEnd > $breakStart
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected slot overlaps staff break time.',
+            ], 422);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Blocked Time
+    |--------------------------------------------------------------------------
+    */
+
+    $blockedTimes = BlockedTime::where('staff_id', $staff->id)
+        ->whereDate(
+            'blocked_date',
+            $validated['appointment_date']
+        )
+        ->get();
+
+    foreach ($blockedTimes as $blocked) {
+
+        $blockedStart = Carbon::parse(
+            $blocked->start_time
+        )->format('H:i:s');
+
+        $blockedEnd = Carbon::parse(
+            $blocked->end_time
+        )->format('H:i:s');
+
+        if (
+            $requestedStart < $blockedEnd &&
+            $requestedEnd > $blockedStart
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected slot is blocked.',
+            ], 422);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Appointment Conflict Check
+    |--------------------------------------------------------------------------
+    */
+
+    $conflict = Appointment::where('staff_id', $staff->id)
+        ->whereDate(
+            'appointment_date',
+            $validated['appointment_date']
+        )
+        ->whereIn('status', [
+            'pending',
+            'accepted',
+        ])
+        ->where('id', '!=', $appointment->id)
+        ->where(function ($query) use (
+            $requestedStart,
+            $requestedEnd
+        ) {
+            $query
+                ->where('start_time', '<', $requestedEnd)
+                ->where('end_time', '>', $requestedStart);
+        })
+        ->exists();
+
+    if ($conflict) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Selected slot is already booked.',
+        ], 409);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Appointment
+    |--------------------------------------------------------------------------
+    */
+
+    $appointment->update([
+        'appointment_date' => $validated['appointment_date'],
+        'start_time' => $requestedStart,
+        'end_time' => $requestedEnd,
+        'status' => 'pending',
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Response
+    |--------------------------------------------------------------------------
+    */
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Appointment rescheduled successfully.',
+        'data' => $appointment->fresh(),
+    ], 200);
+}      
 }
