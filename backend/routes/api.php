@@ -164,3 +164,10 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
     Route::get('/customer/appointments/{id}', [AppointmentController::class, 'singleShow']);
     Route::put('/customer/appointments/{id}', [AppointmentController::class, 'cancel']);
 });
+
+// Payment Apis
+Route::middleware(['auth:sanctum', 'role:company_admin,staff'])->group(function () {
+
+    Route::put('/company/appointments/{id}/payment', [AppointmentController::class, 'markPaymentPaid']);
+
+});

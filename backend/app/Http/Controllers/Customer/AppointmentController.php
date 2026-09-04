@@ -161,7 +161,8 @@ class AppointmentController extends Controller
                             ], 409));
                         }
 
-                return Appointment::create([
+                        
+                $appointment = Appointment::create([
                     'company_id' => $validated['company_id'],
                     'customer_id' => $customer->id,
                     'staff_id' => $staff->id,
@@ -170,10 +171,18 @@ class AppointmentController extends Controller
                     'start_time' => $validated['start_time'],
                     'end_time' => $endTime->format('H:i:s'),
                     'status' => 'pending'
-                ]);  
+                ]); 
+
+                $appointment->payment()->create([
+                    'amount' => $service->price,
+                    'method' =>'cash',
+                    'status' => 'unpaid',
+                ]);
+
+                return $appointment;
+
             });
-                
-            
+      
                 return response()->json([
                     'success' => true,
                     'message' => 'Appointment booked successfully.',
@@ -235,42 +244,83 @@ class AppointmentController extends Controller
     }
 
     /**
- * Cancel customer appointment.
- */
-public function cancel(Request $request, $id)
-{
-    $customer = $request->user();
+    * Cancel customer appointment.
+    */
+    public function cancel(Request $request, $id)
+    {
+        $customer = $request->user();
 
-    $appointment = Appointment::where('customer_id', $customer->id)
-        ->find($id);
+        $appointment = Appointment::where('customer_id', $customer->id)
+            ->find($id);
 
-    if (!$appointment) {
+        if (!$appointment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Appointment not found.',
+            ], 404);
+        }
+
+        if (in_array($appointment->status, [
+            'cancelled',
+            'rejected',
+            'completed',
+        ])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This appointment cannot be cancelled.',
+            ], 422);
+        }
+
+        $appointment->update([
+            'status' => 'cancelled',
+        ]);
+
         return response()->json([
-            'success' => false,
-            'message' => 'Appointment not found.',
+            'success' => true,
+            'message' => 'Appointment cancelled successfully.',
+            'data' => $appointment->fresh(),
+        ]);
+    }
+
+
+    public function markPaymentPaid($id)
+    {
+        $appointment = Appointment::find($id);
+
+        if (!$appointment) {
+            return response()->json([
+                'message' => 'Appointment not found'
+            ], 404);
+        }
+
+        $payment = $appointment->payment;
+
+        if (!$payment) {
+        return response()->json([
+            'message' => 'Payment not found'
         ], 404);
-    }
+        }
 
-    if (in_array($appointment->status, [
-        'cancelled',
-        'rejected',
-        'completed',
-    ])) {
+        if ($payment->status === 'paid') {
         return response()->json([
-            'success' => false,
-            'message' => 'This appointment cannot be cancelled.',
-        ], 422);
+            'message' => 'Payment is already paid'
+        ], 400);
+        }
+
+        $payment->update([
+            'status' => 'paid',
+            'paid_at' => now(),
+            'received_by_type' => auth()->user() instanceof \App\Models\Staff
+                ? 'staff'
+                : auth()->user()->user_type,
+            'received_by_id' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'message' => 'Payment marked as paid',
+            'payment' => $payment
+        ]);
     }
 
-    $appointment->update([
-        'status' => 'cancelled',
-    ]);
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Appointment cancelled successfully.',
-        'data' => $appointment->fresh(),
-    ]);
-}
             
 }
