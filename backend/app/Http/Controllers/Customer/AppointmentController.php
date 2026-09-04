@@ -173,10 +173,18 @@ class AppointmentController extends Controller
                     'status' => 'pending'
                 ]); 
 
+                // payment create
                 $appointment->payment()->create([
                     'amount' => $service->price,
                     'method' =>'cash',
                     'status' => 'unpaid',
+                ]);
+
+                // receipt record
+
+                $receipt = $appointment->receipt()->create([
+                    'payment_id' => $appointment->payment->id,
+                    'receipt_number' => 'REC-' . strtoupper(uniqid()),
                 ]);
 
                 return $appointment;
