@@ -162,4 +162,5 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
     Route::post('/customer/appointments', [AppointmentController::class, 'store']);
     Route::get('/customer/appointments', [AppointmentController::class, 'index']);
     Route::get('/customer/appointments/{id}', [AppointmentController::class, 'singleShow']);
+    Route::put('/customer/appointments/{id}', [AppointmentController::class, 'cancel']);
 });

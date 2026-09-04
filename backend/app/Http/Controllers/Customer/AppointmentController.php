@@ -233,5 +233,44 @@ class AppointmentController extends Controller
             'data' => $appointment,
         ]);
     }
+
+    /**
+ * Cancel customer appointment.
+ */
+public function cancel(Request $request, $id)
+{
+    $customer = $request->user();
+
+    $appointment = Appointment::where('customer_id', $customer->id)
+        ->find($id);
+
+    if (!$appointment) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Appointment not found.',
+        ], 404);
+    }
+
+    if (in_array($appointment->status, [
+        'cancelled',
+        'rejected',
+        'completed',
+    ])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'This appointment cannot be cancelled.',
+        ], 422);
+    }
+
+    $appointment->update([
+        'status' => 'cancelled',
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Appointment cancelled successfully.',
+        'data' => $appointment->fresh(),
+    ]);
+}
             
 }
