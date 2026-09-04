@@ -18,6 +18,7 @@ use App\Http\Controllers\Company\AppointmentController as CompanyAppointmentCont
 use App\Http\Controllers\Staff\AppointmentController as StaffAppointmentController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\CompanyDashboardController;
+use App\Http\Controllers\StaffDashboardController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -99,12 +100,12 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
 
     // Staff Management 6
-    Route::get('/company/staff', [StaffController::class, 'index']);
-    Route::post('/company/staff', [StaffController::class, 'store']);
-    Route::get('/company/staff/{id}', [StaffController::class, 'show']);
-    Route::put('/company/staff/{id}', [StaffController::class, 'update']);
-    Route::put('/company/staff/{id}/restore', [StaffController::class, 'restore']);
-    Route::delete('/company/staff/{id}', [StaffController::class, 'destroy']);
+    Route::get('company/staff', [StaffController::class, 'index']);
+    Route::post('company/staff', [StaffController::class, 'store']);
+    Route::get('company/staff/{id}', [StaffController::class, 'show']);
+    Route::put('company/staff/{id}', [StaffController::class, 'update']);
+    Route::put('company/staff/{id}/restore', [StaffController::class, 'restore']);
+    Route::delete('company/staff/{id}', [StaffController::class, 'destroy']);
 
     // Staff invitation Send
     Route::post('/company/staff/invite', [StaffController::class, 'invite']);
@@ -159,6 +160,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
     Route::middleware(['auth:sanctum', 'role:staff'])->group(function()
     {
+        Route::get('/staff/dashboard', [StaffDashboardController::class, 'index']);
         Route::get('/staff/appointments', [StaffAppointmentController::class,'index']);
         Route::get('/staff/appointments/{id}', [StaffAppointmentController::class,'show']);
         Route::put('/staff/appointments/{id}/accept', [StaffAppointmentController::class,'accept']);
