@@ -16,6 +16,8 @@ use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Customer\AppointmentController;
 use App\Http\Controllers\Company\AppointmentController as CompanyAppointmentController;
 use App\Http\Controllers\Staff\AppointmentController as StaffAppointmentController;
+use App\Http\Controllers\ReceiptController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -166,8 +168,11 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
 });
 
 // Payment Apis
-Route::middleware(['auth:sanctum', 'role:company_admin,staff'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:company_admin,staff,'])->group(function () {
 
-    Route::put('/company/appointments/{id}/payment', [AppointmentController::class, 'markPaymentPaid']);
-
+    Route::put('/appointments/{id}/payment', [AppointmentController::class, 'markPaymentPaid']);
+    
 });
+
+// Receipt Id
+Route::middleware('auth:sanctum')->get('/receipts/{id}', [ReceiptController::class, 'show']);
