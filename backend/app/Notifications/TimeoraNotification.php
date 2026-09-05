@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TimeoraNotification extends Notification
+class TimeoraNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -86,8 +86,11 @@ class TimeoraNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        return [
-            //
+        return [ 
+            'type' => $this->type, 
+            'title' => $this->title, 
+            'message' => $this->message, 
+            'data' => $this->data, 
         ];
     }
 }
