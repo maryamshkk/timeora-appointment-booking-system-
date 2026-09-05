@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
+use App\Models\User;
+use App\Notifications\TimeoraNotification;
+use App\Notifications\NotificationType;
 use App\Models\Appointment;
 use App\Models\Company;
 use App\Models\Staff;
@@ -57,7 +59,7 @@ class AppointmentController extends Controller
                         'appointments' => $appointments, 
                     ]); 
                     
-                    }
+    }
 
 
      /**
@@ -162,6 +164,94 @@ class AppointmentController extends Controller
         $appointment->update([
             'status' => 'accepted',
         ]);
+
+        // Load all required relationships
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+         $customer = User::find($appointment->customer_id);
+
+            if ($customer) {
+                $customer->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_ACCEPTED,
+                        'Appointment Accepted',
+                        'Your appointment has been accepted.',
+                        [
+                            'appointment_id' => $appointment->id,
+
+                            'customer_name' => $customer->name,
+
+                            'company_name' => $appointment->company?->name,
+
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
+
+                            'service_name' => $appointment->service?->name,
+
+                            'appointment_date' => $appointment->appointment_date,
+                            'start_time' => $appointment->start_time,
+                            'end_time' => $appointment->end_time,
+
+                            'amount' => $appointment->payment?->amount,
+
+                            'payment_method' => $appointment->payment?->method,
+
+                            'payment_status' => $appointment->payment?->status,
+
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
+
+
+        // Notify Company Admin
+$companyAdmin = User::where('company_id', $appointment->company_id)
+    ->where('user_type', 'company_admin')
+    ->first();
+
+if ($companyAdmin) {
+    $companyAdmin->notify(
+        new TimeoraNotification(
+            NotificationType::BOOKING_ACCEPTED,
+            'Appointment Accepted',
+            'An appointment has been accepted by the assigned staff member.',
+            [
+                'appointment_id' => $appointment->id,
+
+                'customer_name' => $customer?->name,
+
+                'company_name' => $appointment->company?->name,
+
+                'staff_name' => $appointment->staff
+                    ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                    : null,
+
+                'service_name' => $appointment->service?->name,
+
+                'appointment_date' => $appointment->appointment_date,
+
+                'start_time' => $appointment->start_time,
+
+                'end_time' => $appointment->end_time,
+
+                'amount' => $appointment->payment?->amount,
+
+                'payment_method' => $appointment->payment?->method,
+
+                'payment_status' => $appointment->payment?->status,
+
+                'status' => $appointment->status,
+            ]
+        )
+    );
+}
 
         return response()->json([
             'success' => true,

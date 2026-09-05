@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Customer;
 
+
+use App\Notifications\TimeoraNotification;
+use App\Notifications\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Company;
 use App\Models\Service;
 use App\Models\Staff;
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\BlockedTime;
 use App\Models\StaffAvailability;
 use App\Models\BusinessWorkingHour;
@@ -64,6 +68,7 @@ class AppointmentController extends Controller
         ]);
 
         $customer = $request->user();
+        
 
         if  (!$customer) {
             return response()->json([
@@ -75,6 +80,7 @@ class AppointmentController extends Controller
         $company = Company::find($validated['company_id']);
         $staff = Staff::find($validated['staff_id']);
         $service = Service::find($validated['service_id']);
+
 
          /*
         |--------------------------------------------------------------------------
@@ -90,6 +96,8 @@ class AppointmentController extends Controller
                 ], 422);
 
             }   
+
+
                     /*
             |--------------------------------------------------------------------------
             | Check staff provides service
@@ -132,6 +140,20 @@ class AppointmentController extends Controller
 
         $endTime = $startTime->copy()->addMinutes($service->duration);
 
+                /*
+        |--------------------------------------------------------------------------
+        | Prepare requested appointment time
+        |--------------------------------------------------------------------------
+        */
+
+        $requestedStart = Carbon::createFromFormat(
+            'H:i',
+            $validated['start_time']
+        );
+
+        $requestedEnd = $endTime->copy();
+
+
          /*
         |--------------------------------------------------------------------------
         | Check past date/time
@@ -151,6 +173,122 @@ class AppointmentController extends Controller
         }
 
 
+
+        
+                /*
+        |--------------------------------------------------------------------------
+        | Check staff working hours
+        |--------------------------------------------------------------------------
+        */
+
+        $dayOfWeek = strtolower(
+            Carbon::parse($validated['appointment_date'])->format('l')
+        );
+
+        $staffAvailability = StaffAvailability::where('staff_id', $staff->id)
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+            
+
+        if (!$staffAvailability || !$staffAvailability->is_working) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff is not working on this day.',
+            ], 422);
+        }
+
+        $staffStart = Carbon::createFromFormat(
+            'H:i:s',
+            $staffAvailability->start_time
+        );
+
+        $staffEnd = Carbon::createFromFormat(
+            'H:i:s',
+            $staffAvailability->end_time
+        );
+
+                /*
+        |--------------------------------------------------------------------------
+        | Check staff break time
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !empty($staffAvailability->break_start) &&
+            !empty($staffAvailability->break_end)
+        ) {
+            $breakStart = Carbon::createFromFormat(
+                'H:i:s',
+                $staffAvailability->break_start
+            );
+
+            $breakEnd = Carbon::createFromFormat(
+                'H:i:s',
+                $staffAvailability->break_end
+            );
+
+            /*
+            | Appointment overlaps break
+            */
+
+            if (
+                $requestedStart->lt($breakEnd) &&
+                $requestedEnd->gt($breakStart)
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected time falls within staff break time.',
+                    'data' => [
+                        'break_start' => $staffAvailability->break_start,
+                        'break_end' => $staffAvailability->break_end,
+                    ],
+                ], 422);
+            }
+        }
+
+                /*
+        |--------------------------------------------------------------------------
+        | Check requested appointment is inside staff working hours
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $requestedStart->lt($staffStart) ||
+            $requestedEnd->gt($staffEnd)
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected time is outside staff working hours.',
+                'data' => [
+                    'staff_working_start' => $staffAvailability->start_time,
+                    'staff_working_end' => $staffAvailability->end_time,
+                    'requested_start' => $requestedStart->format('H:i'),
+                    'requested_end' => $requestedEnd->format('H:i'),
+                ],
+            ], 422);
+        }
+        /*
+        |--------------------------------------------------------------------------
+        | Check requested appointment is inside staff working hours
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $requestedStart->lt($staffStart) ||
+            $requestedEnd->gt($staffEnd)
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Selected time is outside staff working hours.',
+                'data' => [
+                    'staff_working_start' => $staffAvailability->start_time,
+                    'staff_working_end' => $staffAvailability->end_time,
+                    'requested_start' => $requestedStart->format('H:i'),
+                    'requested_end' => $requestedEnd->format('H:i'),
+                ],
+            ], 422);
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Create appointment inside transaction
@@ -159,6 +297,7 @@ class AppointmentController extends Controller
 
         $appointment = DB::transaction(function () use (
             $validated,
+            $company,
             $customer,
             $staff,
             $service,
@@ -211,7 +350,6 @@ class AppointmentController extends Controller
                     'end_time' => $endTime->format('H:i:s'),
                     'status' => 'pending'
                 ]); 
-                
 
                 // payment create
                 $appointment->payment()->create([
@@ -226,6 +364,124 @@ class AppointmentController extends Controller
                     'payment_id' => $appointment->payment->id,
                     'receipt_number' => 'REC-' . strtoupper(uniqid()),
                 ]);
+                
+                // Notification
+                $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_CREATED,
+                    'Appointment Booking Confirmed',
+                    'Your appointment has been successfully booked.',
+                    [
+                        'appointment_id' => $appointment->id,
+                        'customer_name' => $customer->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+                        'start_time' => $appointment->start_time,
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+
+            
+                // Notify company 
+                $companyAdmin = User::where('company_id', $appointment->company_id)
+                ->where('user_type', 'company_admin')
+                ->first();
+
+            if ($companyAdmin) {
+                $companyAdmin->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_CREATED,
+                        'New Appointment Booking',
+                        'A new appointment has been booked for your company.',
+                        [
+                            'appointment_id' => $appointment->id,
+
+                            'customer_name' => $customer->name,
+
+                            'company_name' => $appointment->company?->name,
+
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
+
+                            'service_name' => $appointment->service?->name,
+
+                            'appointment_date' => $appointment->appointment_date,
+                            'start_time' => $appointment->start_time,
+                            'end_time' => $appointment->end_time,
+
+                            'amount' => $appointment->payment?->amount,
+
+                            'payment_method' => $appointment->payment?->method,
+
+                            'payment_status' => $appointment->payment?->status,
+
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
+
+            // 2. Staff notification
+            $staff = $appointment->staff;
+
+            if ($staff) {
+                $staff->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_CREATED,
+                        'New Appointment Booking',
+                        'A new appointment has been booked with you.',
+                        [
+                            'appointment_id' => $appointment->id,
+
+                            'customer_name' => $customer->name,
+
+                            'company_name' => $appointment->company?->name,
+
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
+
+                            'service_name' => $appointment->service?->name,
+
+                            'appointment_date' => $appointment->appointment_date,
+                            'start_time' => $appointment->start_time,
+                            'end_time' => $appointment->end_time,
+
+                            'amount' => $appointment->payment?->amount,
+
+                            'payment_method' => $appointment->payment?->method,
+
+                            'payment_status' => $appointment->payment?->status,
+
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
+
+            
+
+
+
+            
 
                 return $appointment;
 
@@ -550,6 +806,7 @@ class AppointmentController extends Controller
         | Company Business Hours
         |--------------------------------------------------------------------------
         */
+        
 
         $businessHours = BusinessWorkingHour::where('company_id', $company->id)
                 ->where('day_of_week', $dayOfWeek)

@@ -62,6 +62,19 @@ class TimeoraNotification extends Notification
             ->subject($this->title)
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line($this->message)
+
+            ->line('Appointment Details')
+            ->line('Appointment ID: ' . ($this->data['appointment_id'] ?? 'N/A'))
+            ->line('Business: ' . ($this->data['company_name'] ?? 'N/A'))
+            ->line('Staff: ' . ($this->data['staff_name'] ?? 'N/A'))
+            ->line('Service: ' . ($this->data['service_name'] ?? 'N/A'))
+            ->line('Date: ' . ($this->data['appointment_date'] ?? 'N/A'))
+            ->line('Time: ' . ($this->data['start_time'] ?? 'N/A') . ' - ' . ($this->data['end_time'] ?? 'N/A'))
+            ->line('Amount: Rs. ' . ($this->data['amount'] ?? '0'))
+            ->line('Payment Method: ' . ucfirst($this->data['payment_method'] ?? 'N/A'))
+            ->line('Payment Status: ' . ucfirst($this->data['payment_status'] ?? 'N/A'))
+            ->line('Booking Status: ' . ucfirst($this->data['status'] ?? 'N/A'))
+            
             ->salutation('Regards, TIMEORA');
         
     }

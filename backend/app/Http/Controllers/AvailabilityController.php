@@ -318,7 +318,7 @@ class AvailabilityController extends Controller
             // Remove booked slots
             $slots = array_filter($slots, function ($slot) use ($appointments, $validated) {
 
-                $slotStart = Carbon::parse($validated['date'].''. $slot['start_time']
+                $slotStart = Carbon::parse($validated['date'] . ' ' . $slot['start_time']
                 ); 
                 
                 $slotEnd = Carbon::parse(

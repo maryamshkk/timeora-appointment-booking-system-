@@ -116,6 +116,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::get('/company/working-hours', [CompanyWorkingHoursController::class, 'index']);
     Route::put('/company/working-hours', [CompanyWorkingHoursController::class, 'update']);
 
+
+
     // Staff Working hours
     Route::get('/company/staff/{staffId}/availability', [StaffAvailabilityController::class, 'index']);
     Route::post('/company/staff/{staffId}/availability', [StaffAvailabilityController::class, 'store']);
@@ -138,6 +140,9 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::put('/staff/{staffId}/blocked-times/{blockedTimeId}', [BlockedTimeController::class, 'update']);
     Route::delete('/staff/{staffId}/blocked-times/{blockedTimeId}', [BlockedTimeController::class, 'destroy']);
 
+
+        // Check final availability slots
+    Route::get('/availability', [AvailabilityController::class, 'index']);
 
 
     // Company Specific Appointment Apis
@@ -229,5 +234,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications/{id}', [NotificationController::class, 'show']);
 
     Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-    
+
 });

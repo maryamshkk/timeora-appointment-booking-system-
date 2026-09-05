@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class Staff extends Authenticatable
 {
-    use HasApiTokens, HasFactory, SoftDeletes;
+    use HasApiTokens, HasFactory, SoftDeletes, Notifiable;
 
     protected $fillable = [
         'company_id',
@@ -100,5 +101,10 @@ class Staff extends Authenticatable
     public function availabilityExceptions(): HasMany
     {
         return $this->hasMany(AvailabilityException::class);
+    }
+
+    public function routeNotificationForMail($notification)
+    {
+        return $this->account_email;
     }
 }
