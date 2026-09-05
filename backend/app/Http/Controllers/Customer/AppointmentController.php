@@ -579,6 +579,96 @@ class AppointmentController extends Controller
             'status' => 'cancelled',
         ]);
 
+
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        $customer = User::find($appointment->customer_id);
+
+        $companyAdmin = User::where('company_id', $appointment->company_id)
+            ->where('user_type', 'company_admin')
+            ->first();
+
+        if ($companyAdmin) {
+            $companyAdmin->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_CANCELLED,
+                    'Appointment Cancelled',
+                    'An appointment has been cancelled by the customer.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer?->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+        $staff = $appointment->staff;
+
+        if ($staff) {
+            $staff->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_CANCELLED,
+                    'Appointment Cancelled',
+                    'An appointment assigned to you has been cancelled by the customer.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer?->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Appointment cancelled successfully.',
@@ -986,6 +1076,47 @@ class AppointmentController extends Controller
                 'payment',
             ]);
 
+            $companyAdmin = User::where('company_id', $appointment->company_id)
+                ->where('user_type', 'company_admin')
+                ->first();
+
+            if ($companyAdmin) {
+                $companyAdmin->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_RESCHEDULED,
+                        'Appointment Rescheduled',
+                        'An appointment has been rescheduled by the customer.',
+                        [
+                            'appointment_id' => $appointment->id,
+
+                            'customer_name' => $customer?->name,
+
+                            'company_name' => $appointment->company?->name,
+
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
+
+                            'service_name' => $appointment->service?->name,
+
+                            'appointment_date' => $appointment->appointment_date,
+
+                            'start_time' => $appointment->start_time,
+
+                            'end_time' => $appointment->end_time,
+
+                            'amount' => $appointment->payment?->amount,
+
+                            'payment_method' => $appointment->payment?->method,
+
+                            'payment_status' => $appointment->payment?->status,
+
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
+
                     $staff = $appointment->staff;
 
             if ($staff) {
@@ -1024,6 +1155,8 @@ class AppointmentController extends Controller
                     )
                 );
             }
+
+
 
         /*
         |--------------------------------------------------------------------------
