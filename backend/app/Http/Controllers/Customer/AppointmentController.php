@@ -17,7 +17,40 @@ use Illuminate\Support\Facades\DB;
 
 class AppointmentController extends Controller
 {
-     public function store(Request $request)
+
+    public function upcoming(Request $request)
+    {
+        $user = $request->user(); 
+        
+        
+
+        $appointments = Appointment::with([ 
+            'company', 
+            'staff', 
+            'service', 
+            ])
+            ->where('customer_id', $user->id)
+            ->where(function ($query) {
+                $query->where('appointment_date', '>', now()->toDateString())
+                ->orWhere(function ($query) {
+                    $query->where('appointment_date', now()->toDateString())
+                    ->where('start_time', '>', now()->format('H:i:s'));
+                });
+            })
+            ->whereNotIn('status', ['cancelled', 'rejected'])
+            ->orderBy('appointment_date', 'asc')
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+            return response()->json([
+                'success' => true,
+                'appointments' => $appointments
+            ]);
+
+
+    }
+
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'company_id' => 'required|exists:companies,id',
@@ -697,6 +730,8 @@ class AppointmentController extends Controller
             'data' => $appointment->fresh(),
         ], 200);
     }   
+
+    
     
     public function calendar(Request $request)
     {

@@ -19,6 +19,8 @@ use App\Http\Controllers\Staff\AppointmentController as StaffAppointmentControll
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\CompanyDashboardController;
 use App\Http\Controllers\StaffDashboardController;
+use App\Http\Controllers\CustomerDashboardController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -161,6 +163,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     Route::middleware(['auth:sanctum', 'role:staff'])->group(function()
     {
         Route::get('/staff/dashboard', [StaffDashboardController::class, 'index']);
+        
         Route::get('/staff/appointments', [StaffAppointmentController::class,'index']);
         Route::get('/staff/appointments/{id}', [StaffAppointmentController::class,'show']);
         Route::put('/staff/appointments/{id}/accept', [StaffAppointmentController::class,'accept']);
@@ -172,17 +175,23 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
         Route::get('staff/calendar', [StaffAppointmentController::class, 'calendar']);
         });
 
-    // Availability Slots Engine Api for booking
-    Route::get('/availability',[AvailabilityController::class, 'index']);
-
+    
 
     // Customer Route Apis
 Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
+    
+    Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index']);
+  
+      // Upcoming appointment Api
+    Route::get('/customer/appointments/upcoming', [AppointmentController::class, 'upcoming']);
+
     Route::post('/customer/appointments', [AppointmentController::class, 'store']);
     Route::get('/customer/appointments', [AppointmentController::class, 'index']);
     Route::get('/customer/appointments/{id}', [AppointmentController::class, 'singleShow']);
     Route::put('/customer/appointments/{id}', [AppointmentController::class, 'cancel']);
     Route::put('/customer/appointments/{id}/reschedule', [AppointmentController::class, 'reschedule']);
+
+  
 
     // Customer Calendar Apis
     Route::get('customer/calendar', [AppointmentController::class, 'calendar']);
