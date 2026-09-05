@@ -849,6 +849,103 @@ class AppointmentController extends Controller
         ]);
     }
 
+    public function complete(Request $request, $id)
+    {
+        // Logged-in staff
+        $staff = $request->user();
+
+        if (!$staff) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Staff profile not found.',
+            ], 404);
+        }
+
+        // Only complete appointments assigned to this staff member
+        $appointment = Appointment::where('staff_id', $staff->id)
+            ->find($id);
+
+        if (!$appointment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Appointment not found.',
+            ], 404);
+        }
+
+        // Only accepted appointments can be completed
+        if ($appointment->status !== 'accepted') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only accepted appointments can be completed.',
+            ], 422);
+        }
+
+        // Update appointment status
+        $appointment->update([
+            'status' => 'completed',
+        ]);
+
+        // Load required relationships
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        // Find customer
+        $customer = User::find($appointment->customer_id);
+
+        // Notify customer
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::APPOINTMENT_COMPLETED,
+                    'Appointment Completed',
+                    'Your appointment has been completed successfully by the staff member.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Appointment completed successfully.',
+            'data' => $appointment->fresh([
+                'company',
+                'staff',
+                'service',
+                'payment',
+            ]),
+        ]);
+    }
+
     public function calendar(Request $request)
     {
         $validated = $request->validate([

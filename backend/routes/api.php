@@ -179,6 +179,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
         Route::put('/staff/appointments/{id}/reject', [StaffAppointmentController::class,'reject']);
         Route::put('/staff/appointments/{id}/reschedule', [StaffAppointmentController::class, 'reschedule']);
         Route::put('staff/appointments/{id}/cancel', [StaffAppointmentController::class, 'cancel']);
+        Route::put('/staff/appointments/{id}/complete', [StaffAppointmentController::class, 'complete']);
 
         // Staff Calendar 
         Route::get('staff/calendar', [StaffAppointmentController::class, 'calendar']);

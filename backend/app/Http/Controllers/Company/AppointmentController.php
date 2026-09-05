@@ -750,6 +750,8 @@ class AppointmentController extends Controller
         ]);
     }
 
+
+
     // Calendar Api
     public function calendar(Request $request)
     {
