@@ -164,6 +164,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
     {
         Route::get('/staff/dashboard', [StaffDashboardController::class, 'index']);
         
+        Route::get('/staff/appointments/upcoming',[StaffAppointmentController::class, 'upcoming']);
+
         Route::get('/staff/appointments', [StaffAppointmentController::class,'index']);
         Route::get('/staff/appointments/{id}', [StaffAppointmentController::class,'show']);
         Route::put('/staff/appointments/{id}/accept', [StaffAppointmentController::class,'accept']);
@@ -173,7 +175,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
         // Staff Calendar 
         Route::get('staff/calendar', [StaffAppointmentController::class, 'calendar']);
-        });
+    });
 
     
 

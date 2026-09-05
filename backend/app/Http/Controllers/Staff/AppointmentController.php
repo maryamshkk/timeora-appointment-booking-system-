@@ -18,6 +18,45 @@ use App\Models\BusinessWorkingHour;
 
 class AppointmentController extends Controller
 {
+    public function upcoming(Request $request) 
+    { 
+        $staff = $request->user(); 
+         
+        
+        if (!$staff) 
+            { 
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Staff profile not found.', 
+                ], 404); 
+                } 
+                
+                $appointments = Appointment::with([ 
+                    'company', 'customer', 'service', 
+                ]) 
+                ->where('staff_id', $staff->id) 
+                ->where(function ($query) 
+                { 
+                    $query->where('appointment_date', '>', now()->toDateString()) 
+                    ->orWhere(function ($query) 
+                    { 
+                        $query->where('appointment_date', now()->toDateString()) 
+                        ->where('start_time', '>', now()->format('H:i:s')); 
+                        }); 
+                    }) 
+                    ->whereNotIn('status', ['cancelled', 'rejected']) 
+                    ->orderBy('appointment_date', 'asc') 
+                    ->orderBy('start_time', 'asc') 
+                    ->get(); 
+                    
+                    return response()->json([ 
+                        'success' => true, 
+                        'appointments' => $appointments, 
+                    ]); 
+                    
+                    }
+
+
      /**
      * Get logged-in staff's appointments.
      */
