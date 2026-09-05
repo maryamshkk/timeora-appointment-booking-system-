@@ -11,13 +11,26 @@ class TimeoraNotification extends Notification
 {
     use Queueable;
 
+        public string $type;
+        public string $title;
+        public string $message;
+        public array $data;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct()
-    {
-        //
+    public function __construct(
+        string $type,
+        string $title,
+        string $message,
+        array $data = []
+    ) {
+        $this->type = $type;
+        $this->title = $title;
+        $this->message = $message;
+        $this->data = $data;
     }
+    
 
     /**
      * Get the notification's delivery channels.
@@ -26,7 +39,17 @@ class TimeoraNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'type' => $this->type,
+            'title' => $this->title,
+            'message' => $this->message,
+            'data' => $this->data,
+        ];
     }
 
     /**
@@ -34,10 +57,13 @@ class TimeoraNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+       
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject($this->title)
+            ->greeting('Hello ' . $notifiable->name . ',')
+            ->line($this->message)
+            ->salutation('Regards, TIMEORA');
+        
     }
 
     /**
