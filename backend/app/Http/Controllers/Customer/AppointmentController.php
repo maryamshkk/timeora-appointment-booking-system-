@@ -40,6 +40,9 @@ class AppointmentController extends Controller
             ->whereNotIn('status', ['cancelled', 'rejected'])
             ->orderBy('appointment_date', 'asc')
             ->orderBy('start_time', 'asc')
+            ->when($limit, function ($query) use ($limit) {
+                $query->limit((int) $limit);
+            })
             ->get();
 
             return response()->json([

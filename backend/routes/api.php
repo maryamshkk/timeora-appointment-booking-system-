@@ -141,6 +141,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
 
     // Company Specific Appointment Apis
+    Route::get("/company/appointments/upcoming", [CompanyAppointmentController::class, 'upcoming']);
+ 
     Route::get("/company/appointments", [CompanyAppointmentController::class, 'index']);
     Route::get("/company/appointments/{id}", [CompanyAppointmentController::class, 'show']);
    

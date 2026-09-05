@@ -16,6 +16,45 @@ use App\Models\BlockedTime;
 use App\Models\BusinessWorkingHour;
 class AppointmentController extends Controller
 {
+    public function upcoming(Request $request) 
+    { 
+        $user = $request->user(); 
+        
+        $appointments = Appointment::with([ 
+            'customer', 
+            'staff', 
+            'service', 
+            ]) 
+            ->where('company_id', $user->company_id) 
+            ->where(function ($query) 
+            { 
+                $query->where('appointment_date', '>', now()->toDateString()) 
+                ->orWhere(function ($query) 
+                { 
+                    $query->where('appointment_date', now()
+                    ->toDateString()) 
+                    ->where('start_time', '>', now()
+                    ->format('H:i:s')); 
+                    }); 
+                }) 
+                ->whereNotIn('status', 
+                [
+                    'cancelled', 
+                    'rejected']) 
+                    ->orderBy('appointment_date', 'asc') 
+                    ->orderBy('start_time', 'asc') 
+                    ->when($limit, function ($query) use ($limit) {
+                        $query->limit((int) $limit);
+                    })
+                    ->get();
+                    
+                    return response()->json([ 
+                        'success' => true, 
+                        'appointments' => $appointments, 
+                    ]); 
+                }
+
+
     // Get Appointments
     public function index(Request $request)
     {
