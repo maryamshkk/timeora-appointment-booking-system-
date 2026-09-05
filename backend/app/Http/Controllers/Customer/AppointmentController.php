@@ -710,6 +710,99 @@ class AppointmentController extends Controller
             'received_by_id' => auth()->id(),
         ]);
 
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        $customer = User::find($appointment->customer_id);
+
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::PAYMENT_PAID,
+                    'Payment Received',
+                    'Your appointment payment has been marked as paid.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $payment->amount,
+
+                        'payment_method' => $payment->method,
+
+                        'payment_status' => $payment->status,
+
+                        'paid_at' => $payment->paid_at,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+
+
+        $staff = $appointment->staff;
+
+        if ($staff) {
+            $staff->notify(
+                new TimeoraNotification(
+                    NotificationType::PAYMENT_PAID,
+                    'Payment Received',
+                    'Payment for an appointment assigned to you has been marked as paid.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer?->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $payment->amount,
+
+                        'payment_method' => $payment->method,
+
+                        'payment_status' => $payment->status,
+
+                        'paid_at' => $payment->paid_at,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+
+
         return response()->json([
             'message' => 'Payment marked as paid',
             'payment' => $payment
