@@ -14,6 +14,8 @@ use App\Models\Service;
 use App\Models\StaffAvailability;
 use App\Models\BlockedTime;
 use App\Models\BusinessWorkingHour;
+
+
 class AppointmentController extends Controller
 {
     public function upcoming(Request $request) 

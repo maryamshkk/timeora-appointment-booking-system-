@@ -211,6 +211,7 @@ class AppointmentController extends Controller
                     'end_time' => $endTime->format('H:i:s'),
                     'status' => 'pending'
                 ]); 
+                
 
                 // payment create
                 $appointment->payment()->create([

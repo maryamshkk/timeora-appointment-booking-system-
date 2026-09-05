@@ -20,7 +20,7 @@ use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\CompanyDashboardController;
 use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\CustomerDashboardController;
-
+use App\Http\Controllers\NotificationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -217,4 +217,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/receipts/{id}', [ReceiptController::class, 'show']);
     Route::get('/receipts/{id}/pdf', [ReceiptController::class, 'pdf']);
 
+});
+
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+
+    Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+
+    Route::get('/notifications/{id}', [NotificationController::class, 'show']);
+
+    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    
 });
