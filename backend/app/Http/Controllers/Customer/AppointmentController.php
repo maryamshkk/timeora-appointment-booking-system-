@@ -979,6 +979,52 @@ class AppointmentController extends Controller
             'status' => 'pending',
         ]);
 
+                    $appointment->load([
+                'company',
+                'staff',
+                'service',
+                'payment',
+            ]);
+
+                    $staff = $appointment->staff;
+
+            if ($staff) {
+                $staff->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_RESCHEDULED,
+                        'Appointment Rescheduled',
+                        'An appointment assigned to you has been rescheduled.',
+                        [
+                            'appointment_id' => $appointment->id,
+
+                            'customer_name' => $customer?->name,
+
+                            'company_name' => $appointment->company?->name,
+
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
+
+                            'service_name' => $appointment->service?->name,
+
+                            'appointment_date' => $appointment->appointment_date,
+
+                            'start_time' => $appointment->start_time,
+
+                            'end_time' => $appointment->end_time,
+
+                            'amount' => $appointment->payment?->amount,
+
+                            'payment_method' => $appointment->payment?->method,
+
+                            'payment_status' => $appointment->payment?->status,
+
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
+
         /*
         |--------------------------------------------------------------------------
         | Response

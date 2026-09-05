@@ -212,46 +212,50 @@ class AppointmentController extends Controller
 
 
         // Notify Company Admin
-$companyAdmin = User::where('company_id', $appointment->company_id)
-    ->where('user_type', 'company_admin')
-    ->first();
+            $companyAdmin = User::where('company_id', $appointment->company_id)
+                ->where('user_type', 'company_admin')
+                ->first();
 
-if ($companyAdmin) {
-    $companyAdmin->notify(
-        new TimeoraNotification(
-            NotificationType::BOOKING_ACCEPTED,
-            'Appointment Accepted',
-            'An appointment has been accepted by the assigned staff member.',
-            [
-                'appointment_id' => $appointment->id,
+            if ($companyAdmin) {
+                $companyAdmin->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_ACCEPTED,
+                        'Appointment Accepted',
+                        'An appointment has been accepted by the assigned staff member.',
+                        [
+                            'appointment_id' => $appointment->id,
 
-                'customer_name' => $customer?->name,
+                            'customer_name' => $customer?->name,
 
-                'company_name' => $appointment->company?->name,
+                            'company_name' => $appointment->company?->name,
 
-                'staff_name' => $appointment->staff
-                    ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
-                    : null,
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
 
-                'service_name' => $appointment->service?->name,
+                            'service_name' => $appointment->service?->name,
 
-                'appointment_date' => $appointment->appointment_date,
+                            'appointment_date' => $appointment->appointment_date,
 
-                'start_time' => $appointment->start_time,
+                            'start_time' => $appointment->start_time,
 
-                'end_time' => $appointment->end_time,
+                            'end_time' => $appointment->end_time,
 
-                'amount' => $appointment->payment?->amount,
+                            'amount' => $appointment->payment?->amount,
 
-                'payment_method' => $appointment->payment?->method,
+                            'payment_method' => $appointment->payment?->method,
 
-                'payment_status' => $appointment->payment?->status,
+                            'payment_status' => $appointment->payment?->status,
 
-                'status' => $appointment->status,
-            ]
-        )
-    );
-}
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
+
+
+
+
 
         return response()->json([
             'success' => true,
@@ -296,6 +300,93 @@ if ($companyAdmin) {
         $appointment->update([
             'status' => 'rejected',
         ]);
+
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        $customer = User::find($appointment->customer_id);
+
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_REJECTED,
+                    'Appointment Rejected',
+                    'Unfortunately, your appointment has been rejected.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+            $companyAdmin = User::where('company_id', $appointment->company_id)
+                ->where('user_type', 'company_admin')
+                ->first();
+
+            if ($companyAdmin) {
+                $companyAdmin->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_REJECTED,
+                        'Appointment Rejected',
+                        'An appointment has been rejected by the assigned staff member.',
+                        [
+                            'appointment_id' => $appointment->id,
+
+                            'customer_name' => $customer?->name,
+
+                            'company_name' => $appointment->company?->name,
+
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
+
+                            'service_name' => $appointment->service?->name,
+
+                            'appointment_date' => $appointment->appointment_date,
+
+                            'start_time' => $appointment->start_time,
+
+                            'end_time' => $appointment->end_time,
+
+                            'amount' => $appointment->payment?->amount,
+
+                            'payment_method' => $appointment->payment?->method,
+
+                            'payment_status' => $appointment->payment?->status,
+
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
 
         return response()->json([
             'success' => true,
@@ -523,6 +614,94 @@ if ($companyAdmin) {
             'status' => 'pending',
         ]);
 
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        $customer = User::find($appointment->customer_id);
+
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_RESCHEDULED,
+                    'Appointment Rescheduled',
+                    'Your appointment has been successfully rescheduled.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+
+        $companyAdmin = User::where('company_id', $appointment->company_id)
+            ->where('user_type', 'company_admin')
+            ->first();
+
+        if ($companyAdmin) {
+            $companyAdmin->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_RESCHEDULED,
+                    'Appointment Rescheduled',
+                    'An appointment has been rescheduled.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer?->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Appointment rescheduled successfully.',
@@ -569,6 +748,99 @@ if ($companyAdmin) {
         $appointment->update([
             'status' => 'cancelled',
         ]);
+
+
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        $customer = User::find($appointment->customer_id);
+
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_CANCELLED,
+                    'Appointment Cancelled',
+                    'Your appointment has been cancelled by the staff member.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+
+        $companyAdmin = User::where('company_id', $appointment->company_id)
+            ->where('user_type', 'company_admin')
+            ->first();
+
+        if ($companyAdmin) {
+            $companyAdmin->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_CANCELLED,
+                    'Appointment Cancelled',
+                    'An appointment has been cancelled by the staff member.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer?->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+        
+
+        
 
         return response()->json([
             'success' => true,

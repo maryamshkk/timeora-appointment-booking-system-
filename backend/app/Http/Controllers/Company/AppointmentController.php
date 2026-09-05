@@ -141,6 +141,92 @@ class AppointmentController extends Controller
             'status' => 'accepted',
         ]);
 
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        $customer = User::find($appointment->customer_id);
+
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_ACCEPTED,
+                    'Appointment Accepted',
+                    'Your appointment has been accepted by the company.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+
+                $staff = $appointment->staff;
+
+        if ($staff) {
+            $staff->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_ACCEPTED,
+                    'Appointment Accepted',
+                    'An appointment assigned to you has been accepted by the company.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer?->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Appointment accepted successfully.',
@@ -165,6 +251,7 @@ class AppointmentController extends Controller
             ], 404);
         }
 
+
         if ($appointment->status !== 'pending') {
             return response()->json([
                 'success' => false,
@@ -176,12 +263,102 @@ class AppointmentController extends Controller
             'status' => 'rejected',
         ]);
 
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+            $customer = User::find($appointment->customer_id);
+
+            if ($customer) {
+                $customer->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_REJECTED,
+                        'Appointment Rejected',
+                        'Unfortunately, your appointment has been rejected by the company.',
+                        [
+                            'appointment_id' => $appointment->id,
+
+                            'customer_name' => $customer->name,
+
+                            'company_name' => $appointment->company?->name,
+
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
+
+                            'service_name' => $appointment->service?->name,
+
+                            'appointment_date' => $appointment->appointment_date,
+
+                            'start_time' => $appointment->start_time,
+
+                            'end_time' => $appointment->end_time,
+
+                            'amount' => $appointment->payment?->amount,
+
+                            'payment_method' => $appointment->payment?->method,
+
+                            'payment_status' => $appointment->payment?->status,
+
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
+
+            $staff = $appointment->staff;
+
+            if ($staff) {
+                $staff->notify(
+                    new TimeoraNotification(
+                        NotificationType::BOOKING_REJECTED,
+                        'Appointment Rejected',
+                        'An appointment assigned to you has been rejected by the company.',
+                        [
+                            'appointment_id' => $appointment->id,
+
+                            'customer_name' => $customer?->name,
+
+                            'company_name' => $appointment->company?->name,
+
+                            'staff_name' => $appointment->staff
+                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                                : null,
+
+                            'service_name' => $appointment->service?->name,
+
+                            'appointment_date' => $appointment->appointment_date,
+
+                            'start_time' => $appointment->start_time,
+
+                            'end_time' => $appointment->end_time,
+
+                            'amount' => $appointment->payment?->amount,
+
+                            'payment_method' => $appointment->payment?->method,
+
+                            'payment_status' => $appointment->payment?->status,
+
+                            'status' => $appointment->status,
+                        ]
+                    )
+                );
+            }
+
+
+
+
         return response()->json([
             'success' => true,
             'message' => 'Appointment rejected successfully.',
             'data' => $appointment->fresh(),
         ]);
     }
+
+
 
      /**
      * Cancel appointment.
@@ -214,6 +391,94 @@ class AppointmentController extends Controller
         $appointment->update([
             'status' => 'cancelled',
         ]);
+
+
+
+        $appointment->load([
+            'company',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        $customer = User::find($appointment->customer_id);
+
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_CANCELLED,
+                    'Appointment Cancelled',
+                    'Your appointment has been cancelled by the company.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
+
+
+        $staff = $appointment->staff;
+
+        if ($staff) {
+            $staff->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_CANCELLED,
+                    'Appointment Cancelled',
+                    'An appointment assigned to you has been cancelled by the company.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer?->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -431,6 +696,52 @@ class AppointmentController extends Controller
             'end_time' => $endTime->format('H:i:s'),
             'status' => 'pending',
         ]);
+
+        $appointment->load([
+            'customer',
+            'staff',
+            'service',
+            'payment',
+        ]);
+
+        $staff = $appointment->staff;
+
+        if ($staff) {
+            $staff->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_RESCHEDULED,
+                    'Appointment Rescheduled',
+                    'An appointment assigned to you has been rescheduled.',
+                    [
+                        'appointment_id' => $appointment->id,
+
+                        'customer_name' => $customer?->name,
+
+                        'company_name' => $appointment->company?->name,
+
+                        'staff_name' => $appointment->staff
+                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
+                            : null,
+
+                        'service_name' => $appointment->service?->name,
+
+                        'appointment_date' => $appointment->appointment_date,
+
+                        'start_time' => $appointment->start_time,
+
+                        'end_time' => $appointment->end_time,
+
+                        'amount' => $appointment->payment?->amount,
+
+                        'payment_method' => $appointment->payment?->method,
+
+                        'payment_status' => $appointment->payment?->status,
+
+                        'status' => $appointment->status,
+                    ]
+                )
+            );
+        }
 
         return response()->json([
             'success' => true,
