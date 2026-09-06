@@ -13,7 +13,28 @@ return new class extends Migration
     {
         Schema::create('company_settings', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('company_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->string('timezone')->default('Asia/Karachi');
+
+            $table->boolean('booking_enabled')->default(true);
+
+            $table->boolean('auto_accept_appointments')->default(false);
+
+            $table->boolean('email_notifications')->default(true);
+
+            $table->boolean('appointment_reminders')->default(true);
+
+            $table->boolean('booking_updates')->default(true);
+
+            $table->boolean('cancellation_updates')->default(true);
+
             $table->timestamps();
+
+            $table->unique('company_id');
         });
     }
 
