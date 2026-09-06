@@ -32,6 +32,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\AdminReceiptController;
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminAnnouncementController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -67,6 +69,14 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     Route::get('/admin/categories/{id}', [AdminCategoryController::class,'show']);
     Route::put('/admin/categories/{id}', [AdminCategoryController::class,'update']);
     Route::delete('/admin/categories/{id}', [AdminCategoryController::class,'destroy']);
+
+    // announcements
+    Route::get('/admin/announcements', [AdminAnnouncementController::class,'index']);
+    Route::post('/admin/announcements', [AdminAnnouncementController::class,'store']);
+    Route::get('/admin/announcements/{id}', [AdminAnnouncementController::class,'show']);
+    Route::put('/admin/announcements/{id}', [AdminAnnouncementController::class,'update']);
+    Route::delete('/admin/announcements/{id}', [AdminAnnouncementController::class,'destroy']);
+
 });
 
 
