@@ -83,6 +83,11 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     Route::put('/admin/announcements/{id}', [AdminAnnouncementController::class,'update']);
     Route::delete('/admin/announcements/{id}', [AdminAnnouncementController::class,'destroy']);
 
+    // admin settings
+    Route::get('/settings', [AdminSettingsController::class,'show']);
+    Route::put('/settings', [AdminSettingsController::class,'update']);
+
+    
 });
 
 
