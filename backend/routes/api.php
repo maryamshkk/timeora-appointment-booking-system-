@@ -31,7 +31,7 @@ use App\Http\Controllers\Admin\AdminCompanyController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\AdminReceiptController;
-
+use App\Http\Controllers\Admin\AdminCategoryController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -45,21 +45,28 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     Route::get('/admin/dashboard', [AdminDashboardController::class,'index']);
     
     // get companies data
-    Route::get('admin/companies', [AdminCompanyController::class,'index']);
-    Route::get('admin/companies/{id}', [AdminCompanyController::class,'show']);
+    Route::get('/admin/companies', [AdminCompanyController::class,'index']);
+    Route::get('/admin/companies/{id}', [AdminCompanyController::class,'show']);
     
     // get users data
-    Route::get('admin/users', [AdminUserController::class,'index']);
-    Route::get('admin/users/{id}', [AdminUserController::class,'show']);
+    Route::get('/admin/users', [AdminUserController::class,'index']);
+    Route::get('/admin/users/{id}', [AdminUserController::class,'show']);
 
     // list appointments
-    Route::get('admin/appointments', [AdminAppointmentController::class,'index']);
-    Route::get('admin/appointments/{id}', [AdminAppointmentController::class,'show']);
+    Route::get('/admin/appointments', [AdminAppointmentController::class,'index']);
+    Route::get('/admin/appointments/{id}', [AdminAppointmentController::class,'show']);
 
     // receipts api 
     Route::get('/admin/receipts', [AdminReceiptController::class,'index']);
-    Route::get('admin/receipts/{id}', [AdminReceiptController::class,'show']);
-    Route::get('admin/receipts/{id}/pdf', [AdminReceiptController::class,'pdf']);
+    Route::get('/admin/receipts/{id}', [AdminReceiptController::class,'show']);
+    Route::get('/admin/receipts/{id}/pdf', [AdminReceiptController::class,'pdf']);
+
+    // categories panel
+    Route::get('/admin/categories', [AdminCategoryController::class,'index']);
+    Route::post('/admin/categories', [AdminCategoryController::class,'store']);
+    Route::get('/admin/categories/{id}', [AdminCategoryController::class,'show']);
+    Route::put('/admin/categories/{id}', [AdminCategoryController::class,'update']);
+    Route::delete('/admin/categories/{id}', [AdminCategoryController::class,'destroy']);
 });
 
 
