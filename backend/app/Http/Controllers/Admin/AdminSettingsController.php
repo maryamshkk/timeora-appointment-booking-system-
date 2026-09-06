@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminSetting;
 use Illuminate\Http\Request;
 
 class AdminSettingsController extends Controller
@@ -30,7 +31,6 @@ class AdminSettingsController extends Controller
             'errors' => null,
         ], 200);
     }
-
 
     /**
      * Update platform settings
@@ -66,4 +66,5 @@ class AdminSettingsController extends Controller
             'errors' => null,
         ], 200);
     }
+  
 }
