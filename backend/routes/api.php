@@ -232,7 +232,8 @@ Route::middleware(['auth:sanctum', 'super_admin'])
 
     // reports and analytics
     Route::get('/company/reports/overview',[CompanyReportController::class, 'overview']);
-    });
+    Route::get('/company/reports/bookings',[CompanyReportController::class, 'bookings']);
+});
 
 
 
@@ -314,7 +315,7 @@ Route::middleware(['auth:sanctum', 'role:company_admin,staff,'])->group(function
     });
 
 
-    
+
 
 Route::middleware('auth:sanctum')->group(function () {
 

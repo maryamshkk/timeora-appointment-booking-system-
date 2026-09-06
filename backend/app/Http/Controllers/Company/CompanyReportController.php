@@ -26,7 +26,7 @@ class CompanyReportController extends Controller
             'to' => ['nullable', 'date', 'after_or_equal:from'],
         ]);
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Appointment Query
         |--------------------------------------------------------------------------
@@ -144,5 +144,43 @@ class CompanyReportController extends Controller
                 ],
             ],
         ]);
-            }
+    }
+
+    // Booking analytics
+    public function bookings(Request $request)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date|after_or_equal:from',
+        ]);
+
+        $query = Appointment::where('company_id', $companyId);
+
+        if ($request->filled('from')) {
+            $query->whereDate('appointment_date', '>=', $request->from);
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('appointment_date', '<=', $request->to);
+        }
+
+        $bookings = $query
+            ->selectRaw('
+                DATE(appointment_date) as date,
+                COUNT(*) as total,
+                SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN status = "cancelled" THEN 1 ELSE 0 END) as cancelled,
+                SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending
+            ')
+            ->groupByRaw('DATE(appointment_date)')
+            ->orderBy('date')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $bookings,
+        ]);
+    }
 }
