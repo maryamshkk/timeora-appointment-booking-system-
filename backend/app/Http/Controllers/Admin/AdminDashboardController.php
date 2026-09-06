@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 
 class AdminDashboardController extends Controller
 {
-    // get dashboard data
+    // get dashboard data 
     public function index(Request $request)
     {
         $totalCompanies = Company::count();

@@ -27,7 +27,7 @@ use App\Http\Controllers\CompanySettingsController;
 use App\Http\Controllers\StaffSettingsController;
 use App\Http\Controllers\CustomerSettingsController;
 use App\Http\Controllers\Admin\AdminDashboardController;
-
+use App\Http\Controllers\Admin\AdminCompanyController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -39,7 +39,9 @@ Route::middleware(['auth:sanctum', 'super_admin'])
 
     // get dashboard
     Route::get('/admin/dashboard', [AdminDashboardController::class,'index']);
-
+    // get companies data
+    Route::get('admin/companies', [AdminCompanyController::class,'index']);
+    Route::get('admin/companies/{id}', [AdminCompanyController::class,'show']);
     
 
     });
