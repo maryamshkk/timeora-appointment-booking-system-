@@ -234,6 +234,8 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     Route::get('/company/reports/overview',[CompanyReportController::class, 'overview']);
     Route::get('/company/reports/bookings',[CompanyReportController::class, 'bookings']);
     Route::get('/company/reports/customers',[CompanyReportController::class, 'customers']);
+    Route::get('/company/reports/staff',[CompanyReportController::class, 'staff']);
+    Route::get('/company/reports/payments',[CompanyReportController::class, 'payments']);
 });
 
 

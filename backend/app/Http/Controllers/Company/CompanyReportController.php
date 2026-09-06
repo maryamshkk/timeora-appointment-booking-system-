@@ -9,6 +9,8 @@ use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Staff;
 use App\Models\Service;
+use App\Models\Payment;
+use App\Models\Receipt;
 
 
 class CompanyReportController extends Controller
@@ -263,6 +265,164 @@ class CompanyReportController extends Controller
                 'total_customers' => $totalCustomers,
                 'customers_with_appointments' => $customersWithAppointments,
                 'top_customers' => $topCustomers,
+            ],
+        ]);
+    }
+
+    // staff analytics
+    public function staff(Request $request)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date|after_or_equal:from',
+        ]);
+
+        $query = Appointment::where('company_id', $companyId);
+
+        if ($request->filled('from')) {
+            $query->whereDate('appointment_date', '>=', $request->from);
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('appointment_date', '<=', $request->to);
+        }
+
+        $staff = Staff::where('company_id', $companyId)
+            ->withCount([
+                'appointments as total_appointments' => function ($q) use ($request) {
+                    if ($request->filled('from')) {
+                        $q->whereDate('appointment_date', '>=', $request->from);
+                    }
+
+                    if ($request->filled('to')) {
+                        $q->whereDate('appointment_date', '<=', $request->to);
+                    }
+                },
+
+                'appointments as completed_appointments' => function ($q) use ($request) {
+                    $q->where('status', 'completed');
+
+                    if ($request->filled('from')) {
+                        $q->whereDate('appointment_date', '>=', $request->from);
+                    }
+
+                    if ($request->filled('to')) {
+                        $q->whereDate('appointment_date', '<=', $request->to);
+                    }
+                },
+
+                'appointments as cancelled_appointments' => function ($q) use ($request) {
+                    $q->where('status', 'cancelled');
+
+                    if ($request->filled('from')) {
+                        $q->whereDate('appointment_date', '>=', $request->from);
+                    }
+
+                    if ($request->filled('to')) {
+                        $q->whereDate('appointment_date', '<=', $request->to);
+                    }
+                },
+
+                'appointments as rejected_appointments' => function ($q) use ($request) {
+                    $q->where('status', 'rejected');
+
+                    if ($request->filled('from')) {
+                        $q->whereDate('appointment_date', '>=', $request->from);
+                    }
+
+                    if ($request->filled('to')) {
+                        $q->whereDate('appointment_date', '<=', $request->to);
+                    }
+                },
+
+                'appointments as pending_appointments' => function ($q) use ($request) {
+                    $q->where('status', 'pending');
+
+                    if ($request->filled('from')) {
+                        $q->whereDate('appointment_date', '>=', $request->from);
+                    }
+
+                    if ($request->filled('to')) {
+                        $q->whereDate('appointment_date', '<=', $request->to);
+                    }
+                },
+            ])
+            ->get();
+
+        $staff->each(function ($member) {
+            $member->completion_rate = $member->total_appointments > 0
+                ? round(
+                    ($member->completed_appointments / $member->total_appointments) * 100,
+                    2
+                )
+                : 0;
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $staff,
+        ]);
+    }
+
+    public function payments(Request $request)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date|after_or_equal:from',
+        ]);
+
+        $query = Payment::whereHas('appointment', function ($q) use ($companyId, $request) {
+            $q->where('company_id', $companyId);
+
+            if ($request->filled('from')) {
+                $q->whereDate('appointment_date', '>=', $request->from);
+            }
+
+            if ($request->filled('to')) {
+                $q->whereDate('appointment_date', '<=', $request->to);
+            }
+        });
+
+        $totalPayments = (clone $query)->count();
+
+        $paidAppointments = (clone $query)
+            ->where('status', 'paid')
+            ->count();
+
+        $unpaidAppointments = (clone $query)
+            ->where('status', 'unpaid')
+            ->count();
+
+        $statusBreakdown = (clone $query)
+            ->select('status')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $receiptCount = Receipt::whereHas('appointment', function ($q) use ($companyId, $request) {
+            $q->where('company_id', $companyId);
+
+            if ($request->filled('from')) {
+                $q->whereDate('appointment_date', '>=', $request->from);
+            }
+
+            if ($request->filled('to')) {
+                $q->whereDate('appointment_date', '<=', $request->to);
+            }
+        })->count();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_payments' => $totalPayments,
+                'paid_appointments' => $paidAppointments,
+                'unpaid_appointments' => $unpaidAppointments,
+                'status_breakdown' => $statusBreakdown,
+                'receipt_count' => $receiptCount,
             ],
         ]);
     }
