@@ -22,7 +22,7 @@ use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CompanySettingsController;
-
+use App\Http\Controllers\StaffSettingsController;
 
 
 Route::get('/user', function (Request $request) {
@@ -188,6 +188,12 @@ Route::get('/user', function (Request $request) {
 
         // Staff Calendar 
         Route::get('staff/calendar', [StaffAppointmentController::class, 'calendar']);
+
+        // staff settings
+        Route::get('/staff/settings', [StaffSettingsController::class, 'show']);
+
+        Route::put('/staff/settings', [StaffSettingsController::class, 'update']);
+
     });
 
     
