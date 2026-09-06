@@ -162,6 +162,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
 
     // settings
+
+    
 });
 
     // Staff accept invitation
