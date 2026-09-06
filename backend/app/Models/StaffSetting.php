@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class StaffSetting extends Model
+{
+    protected $fillable = [
+        'staff_id',
+        'email_notifications',
+        'appointment_reminders',
+        'booking_updates',
+        'cancellation_updates',
+    ];
+
+    protected $casts = [
+        'email_notifications' => 'boolean',
+        'appointment_reminders' => 'boolean',
+        'booking_updates' => 'boolean',
+        'cancellation_updates' => 'boolean',
+    ];
+
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class);
+    }
+}

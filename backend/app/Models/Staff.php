@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+
 
 class Staff extends Authenticatable
 {
@@ -106,5 +108,10 @@ class Staff extends Authenticatable
     public function routeNotificationForMail($notification)
     {
         return $this->account_email;
+    }
+
+    public function settings(): HasOne
+    {
+        return $this->hasOne(StaffSetting::class);
     }
 }
