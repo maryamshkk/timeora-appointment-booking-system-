@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Models\Staff;
 
 class TimeoraNotification extends Notification implements ShouldQueue
 {
@@ -57,18 +58,21 @@ class TimeoraNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
-        ->subject($this->title)
-        ->view('emails.notifications.timeora', [
-            'notifiable' => $notifiable,
-            'type' => $this->type,
-            'title' => $this->title,
-            'message' => $this->message,
-            'data' => $this->data,
-        ]);
+        $name = $notifiable instanceof Staff
+        ? trim($notifiable->$first_name . ' ' . $notifiable->$last_name)
+        : $notifiable->name;
 
-       
-    }
+        return (new MailMessage)
+            ->subject($this->title)
+            ->view('emails.notifications.timeora', [
+                'notifiable' => $notifiable,
+                'name' => $name,
+                'type' => $this->type,
+                'title' => $this->title,
+                'notificationMessage' => $this->message,
+                'data' => $this->data,
+            ]);
+}
 
     /**
      * Get the array representation of the notification.

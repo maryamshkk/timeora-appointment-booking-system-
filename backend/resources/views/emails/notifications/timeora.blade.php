@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,7 +81,8 @@
                             line-height: 1.7;
                             color: #374151;
                         ">
-                            Hello {{ $notifiable->name ?? 'User' }},
+                            Hello {{ $name }},
+                            
                         </p>
 
                         <!-- Message -->
@@ -91,7 +92,7 @@
                             line-height: 1.7;
                             color: #4b5563;
                         ">
-                            {{ $message }}
+                            {{ $notificationMessage }}
                         </p>
 
                         <!-- Appointment Details -->
@@ -291,4 +292,3 @@
 
 </body>
 </html>
-```
