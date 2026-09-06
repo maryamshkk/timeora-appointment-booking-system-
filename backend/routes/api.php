@@ -89,6 +89,10 @@ Route::middleware(['auth:sanctum', 'super_admin'])
 
     // analytis apis
     Route::get('/admin/reports/overview',[AdminReportController::class, 'overview']);
+    Route::get('/admin/reports/companies',[AdminReportController::class, 'companies']);
+    Route::get('/admin/reports/users',[AdminReportController::class, 'users']);
+    Route::get('/admin/reports/appointments',[AdminReportController::class, 'appointments']);
+    Route::get('/admin/reports/receipts',[AdminReportController::class, 'receipts']);
 
 });
 
