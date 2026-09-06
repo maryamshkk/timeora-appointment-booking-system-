@@ -210,4 +210,61 @@ class CompanyReportController extends Controller
         ],
         ]);
     }
+
+    // Customer analytics
+    public function customers(Request $request)
+    {
+        $companyId = Auth::user()->company_id;
+
+        $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date|after_or_equal:from',
+        ]);
+
+        $appointmentsQuery = Appointment::where('company_id', $companyId);
+
+        if ($request->filled('from')) {
+            $appointmentsQuery->whereDate(
+                'appointment_date',
+                '>=',
+                $request->from
+            );
+        }
+
+        if ($request->filled('to')) {
+            $appointmentsQuery->whereDate(
+                'appointment_date',
+                '<=',
+                $request->to
+            );
+        }
+
+        $totalCustomers = Appointment::where('company_id', $companyId)
+            ->distinct('customer_id')
+            ->count('customer_id');
+
+        $customersWithAppointments = (clone $appointmentsQuery)
+            ->whereNotNull('customer_id')
+            ->distinct('customer_id')
+            ->count('customer_id');
+
+        $topCustomers = (clone $appointmentsQuery)
+            ->select('customer_id')
+            ->selectRaw('COUNT(*) as appointment_count')
+            ->whereNotNull('customer_id')
+            ->groupBy('customer_id')
+            ->orderByDesc('appointment_count')
+            ->with('customer')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_customers' => $totalCustomers,
+                'customers_with_appointments' => $customersWithAppointments,
+                'top_customers' => $topCustomers,
+            ],
+        ]);
+    }
+    
 }
