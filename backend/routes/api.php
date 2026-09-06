@@ -168,7 +168,7 @@ Route::get('/user', function (Request $request) {
     // settings
     Route::get('/company/settings', [CompanySettingsController::class, 'show']);
     Route::put('/company/settings', [CompanySettingsController::class, 'update']);
-});
+    });
 
     // Staff accept invitation
     Route::post('/staff/accept-invitation', [StaffController::class, 'acceptInvitation']);
@@ -219,25 +219,25 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
     // customer settings
     Route::get('/customer/settings', [CustomerSettingsController::class, 'show']);
     Route::put('/customer/settings', [CustomerSettingsController::class, 'update']);
-});
+    });
 
-// Payment Apis
-Route::middleware(['auth:sanctum', 'role:company_admin,staff,'])->group(function () {
+    // Payment Apis
+    Route::middleware(['auth:sanctum', 'role:company_admin,staff,'])->group(function () {
 
-    Route::get('/appointments/{id}/payment', [AppointmentController::class, 'payment']);
-    Route::put('/appointments/{id}/payment/mark-paid', [AppointmentController::class, 'markPaymentPaid']);
-    
-});
+        Route::get('/appointments/{id}/payment', [AppointmentController::class, 'payment']);
+        Route::put('/appointments/{id}/payment/mark-paid', [AppointmentController::class, 'markPaymentPaid']);
+        
+    });
 
-// Receipt Id
-Route::middleware('auth:sanctum')->group(function () {
+    // Receipt Id
+    Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/receipts', [ReceiptController::class, 'index']);
+        Route::get('/receipts', [ReceiptController::class, 'index']);
 
-    Route::get('/receipts/{id}', [ReceiptController::class, 'show']);
-    Route::get('/receipts/{id}/pdf', [ReceiptController::class, 'pdf']);
+        Route::get('/receipts/{id}', [ReceiptController::class, 'show']);
+        Route::get('/receipts/{id}/pdf', [ReceiptController::class, 'pdf']);
 
-});
+    });
 
 
 Route::middleware('auth:sanctum')->group(function () {
