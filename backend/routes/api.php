@@ -30,7 +30,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminCompanyController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
-
+use App\Http\Controllers\Admin\AdminReceiptController;
 
 
 Route::get('/user', function (Request $request) {
@@ -55,6 +55,11 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     // list appointments
     Route::get('admin/appointments', [AdminAppointmentController::class,'index']);
     Route::get('admin/appointments/{id}', [AdminAppointmentController::class,'show']);
+
+    // receipts api 
+    Route::get('/admin/receipts', [AdminReceiptController::class,'index']);
+    Route::get('admin/receipts/{id}', [AdminReceiptController::class,'show']);
+    Route::get('admin/receipts/{id}/pdf', [AdminReceiptController::class,'pdf']);
 });
 
 
