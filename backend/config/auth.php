@@ -42,10 +42,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'company_admin' => [
-            'driver' => 'sanctum',
-            'provider' => 'company_admins'
-        ]
+
+        'super_admin' => [
+        'driver' => 'sanctum',
+        'provider' => 'super_admins',
+        ],
+        
     ],
 
     /*
@@ -71,14 +73,11 @@ return [
             'model' => env('AUTH_MODEL', User::class),
         ],
 
-        'company_admins' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\CompanyAdmin::class,
-        ]
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'super_admins' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\SuperAdmin::class,
+    ],
+        
     ],
 
     /*
@@ -103,10 +102,15 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'table' => env(
+                'AUTH_PASSWORD_RESET_TOKEN_TABLE',
+                'password_reset_tokens'
+            ),
             'expire' => 60,
             'throttle' => 60,
         ],
+
+    
     ],
 
     /*

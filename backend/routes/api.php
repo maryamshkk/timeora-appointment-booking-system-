@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\RoleController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Customer\AppointmentController;
 use App\Http\Controllers\Company\AppointmentController as CompanyAppointmentController;
 use App\Http\Controllers\Staff\AppointmentController as StaffAppointmentController;
+use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\CompanyDashboardController;
 use App\Http\Controllers\StaffDashboardController;
@@ -25,10 +27,13 @@ use App\Http\Controllers\CompanySettingsController;
 use App\Http\Controllers\StaffSettingsController;
 use App\Http\Controllers\CustomerSettingsController;
 
-
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+    
+
+
 
     // {}
     // ===============================

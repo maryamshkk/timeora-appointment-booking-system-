@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\User;
 use App\Models\Staff;
+use App\Models\SuperAdmin;
 use App\Models\Otp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -483,6 +484,49 @@ class AuthController extends Controller
                 'data' => [
                     'token' => $token,
                     'staff' => $staff,
+                ],
+                'errors' => null,
+            ], 200);
+        }
+
+        // Check super_admins table
+        $superAdmin = SuperAdmin::where('email', $request->email)->first();
+
+        if ($superAdmin) {
+
+            if (
+                empty($superAdmin->password_hash) ||
+                !Hash::check($request->password, $superAdmin->password_hash)
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid credentials.',
+                    'data' => null,
+                    'errors' => null,
+                ], 401);
+            }
+
+            if ($superAdmin->status === 'disabled') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Super Admin account is disabled.',
+                    'data' => null,
+                    'errors' => null,
+                ], 403);
+            }
+
+            $superAdmin->update([
+                'last_login_at' => now(),
+            ]);
+
+            $token = $superAdmin->createToken('super_admin')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Super Admin login successful.',
+                'data' => [
+                    'token' => $token,
+                    'super_admin' => $superAdmin,
                 ],
                 'errors' => null,
             ], 200);
