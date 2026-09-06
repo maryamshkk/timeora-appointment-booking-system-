@@ -21,64 +21,67 @@ use App\Http\Controllers\CompanyDashboardController;
 use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CompanySettingsController;
+
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// {}
-// ===============================
-// COMPANY REGISTRATION
-// ===============================
-//
-Route::post('/auth/company/register', [AuthController::class, 'companyRegister']);
-Route::post('/auth/company/verify-otp', [AuthController::class, 'companyVerifyOtp']);
-Route::post('/auth/company/resend-otp', [AuthController::class, 'companyResendOtp']);
+    // {}
+    // ===============================
+    // COMPANY REGISTRATION
+    // ===============================
+    //
+    Route::post('/auth/company/register', [AuthController::class, 'companyRegister']);
+    Route::post('/auth/company/verify-otp', [AuthController::class, 'companyVerifyOtp']);
+    Route::post('/auth/company/resend-otp', [AuthController::class, 'companyResendOtp']);
 
 
-// ===============================
-// CUSTOMER REGISTRATION
-// ===============================
-// 9
+    // ===============================
+    // CUSTOMER REGISTRATION
+    // ===============================
+    // 9
 
-Route::post('/auth/customer/register', [AuthController::class, 'customerRegister']);
-Route::post('/auth/customer/verify-otp', [AuthController::class, 'customerVerifyOtp']);
-Route::post('/auth/customer/resend-otp', [AuthController::class, 'customerResendOtp']);
-
-
-// ===============================
-// LOGIN
-// ===============================
-
-Route::post('/auth/login', [AuthController::class, 'login']);
-
-// ===============================
-// PASSWORD
-// ===============================
-
-Route::post('/auth/forget-password', [AuthController::class, 'forgetPassword']);
-Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/auth/customer/register', [AuthController::class, 'customerRegister']);
+    Route::post('/auth/customer/verify-otp', [AuthController::class, 'customerVerifyOtp']);
+    Route::post('/auth/customer/resend-otp', [AuthController::class, 'customerResendOtp']);
 
 
+    // ===============================
+    // LOGIN
+    // ===============================
 
-// ===============================
-// AUTHENTICATED
-// ===============================
+    Route::post('/auth/login', [AuthController::class, 'login']);
+
+    // ===============================
+    // PASSWORD
+    // ===============================
+
+    Route::post('/auth/forget-password', [AuthController::class, 'forgetPassword']);
+    Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 
-Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    // ===============================
+    // AUTHENTICATED
+    // ===============================
 
-    Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
 
-});
+    Route::middleware('auth:sanctum')->group(function () {
 
-// ===============================
-// COMPANY ADMIN APIS
-// ===============================
+        Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
+        Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
+
+    });
+
+    // ===============================
+    // COMPANY ADMIN APIS
+    // ===============================
+
+    Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
 
     // dashboard
@@ -162,8 +165,8 @@ Route::middleware(['auth:sanctum', 'role:company_admin'])->group(function () {
 
 
     // settings
-
-    
+    Route::get('/company/settings', [CompanySettingsController::class, 'show']);
+    Route::put('/company/settings', [CompanySettingsController::class, 'update']);
 });
 
     // Staff accept invitation
