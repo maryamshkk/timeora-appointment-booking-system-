@@ -23,6 +23,7 @@ use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CompanySettingsController;
 use App\Http\Controllers\StaffSettingsController;
+use App\Http\Controllers\CustomerSettingsController;
 
 
 Route::get('/user', function (Request $request) {
@@ -215,7 +216,9 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
     // Customer Calendar Apis
     Route::get('customer/calendar', [AppointmentController::class, 'calendar']);
 
-    
+    // customer settings
+    Route::get('/customer/settings', [CustomerSettingsController::class, 'show']);
+    Route::put('/customer/settings', [CustomerSettingsController::class, 'update']);
 });
 
 // Payment Apis

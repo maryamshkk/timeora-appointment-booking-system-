@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('customer_settings', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('customer_id')
-                ->constrained()
+            $table->foreignId('user_id')
+                ->constrained('users')
                 ->cascadeOnDelete();
 
             $table->boolean('email_notifications')->default(true);
@@ -25,7 +25,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique('customer_id');
+            $table->unique('user_id');
         });
     }
 

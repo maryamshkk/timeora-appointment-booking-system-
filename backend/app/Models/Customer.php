@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
@@ -26,4 +27,9 @@ class Customer extends Model
     protected $casts = [
         'email_verified_at' => 'datetime'
     ];
+
+    public function settings(): HasOne
+    {
+        return $this->hasOne(CustomerSetting::class);
+    }
 }

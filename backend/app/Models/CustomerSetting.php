@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CustomerSetting extends Model
 {
     protected $fillable = [
-        'customer_id',
+        'user_id',
         'email_notifications',
         'appointment_reminders',
         'booking_updates',
@@ -21,8 +21,8 @@ class CustomerSetting extends Model
         'cancellation_updates' => 'boolean',
     ];
 
-    public function customer(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(User::class);
     }
 }
