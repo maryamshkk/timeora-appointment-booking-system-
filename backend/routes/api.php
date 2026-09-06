@@ -44,6 +44,11 @@ Route::get('/user', function (Request $request) {
 Route::middleware(['auth:sanctum', 'super_admin'])
     ->group(function () {
 
+    // admin profile
+    Route::get('/profile', [AdminProfileController::class,'show']);
+    Route::put('/profile', [AdminProfileController::class,'update']);
+    Route::put('/profile/password', [AdminProfileController::class,'updatePassword']);
+
     // get dashboard
     Route::get('/admin/dashboard', [AdminDashboardController::class,'index']);
     
