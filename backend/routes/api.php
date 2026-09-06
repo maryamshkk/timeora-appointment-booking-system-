@@ -33,7 +33,7 @@ use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\AdminReceiptController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminAnnouncementController;
-
+use App\Http\Controllers\Company\CompanyReportController;
 
 
 Route::get('/user', function (Request $request) {
@@ -84,10 +84,10 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     Route::delete('/admin/announcements/{id}', [AdminAnnouncementController::class,'destroy']);
 
     // admin settings
-    Route::get('/settings', [AdminSettingsController::class,'show']);
-    Route::put('/settings', [AdminSettingsController::class,'update']);
+    Route::get('admin/settings', [AdminSettingsController::class,'show']);
+    Route::put('/admin/settings', [AdminSettingsController::class,'update']);
 
-    
+
 });
 
 
@@ -229,6 +229,9 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     // settings
     Route::get('/company/settings', [CompanySettingsController::class, 'show']);
     Route::put('/company/settings', [CompanySettingsController::class, 'update']);
+
+    // reports and analytics
+    Route::get('/company/reports/overview',[CompanyReportController::class, 'overview']);
     });
 
     // Staff accept invitation
