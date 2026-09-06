@@ -159,14 +159,23 @@ class CompanyReportController extends Controller
         $query = Appointment::where('company_id', $companyId);
 
         if ($request->filled('from')) {
-            $query->whereDate('appointment_date', '>=', $request->from);
+            $query->whereDate(
+                'appointment_date',
+                '>=',
+                $request->from
+            );
         }
 
         if ($request->filled('to')) {
-            $query->whereDate('appointment_date', '<=', $request->to);
+            $query->whereDate(
+                'appointment_date',
+                '<=',
+                $request->to
+            );
         }
+        
 
-        $bookings = $query
+        $bookings = (clone $query)
             ->selectRaw('
                 DATE(appointment_date) as date,
                 COUNT(*) as total,
@@ -178,9 +187,27 @@ class CompanyReportController extends Controller
             ->orderBy('date')
             ->get();
 
+
+        // Status breakdown
+        $statusBreakdown = (clone $query)
+            ->select('status')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $cancellationCount = (clone $query)
+            ->where('status', 'cancelled')
+            ->count();
+
         return response()->json([
             'success' => true,
-            'data' => $bookings,
+            'data' => [
+            'daily_trends' => $bookings,
+
+            'status_breakdown' => $statusBreakdown,
+
+            'cancellation_count' => $cancellationCount,
+        ],
         ]);
     }
 }
