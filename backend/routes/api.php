@@ -26,13 +26,23 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CompanySettingsController;
 use App\Http\Controllers\StaffSettingsController;
 use App\Http\Controllers\CustomerSettingsController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+    // Super Admin Dashboard
+Route::middleware(['auth:sanctum', 'super_admin'])
+    ->group(function () {
+
+    // get dashboard
+    Route::get('/admin/dashboard', [AdminDashboardController::class,'index']);
+
     
 
+    });
 
 
     // {}

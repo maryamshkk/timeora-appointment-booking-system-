@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\SuperAdminMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Auth\AuthenticationException;
 
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'super_admin' => SuperAdminMiddleware::class,
         ]);
 
     })
