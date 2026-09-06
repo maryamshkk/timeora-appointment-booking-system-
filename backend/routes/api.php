@@ -28,6 +28,10 @@ use App\Http\Controllers\StaffSettingsController;
 use App\Http\Controllers\CustomerSettingsController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminCompanyController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminAppointmentController;
+
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -45,8 +49,12 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     Route::get('admin/companies/{id}', [AdminCompanyController::class,'show']);
     
     // get users data
-    Route::get('/users', [AdminUserController::class,'index']);
-    Route::get('/users/{id}', [AdminUserController::class,'show']);
+    Route::get('admin/users', [AdminUserController::class,'index']);
+    Route::get('admin/users/{id}', [AdminUserController::class,'show']);
+
+    // list appointments
+    Route::get('admin/appointments', [AdminAppointmentController::class,'index']);
+    Route::get('admin/appointments/{id}', [AdminAppointmentController::class,'show']);
 });
 
 
