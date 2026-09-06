@@ -212,10 +212,10 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
     Route::put('/customer/appointments/{id}', [AppointmentController::class, 'cancel']);
     Route::put('/customer/appointments/{id}/reschedule', [AppointmentController::class, 'reschedule']);
 
-  
-
     // Customer Calendar Apis
     Route::get('customer/calendar', [AppointmentController::class, 'calendar']);
+
+    
 });
 
 // Payment Apis
