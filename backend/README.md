@@ -1,123 +1,297 @@
 # TIMEORA — Backend
 
-**by Tiemio** — One Platform. Every Appointment.
+> **One Platform. Every Appointment.**
 
-TIMEORA is an appointment booking and management platform connecting businesses, staff, and customers through a centralized system. This repository contains the **Laravel REST API backend**, consumed by the React frontend.
+TIMEORA is an appointment booking and management platform that connects customers with businesses and their staff. The backend provides secure REST APIs for authentication, scheduling, appointments, payments, receipts, notifications, reports, and administrative management.
 
 ---
 
-## Tech Stack
+## 🚀 Backend Overview
 
-| Layer | Technology |
-|---|---|
-| Framework | Laravel 13 |
-| Database | MySQL (Eloquent ORM) |
-| Authentication | Laravel Sanctum |
-| Authorization | Middleware + Policies |
-| Notifications | Laravel Mail / Notifications |
-| Queue / Scheduler | Laravel Queues + Scheduler |
-| PDF | Laravel PDF generation |
-| Testing | Pest / PHPUnit |
+The TIMEORA backend is built with **Laravel** and provides a RESTful API consumed by the React frontend.
 
-## Architecture
+### Core Features
+
+* 🔐 Authentication & OTP verification
+* 👥 Role-based authorization
+* 🏢 Company management
+* 👨‍💼 Staff management
+* 🛠️ Service management
+* 📅 Business & staff availability
+* ⏰ Automatic available-slot calculation
+* 📌 Appointment booking & management
+* 🔄 Cancellation & rescheduling
+* 💵 Cash-on-reception payments
+* 🧾 Digital receipts & PDF generation
+* 🔔 In-app & email notifications
+* ⏱️ 24-hour & 1-hour reminders
+* ⚙️ Company, Staff & Customer settings
+* 👑 Super Admin management
+* 📊 Reports & analytics
+* 🔒 Company-level data isolation
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology            | Purpose                  |
+| --------------------- | ------------------------ |
+| Laravel               | Backend framework        |
+| PHP                   | Programming language     |
+| MySQL                 | Database                 |
+| Laravel Sanctum       | Authentication           |
+| Eloquent ORM          | Database & relationships |
+| REST API              | Frontend communication   |
+| Laravel Notifications | Notifications            |
+| Laravel Mail          | Email notifications      |
+| Laravel Queues        | Background jobs          |
+| Laravel Scheduler     | Appointment reminders    |
+| PDF Generation        | Digital receipts         |
+| Pest / PHPUnit        | Testing                  |
+
+---
+
+## 👤 User Roles
+
+TIMEORA supports four roles:
+
+### Super Admin
+
+Platform-level management, companies, users, appointments, receipts, reports, settings, categories and audit logs.
+
+### Company Admin
+
+Manages their company, staff, services, customers, schedules and appointments.
+
+### Staff
+
+Manages assigned appointments, availability, schedule and profile.
+
+### Customer
+
+Discovers services, checks available slots, books appointments and manages their appointments.
+
+---
+
+## 📅 Appointment System
+
+The booking engine checks multiple conditions before allowing an appointment:
 
 ```text
-Super Admin
-    └── Companies
-            ├── Company Admin
-            ├── Staff
-            ├── Services
-            ├── Availability
-            ├── Customers
-            └── Appointments
-                    ├── Payments
-                    └── Receipts
+Business Hours
+      ↓
+Staff Availability
+      ↓
+Service Duration
+      ↓
+Breaks
+      ↓
+Blocked Time
+      ↓
+Holidays / Exceptions
+      ↓
+Existing Appointments
+      ↓
+Available Slot
+      ↓
+Appointment Booking
 ```
 
-Registration is dual-sided — a **Company** and a **Customer** each register independently from the landing page. Customers are global users, not nested under any single company.
+The backend prevents invalid bookings and double-booking conflicts.
+
+---
+
+## 💳 Payments & Receipts
+
+TIMEORA uses **Cash on Reception** as the payment method.
+
+The backend supports:
+
+* Payment records
+* Payment status
+* Marking appointments as paid
+* Digital receipt generation
+* PDF receipts
+* Appointment ↔ Payment ↔ Receipt relationships
+
+No online payment gateway is required for the current version.
+
+---
+
+## 🔔 Notifications
+
+Notifications are triggered by important appointment events:
+
+* Booking created
+* Appointment accepted
+* Appointment rejected
+* Cancellation
+* Rescheduling
+* Appointment completion
+* Email verification
+* 24-hour reminder
+* 1-hour reminder
+
+Laravel Queues and Scheduler are used for background notification processing and reminders.
+
+---
+
+## 📊 Reports & Analytics
+
+The backend provides company and platform-level analytics including:
+
+* Appointment statistics
+* Booking trends
+* Customer statistics
+* Staff performance
+* Popular services
+* Payment statistics
+* Receipt statistics
+* Platform statistics
+
+Reports support date-based filtering and role-based access.
+
+---
+
+## 🔒 Security & Authorization
+
+TIMEORA uses:
+
+* Laravel Sanctum
+* Middleware
+* Policies
+* Request validation
+* Password hashing
+* Database transactions
+* Company-level data isolation
+* Appointment conflict protection
+
+Company Admins can only access data belonging to their own company.
+
+---
+
+## ⚙️ Installation
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd backend
+```
+
+### 2. Install dependencies
+
+```bash
+composer install
+```
+
+### 3. Configure environment
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Configure the MySQL database in `.env`.
+
+### 4. Run migrations
+
+```bash
+php artisan migrate
+```
+
+### 5. Start the development server
+
+```bash
+php artisan serve
+```
+
+The API will be available at:
 
 ```text
-React + Axios → Laravel REST API → Controllers → Models → MySQL
+http://127.0.0.1:8000
 ```
 
-## Roles
+---
 
-| Role | Access |
-|---|---|
-| **Super Admin** | Companies, users, appointments, receipts, platform reports |
-| **Company Admin** | Company profile, services, staff, calendar, availability |
-| **Staff** | Own appointments, calendar, availability, profile |
-| **Customer** | Browse, book, reschedule, cancel, view receipts |
+## 🧪 Testing
 
-Access is enforced via **Middleware** (role checks) and **Policies** (resource-level, e.g. a Company Admin can't touch another company's data).
+Run the backend test suite with:
 
-## Authentication Flow
-
-```text
-Register → Enter Email/Password → OTP Sent → Verify OTP →
-Account/Company Status Check → Login → Dashboard
+```bash
+php artisan test
 ```
 
-Companies don't need manual Super Admin approval — verification alone grants access.
+Important areas covered include:
 
-## Business Rules
+* Authentication
+* Authorization
+* Company isolation
+* Availability
+* Slot calculation
+* Appointments
+* Double-booking prevention
+* Payments
+* Receipts
+* Notifications
+* Reports
 
-- **Payments:** Cash on Reception only (no online gateway in V1)
-- **Receipts:** Auto-generated on booking, marked "Paid" by company after cash received
-- **No double booking:** availability checked against staff hours, service duration, breaks, holidays, and existing appointments
+---
 
-## API Structure
-
-```text
-/api/auth        → register, verify, login, logout, password reset
-/api/super-admin
-/api/company
-/api/staff
-/api/customer
-```
-
-## Project Structure
+## 📁 Main Backend Structure
 
 ```text
 backend/
 ├── app/
-│   ├── Http/{Controllers, Middleware, Requests}/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   ├── Middleware/
+│   │   └── Requests/
 │   ├── Models/
 │   ├── Notifications/
 │   ├── Policies/
-│   └── Services/
-├── database/{migrations, seeders, factories}/
-├── routes/api.php
+│   └── ...
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── routes/
+│   └── api.php
+├── config/
+├── tests/
 └── .env
 ```
 
-## Environment Variables
+---
+
+## 🔄 Backend Status
+
+**Backend feature development: Complete ✅**
+
+Completed modules include:
 
 ```text
-APP_NAME, APP_URL
-DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
-SANCTUM_STATEFUL_DOMAINS
+Authentication
+Authorization
+Company Management
+Staff Management
+Services
+Availability
+Slot Engine
+Appointments
+Payments
+Receipts
+Notifications
+Settings
+Super Admin
+Reports & Analytics
 ```
-⚠️ Never commit `.env` to Git.
 
-## Development Status
-
-**Current phase:** Authentication, registration & role authorization
-**Next phase:** Company Management APIs
-
-Roadmap: Setup ✓ → DB Design ✓ → Auth (in progress) → Company Mgmt → Staff → Services → Availability → Appointments → Booking → Payments/Receipts → Notifications → Super Admin → Reports → Testing → Deployment
-
-## V1 Scope
-
-Excluded from V1: AI features, online payments, deposits/refunds, coupons/gift cards, subscriptions.
-**Included:** company & staff management, services, availability, appointment booking, cash payments, digital receipts.
+The backend is ready for **full integration, QA, security testing, and production deployment**.
 
 ---
 
-## Author
+## 👩‍💻 Project
 
-**Maryam Sheikh**
-✉️ [maryamsheikh5245@gmail.com](mailto:maryamsheikh5245@gmail.com) · 💻 [@maryamshkk](https://github.com/maryamshkk) · 🔗 [LinkedIn](https://www.linkedin.com/in/maryamsheikh45/)
-📦 [Repository](https://github.com/maryamshkk/timeora-appointment-booking-system-)
+**TIMEORA — Appointment Booking & Management System**
 
-<p align="center">TIMEORA by Tiemio — "One Platform. Every Appointment."</p>
+> **One Platform. Every Appointment.**
