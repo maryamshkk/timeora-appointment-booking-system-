@@ -39,12 +39,15 @@ Route::middleware(['auth:sanctum', 'super_admin'])
 
     // get dashboard
     Route::get('/admin/dashboard', [AdminDashboardController::class,'index']);
+    
     // get companies data
     Route::get('admin/companies', [AdminCompanyController::class,'index']);
     Route::get('admin/companies/{id}', [AdminCompanyController::class,'show']);
     
-
-    });
+    // get users data
+    Route::get('/users', [AdminUserController::class,'index']);
+    Route::get('/users/{id}', [AdminUserController::class,'show']);
+});
 
 
     // {}
