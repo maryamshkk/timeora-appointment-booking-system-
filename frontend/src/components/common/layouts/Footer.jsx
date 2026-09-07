@@ -21,7 +21,7 @@ function Footer() {
         </div>
 
         <p className="text-xs text-gray/80">
-          © 2024 Timeora. All rights reserved.
+          © 2026 Timeora. All rights reserved.
         </p>
       </div>
     </footer>
