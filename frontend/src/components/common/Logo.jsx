@@ -11,6 +11,9 @@ function Logo() {
                 alt="Timeora"
                 className="h-auto w-32" 
             /> 
+            <span className="font-serif text-2xl text-navy font-normal"> 
+                TIMEORA 
+            </span>
         </Link>
     )
 }
