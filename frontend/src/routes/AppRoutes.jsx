@@ -7,6 +7,7 @@ function AppRoutes(){
         <BrowserRouter>
             <Routes>
                 <Route path="/register" element={<RoleSelectionPage />} />
+                
             </Routes>
         </BrowserRouter>
     )
