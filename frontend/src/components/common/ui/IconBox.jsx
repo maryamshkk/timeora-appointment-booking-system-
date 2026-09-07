@@ -1,6 +1,6 @@
 import React from "react";
 
-function IconBox({children}) {
+function IconBox({children, className= ""}) {
 
     return(
         <div 
@@ -14,7 +14,7 @@ function IconBox({children}) {
             bg-beige
             text-navy
         ">
-
+                {children}
         </div>
     )
 }

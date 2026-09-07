@@ -1,5 +1,3 @@
-import React from 'react';
-
 function Button ({
     children,
     type = "button",
@@ -8,7 +6,6 @@ function Button ({
 }) {
 
     return (
-        <>
         <button 
         type = {type}
         onClick={onClick}
@@ -21,7 +18,7 @@ function Button ({
             {children}
 
         </button>
-        </>
+        
     );
 }
 export default Button;

@@ -12,10 +12,10 @@ function BackToHome() {
             gap-2
             font-serif
             text-sm
-            text-slate
+            text-gray
             transition
             duration-200
-            hover:text-navy
+            hover:text-gold transition
             " 
         >
            ← Back to Home

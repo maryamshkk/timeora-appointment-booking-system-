@@ -1,11 +1,12 @@
 import React from "react";
 import {Link, useNavigate} from "react-router-dom";
-import { Building2, User } from "lucide-react";
+import { User } from "lucide-react";
 import Navbar from "../../components/common/layouts/Navbar";
 import Footer from "../../components/common/layouts/Footer";
 import IconBox from "../../components/common/ui/IconBox";
 import Divider from "../../components/common/ui/Divider";
-import { Button } from "bootstrap";
+import Button  from "../../components/common/Button";
+import { Building2 } from "lucide-react";
 
 function RoleSelectionPage() {
     let navigate = useNavigate();
@@ -36,7 +37,7 @@ function RoleSelectionPage() {
                                 <Building2 className="w-[22px] h-[22px] text-navy" />
                             </IconBox>
 
-                            <h2 className="text-sm font-bold text-navy tracking-wide">
+                            <h2 className="mt-2 text-sm font-bold text-navy tracking-wide">
                                 COMPANY
                             </h2>
 
@@ -54,6 +55,7 @@ function RoleSelectionPage() {
                                 >
                                     Register as Company
                             </Button>
+                            
                         </div>
 
                         {/* Customer Card */} 
@@ -61,7 +63,7 @@ function RoleSelectionPage() {
                         <IconBox> 
                             <User className="w-[22px] h-[22px] text-navy" /> 
                                 </IconBox> 
-                                <h2 className="text-sm font-bold text-navy tracking-wide"> 
+                                <h2 className="mt-2 text-sm font-bold text-navy tracking-wide"> 
                                     CUSTOMER 
                                 </h2> 
                                 
@@ -70,9 +72,6 @@ function RoleSelectionPage() {
                                     Find a company and manage your appointments. 
                                 </p>
 
-                                <p className="text-sm text-slate leading-relaxed mb-6 flex-grow"> 
-                                    Find a company and manage your appointments. 
-                                </p> 
                                 
                                 <Button onClick={() => { 
                                     // TODO: axios POST call for role registration 

@@ -1,6 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #000C1E;
+  --color-slate: #43474E;
+  --color-gray: #C3C6CF;
+  --color-beige: #E4E2DD;
+  --color-gold: #FED488;
+
+  --font-serif: 'Libre Caslon', serif;
+}
 
 @font-face {
   font-family: 'Libre Caslon';
@@ -30,4 +38,5 @@ body {
   font-family: 'Libre Caslon', serif;
   background-color: #E4E2DD;
   color: #000C1E;
+  margin: 0;
 }
