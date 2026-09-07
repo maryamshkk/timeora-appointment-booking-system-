@@ -11,7 +11,7 @@ function RegistrationIntro({
         <div className="w-full md:w-[42%]">
 
             {/* Eyebrow */} 
-            <p className="text-xs font-bold uppercase tracking-widest text-gold mb-4"> 
+            <p className="text-xs font-bold uppercase tracking-widest text-brown mb-4"> 
                 {eyebrow} 
             </p>
 
@@ -62,7 +62,7 @@ function RegistrationIntro({
             </div>  
 
             {/* Today's Schedule */}    
-            <div className="bg-white rounded-xl shadow-sm border-l-4 border-gold max-w-[460px] mt-10">
+            <div className="bg-white rounded-xl shadow-sm border-l-4 border-gold max-w-[460px] mt-10 pb-2">
 
 
                 {/* Header */}

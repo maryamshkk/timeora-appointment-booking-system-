@@ -7,7 +7,7 @@ function Navbar() {
       <Link to="/" className="font-serif text-2xl text-beige no-underline">
         Timeora
       </Link>
-
+    
       <div className="flex items-center gap-6">
         <BackToHome className="text-gray no-underline hover:text-gold transition" />
         <Link
