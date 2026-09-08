@@ -4,6 +4,7 @@ import RegistrationIntro from "../../components/common/RegistrationIntro";
 import Divider from "../../components/common/ui/Divider";
 import IconBox from "../../components/common/ui/IconBox";
 import Input from "../../components/common/Input";
+import RegistrationSteps from "../../components/common/RegistrationSteps";
 import {
     Building2,
     ChevronDown,
@@ -63,10 +64,10 @@ async function handleSubmit(event) {
             response.message || "Registration successful."
         );
 
-        navigate("/auth/company/verify-otp", {
+        navigate("/register/verify-otp", {
             state: {
-                companyId: response.data.company_id,
-                adminEmail: response.data.admin_email,
+                companyId: response?.data?.company_id,
+                adminEmail: response?.data?.admin_email,
             },
         });
     } catch (error) {
@@ -79,6 +80,7 @@ async function handleSubmit(event) {
 
     return (
         <div className="min-h-screen bg-beige px-6 py-10 md:px-10">
+            
             <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center gap-10">
 
 
@@ -87,9 +89,10 @@ async function handleSubmit(event) {
 
                 {/* Right Section */}
                 <form
-    onSubmit={handleSubmit}
-    className="w-full md:w-[58%] bg-white rounded-2xl shadow-lg p-8 md:p-12"
->
+                onSubmit={handleSubmit}
+                className="w-full md:w-[58%] bg-white rounded-2xl shadow-lg p-8 md:p-12">                   
+
+                <RegistrationSteps currentStep={1} />
                     <h2 className="font-serif text-3xl text-navy mb-4">
                         Create Your Company Account
                     </h2>
@@ -226,32 +229,32 @@ async function handleSubmit(event) {
                                 "
                             >
                                <option value="">
-    Select industry...
-</option>
+                                Select industry...
+                            </option>
 
-<option value="1">
-    Healthcare
-</option>
+                            <option value="1">
+                                Healthcare
+                            </option>
 
-<option value="2">
-    Beauty & Wellness
-</option>
+                            <option value="2">
+                                Beauty & Wellness
+                            </option>
 
-<option value="3">
-    Education
-</option>
+                            <option value="3">
+                                Education
+                            </option>
 
-<option value="4">
-    Consulting
-</option>
+                            <option value="4">
+                                Consulting
+                            </option>
 
-<option value="5">
-    Fitness
-</option>
+                            <option value="5">
+                                Fitness
+                            </option>
 
-<option value="6">
-    Other
-</option>
+                            <option value="6">
+                                Other
+                            </option>
                              
                             </select>
 
@@ -414,28 +417,31 @@ async function handleSubmit(event) {
                         .
                     </p>
                 </div>
-<div className="mt-8">
-    <Button
-        type="submit"
-        disabled={loading}
-        className="w-full"
-    >
-        {loading ? "Creating Account..." : "Create Company Account"}
-    </Button>
-</div>
+                    <div className="mt-8">
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full"
+                        >
+                            {loading ? "Creating Account..." : "Create Company Account"}
+                        </Button>
+                    </div>
 
-{(formError || error?.message) && (
-    <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-        <p className="font-serif text-sm text-red-700">
-            {formError || error?.message}
-        </p>
-    </div>
-)}
-                </form>
-                
-        </div> 
-    </div>
-                    
+                    {(formError || error?.message) && (
+                        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                            <p className="font-serif text-sm text-red-700">
+                                {formError || error?.message}
+                            </p>
+                        </div>
+                    )}
+                                    </form>
+                                    
+                            </div> 
+                            
+                        </div>
+                        
+                                        
     ); 
+
 } 
 export default CompanyRegistration;

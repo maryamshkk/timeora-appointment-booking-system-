@@ -1,8 +1,7 @@
 import React from "react";
 import { Check } from "lucide-react";
 
-function RegistrationSteps({ currentStep = 2 }) {
-
+function RegistrationSteps({ currentStep = 2, variant = "default" }) {
     const steps = [
         {
             number: 1,
@@ -18,22 +17,55 @@ function RegistrationSteps({ currentStep = 2 }) {
         },
     ];
 
+    // For completion variant, show all steps as completed
+    if (variant === "complete") {
+        return (
+            <div className="w-full">
+                <div className="flex items-center justify-center">
+                    {steps.map((step, index) => (
+                        <React.Fragment key={step.number}>
+                            {/* Step */}
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                                {/* Circle with check for all completed steps */}
+                                <div className="w-6 h-6 rounded-full bg-navy flex items-center justify-center">
+                                    <Check className="w-3 h-3 text-white" />
+                                </div>
+
+                                {/* Label */}
+                                <span className="text-xs font-bold uppercase tracking-wide text-navy">
+                                    <span className="hidden sm:inline">
+                                        0{step.number}{" "}
+                                    </span>
+                                    {step.label}
+                                </span>
+                            </div>
+
+                            {/* Connector */}
+                            {index < steps.length - 1 && (
+                                <div className="flex-1 border-t border-navy/30 mx-3 min-w-[40px]" />
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
+
+                {/* Bottom Divider */}
+                <div className="border-b border-gray/20 mt-5" />
+            </div>
+        );
+    }
+
+    // Default variant (original logic)
     return (
         <div className="w-full">
-
             <div className="flex items-center">
-
                 {steps.map((step, index) => {
-
                     const isCompleted = step.number < currentStep;
                     const isActive = step.number === currentStep;
 
                     return (
                         <React.Fragment key={step.number}>
-
                             {/* Step */}
                             <div className="flex items-center gap-2 flex-shrink-0">
-
                                 {/* Circle */}
                                 {isCompleted ? (
                                     <div className="w-6 h-6 rounded-full bg-gray/20 flex items-center justify-center">
@@ -66,23 +98,19 @@ function RegistrationSteps({ currentStep = 2 }) {
                                     </span>
                                     {step.label}
                                 </span>
-
                             </div>
 
                             {/* Connector */}
                             {index < steps.length - 1 && (
                                 <div className="flex-1 border-t border-gray/40 mx-3" />
                             )}
-
                         </React.Fragment>
                     );
                 })}
-
             </div>
 
             {/* Bottom Divider */}
             <div className="border-b border-gray/20 mt-5" />
-
         </div>
     );
 }
