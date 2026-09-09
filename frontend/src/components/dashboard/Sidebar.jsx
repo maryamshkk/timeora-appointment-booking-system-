@@ -1,5 +1,5 @@
+
 import React from "react";
-import Button from "../common/Button";
 import { NavLink, Link } from "react-router-dom";
 import {
     Building2,
@@ -8,7 +8,7 @@ import {
     Calendar,
     Users,
     Scissors,
-    ContactRound,
+    MapPin,
     BarChart3,
     Bell,
     Settings,
@@ -17,7 +17,11 @@ import {
     Plus,
 } from "lucide-react";
 
-function Sidebar({ companyName = "Shifa Clinic" }) {
+function Sidebar({
+    companyName = "Shifa Clinic",
+    activeItem = "Dashboard",
+    ctaLabel = "Book Appointment",
+}) {
     const navItems = [
         {
             label: "Dashboard",
@@ -46,7 +50,7 @@ function Sidebar({ companyName = "Shifa Clinic" }) {
         },
         {
             label: "Customers",
-            icon: ContactRound,
+            icon: MapPin,
             path: "/company/customers",
         },
         {
@@ -68,6 +72,7 @@ function Sidebar({ companyName = "Shifa Clinic" }) {
 
     return (
         <aside className="w-64 min-h-screen bg-navy text-white flex flex-col px-6 py-6 flex-shrink-0">
+
             {/* Brand */}
             <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
@@ -89,21 +94,31 @@ function Sidebar({ companyName = "Shifa Clinic" }) {
             <nav className="flex-1 flex flex-col gap-1">
                 {navItems.map((item) => {
                     const Icon = item.icon;
+                    const isActive = activeItem === item.label;
 
                     return (
                         <NavLink
                             key={item.label}
                             to={item.path}
-                            className={({ isActive }) =>
-                                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
+                            className={`
+                                flex items-center gap-3
+                                px-3 py-2.5
+                                rounded-lg
+                                text-sm
+                                transition
+                                border-l-4
+                                ${
                                     isActive
-                                        ? "bg-gold/90 text-navy font-bold"
-                                        : "text-white/70 hover:bg-white/5 hover:text-white"
-                                }`
-                            }
+                                        ? "bg-gold/90 text-navy font-bold border-gold"
+                                        : "text-white/70 hover:bg-white/5 hover:text-white border-transparent"
+                                }
+                            `}
                         >
                             <Icon className="w-[18px] h-[18px] flex-shrink-0" />
-                            <span>{item.label}</span>
+
+                            <span>
+                                {item.label}
+                            </span>
                         </NavLink>
                     );
                 })}
@@ -112,32 +127,40 @@ function Sidebar({ companyName = "Shifa Clinic" }) {
             {/* Divider */}
             <div className="border-t border-white/10 my-4" />
 
-            {/* Book New */}
+            {/* CTA */}
             <Link
                 to="/company/appointments/new"
                 className="w-full flex items-center justify-center gap-2 bg-gold text-navy font-bold uppercase tracking-wide text-sm py-3 rounded-lg hover:bg-white transition mb-4"
             >
                 <Plus className="w-4 h-4" />
-                Book New
+                {ctaLabel}
             </Link>
 
             {/* Bottom Links */}
             <div className="mt-auto flex flex-col gap-1">
+
                 <Link
                     to="/company/help"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
                 >
                     <CircleHelp className="w-[18px] h-[18px]" />
-                    <span>Help Center</span>
+
+                    <span>
+                        Help Center
+                    </span>
                 </Link>
 
-                <Button
+                <button
                     type="button"
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
                 >
                     <LogOut className="w-[18px] h-[18px]" />
-                    <span>Logout</span>
-                </Button>
+
+                    <span>
+                        Logout
+                    </span>
+                </button>
+
             </div>
         </aside>
     );
