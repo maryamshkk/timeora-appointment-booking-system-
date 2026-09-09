@@ -130,13 +130,13 @@ function Sidebar({ companyName = "Shifa Clinic" }) {
                     <span>Help Center</span>
                 </Link>
 
-                <button
+                <Button
                     type="button"
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
                 >
                     <LogOut className="w-[18px] h-[18px]" />
                     <span>Logout</span>
-                </button>
+                </Button>
             </div>
         </aside>
     );
