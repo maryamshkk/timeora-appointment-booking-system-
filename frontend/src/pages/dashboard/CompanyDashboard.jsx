@@ -135,7 +135,10 @@ function CompanyDashboard({
         <div className="min-h-screen bg-beige flex">
             {/* Desktop Sidebar */}
             <div className="hidden lg:block">
-                <Sidebar companyName={companyName} />
+                <Sidebar companyName={companyName} 
+                        activeItem="Dashboard"
+                        ctaLabel="Book New"
+                        />
             </div>
 
             {/* Mobile Sidebar */}
@@ -149,7 +152,9 @@ function CompanyDashboard({
                     />
 
                     <div className="fixed left-0 top-0 z-40 h-screen lg:hidden">
-                        <Sidebar companyName={companyName} />
+                        <Sidebar companyName={companyName} 
+                                activeItem="Dashboard"
+                                ctaLabel="Book New"/>
                     </div>
                 </>
             )}
