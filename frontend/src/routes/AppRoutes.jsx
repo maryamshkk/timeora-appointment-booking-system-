@@ -8,6 +8,10 @@ import Login from "../pages/auth/Login";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 
+// Company
+import CompanyDashboard from "../pages/dashboard/CompanyDashboard";
+
+
 function AppRoutes(){
     return(
         <BrowserRouter>
@@ -19,6 +23,7 @@ function AppRoutes(){
                 <Route path="/login" element={<Login />}/>
                 <Route path="/forget-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/dashboard/company" element={<AppRoutes />} />
             </Routes>
         </BrowserRouter>
     )
