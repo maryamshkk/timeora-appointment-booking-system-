@@ -80,7 +80,6 @@ async function handleSubmit(event) {
 
     return (
         <div className="min-h-screen bg-beige px-6 py-10 md:px-10">
-            
             <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center gap-10">
 
 
@@ -437,11 +436,8 @@ async function handleSubmit(event) {
                                     </form>
                                     
                             </div> 
-                            
                         </div>
-                        
                                         
     ); 
-
 } 
 export default CompanyRegistration;

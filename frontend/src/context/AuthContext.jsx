@@ -7,6 +7,11 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    // Clear error function
+    const clearError = () => {
+        setError(null);
+    };
+
     // -----------------------------
     // Company Registration
     // -----------------------------
@@ -16,20 +21,16 @@ export function AuthProvider({ children }) {
 
         try {
             const response = await authService.companyRegister(formData);
-
             return response;
         } catch (error) {
             const responseData = error.response?.data;
-
             const apiError = {
                 message:
                     responseData?.message ||
                     "Registration failed. Please try again.",
                 errors: responseData?.errors || {},
             };
-
             setError(apiError);
-
             throw apiError;
         } finally {
             setLoading(false);
@@ -39,33 +40,26 @@ export function AuthProvider({ children }) {
     // -----------------------------
     // Verify Company OTP
     // -----------------------------
-    const verifyCompanyOtp = async ({
-        email,
-        otp,
-    }) => {
+    const verifyCompanyOtp = async ({ email, otp, company_id }) => {
         setLoading(true);
         setError(null);
 
         try {
             const response = await authService.verifyCompanyOtp({
-                
                 email,
                 otp,
+                company_id,
             });
-
             return response;
         } catch (error) {
             const responseData = error.response?.data;
-
             const apiError = {
                 message:
                     responseData?.message ||
                     "Invalid verification code. Please try again.",
                 errors: responseData?.errors || {},
             };
-
             setError(apiError);
-
             throw apiError;
         } finally {
             setLoading(false);
@@ -75,32 +69,25 @@ export function AuthProvider({ children }) {
     // -----------------------------
     // Resend Company OTP
     // -----------------------------
-    const resendCompanyOtp = async ({
-        
-        email,
-    }) => {
+    const resendCompanyOtp = async ({ email, company_id }) => {
         setLoading(true);
         setError(null);
 
         try {
             const response = await authService.resendCompanyOtp({
-                companyId,
                 email,
+                company_id,
             });
-
             return response;
         } catch (error) {
             const responseData = error.response?.data;
-
             const apiError = {
                 message:
                     responseData?.message ||
                     "Unable to resend OTP. Please try again.",
                 errors: responseData?.errors || {},
             };
-
             setError(apiError);
-
             throw apiError;
         } finally {
             setLoading(false);
@@ -110,6 +97,7 @@ export function AuthProvider({ children }) {
     const value = {
         loading,
         error,
+        clearError,
         registerCompany,
         verifyCompanyOtp,
         resendCompanyOtp,
