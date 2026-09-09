@@ -3,16 +3,16 @@ import { CalendarDays, Clock, CheckCircle2, XCircle, Plus, UserPlus, FilePlus2 }
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import Statcard from "../../components/dashboard/StatCard";
-import AppointmentsTable from "../../components/dashboard/AppointmentTable";
+import AppointmentsTable from "../../components/dashboard/AppointmentsTable";
 import PerformanceChart from "../../components/dashboard/PerformanceChart";
 import ScheduleTimeline from "../../components/dashboard/ScheduleTimeline";
 import StaffOverview from "../../components/dashboard/StaffOverview";
 import RecentActivity from "../../components/dashboard/RecentActivity";
 
-function CompanyDashboard(
+function CompanyDashboard({
     companyName = "Shifa Clinic", 
     profileName = "Admin",
-){
+}){
     const [sidebarOpen, setSidebarOpen] = useState(false); 
     // TODO: axios GET /api/company/dashboard 
     // // Temporary dashboard data 
@@ -47,6 +47,27 @@ function CompanyDashboard(
             { day: "Fri", appointments: 18 }, 
             { day: "Sat", appointments: 15 }, 
             { day: "Sun", appointments: 6 }, 
+        ];
+
+        const scheduleData = [ 
+            { 
+                time: "09:00 AM", 
+                title: "Consultation - Ayesha Khan", 
+                subtitle: "Dr. Sara", 
+                status: "confirmed", 
+            }, 
+            { 
+                time: "10:00 AM", 
+                title: "Follow-up - Hina Malik", 
+                subtitle: "Completed", 
+                status: "completed", 
+            }, 
+            { 
+                time: "11:30 AM", 
+                title: "Therapy - Zain Ahmed", 
+                subtitle: "Ali (Pending)", 
+                status: "pending", 
+            }, 
         ];
 
         const staffData = [ 
@@ -97,7 +118,25 @@ function CompanyDashboard(
 
         return (
             <div className="min-h-screen bg-beige flex">
+                    {/* Desktop Sidebar */} 
+                    <div className="hidden lg:block"> 
+                        <Sidebar companyName={companyName} /> 
+                    </div>
 
+                    {/* Mobile Sidebar */} 
+                    {sidebarOpen && ( <> 
+                    <button type="button" 
+                        onClick={() => setSidebarOpen(false)} 
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden" 
+                        aria-label="Close menu" 
+                        /> 
+                        <div className="fixed left-0 top-0 z-40 h-screen lg:hidden"> 
+                            <Sidebar 
+                            companyName={companyName} 
+                            /> 
+                            </div> 
+                        </> 
+                    )}
 
             </div>
         )
