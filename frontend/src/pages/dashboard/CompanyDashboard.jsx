@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     CalendarDays,
     Clock,
@@ -22,8 +22,6 @@ function CompanyDashboard({
     companyName = "Shifa Clinic",
     profileName = "Admin",
 }) {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-
     // TODO: axios GET /api/company/dashboard
 
     // Temporary dashboard data
@@ -132,37 +130,17 @@ function CompanyDashboard({
     }
 
     return (
-        <div className="min-h-screen bg-beige flex">
-            {/* Desktop Sidebar */}
-            <div className="hidden lg:block">
-                <Sidebar companyName={companyName} 
-                        activeItem="Dashboard"
-                        ctaLabel="Book New"
-                        />
-            </div>
-
-            {/* Mobile Sidebar */}
-            {sidebarOpen && (
-                <>
-                    <button
-                        type="button"
-                        onClick={() => setSidebarOpen(false)}
-                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
-                        aria-label="Close menu"
-                    />
-
-                    <div className="fixed left-0 top-0 z-40 h-screen lg:hidden">
-                        <Sidebar companyName={companyName} 
-                                activeItem="Dashboard"
-                                ctaLabel="Book New"/>
-                    </div>
-                </>
-            )}
+        <div className="flex min-h-screen bg-beige">
+            {/* Sidebar (scrolls with page) */}
+            <Sidebar
+                companyName={companyName}
+                activeItem="Dashboard"
+                ctaLabel="Book New"
+            />
 
             {/* Main Area */}
-            <div className="flex-1 min-w-0">
+            <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar
-                    onMenuClick={() => setSidebarOpen(true)}
                     profileName={profileName}
                     showBell
                     showHelp
