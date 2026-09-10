@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LogIn } from "lucide-react";
 import RoleSelectionPage from "../pages/auth/RoleSelectionPage";
 import CompanyRegistration from "../pages/auth/CompanyRegister";
 import VerifyOtp from "../pages/auth/VerifyOtp";
@@ -10,7 +9,7 @@ import ResetPassword from "../pages/auth/ResetPassword";
 // Company
 import CompanyDashboard from "../pages/dashboard/CompanyDashboard";
 import AppointmentManagement from "../pages/appointments/AppointmentManagement";
-
+import AppointmentDetails from "../pages/appointments/AppointmentDetails";
 
 function AppRoutes(){
     return(
@@ -25,6 +24,7 @@ function AppRoutes(){
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/company/dashboard" element={<CompanyDashboard />} />
                 <Route path="/company/appointments" element={<AppointmentManagement />} />
+                <Route path="/appointments/:appointmentId" element={<AppointmentDetails />} />
             </Routes>
         </BrowserRouter>
     )

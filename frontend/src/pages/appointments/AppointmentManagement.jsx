@@ -145,9 +145,11 @@ function AppointmentManagement(){
             {/* Main Area */}
             <div className="flex-1 min-w-0">
                  <Topbar
-                    variant="compact"
+                    showHelp 
+                    showGrid
                     profileName="Admin"
                     onMenuClick={() => setSidebarOpen(true)}
+
                 />
 
                 <main className="p-6 lg:p-8">
