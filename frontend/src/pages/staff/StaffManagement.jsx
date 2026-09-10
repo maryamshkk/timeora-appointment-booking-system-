@@ -1,18 +1,25 @@
 import React from "react";
+
 import {
     Plus,
     Users,
     UserCheck,
     CalendarCheck,
     UserMinus,
-    Search, 
-    ChevronDown
+    Search,
+    ChevronDown,
+    Mail,
+    Phone,
+    UserX,
 } from "lucide-react";
+
+
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
+
 const staffMembers = [
     {
         id: 1,
@@ -231,6 +238,125 @@ function StaffManagement() {
 
                         </div>
                     </div>
+
+                    {/* Staff Grid */}
+<div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+    {filteredStaff.length > 0 ? (
+        filteredStaff.map(function (staff) {
+            const initials = staff.name
+                .split(" ")
+                .map(function (namePart) {
+                    return namePart.charAt(0);
+                })
+                .slice(0, 2)
+                .join("");
+
+            const statusClass =
+                staff.status === "Active"
+                    ? "bg-green-50 text-green-700"
+                    : staff.status === "On Leave"
+                    ? "bg-gold/20 text-amber-700"
+                    : "bg-gray/20 text-slate";
+
+            return (
+                <div
+                    key={staff.id}
+                    onClick={function () {
+                        // TODO: navigate to future staff detail page
+                    }}
+                    className="cursor-pointer rounded-xl border border-gray/20 bg-white p-5 shadow-sm transition hover:shadow-md"
+                >
+                    {/* Top Row */}
+                    <div className="mb-3.5 flex items-center gap-3">
+                        {/* Avatar */}
+                        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-gray/20">
+                            <span className="text-sm font-bold text-navy">
+                                {initials}
+                            </span>
+                        </div>
+
+                        {/* Name / Role */}
+                        <div className="min-w-0">
+                            <h3 className="truncate font-serif text-lg text-navy">
+                                {staff.name}
+                            </h3>
+
+                            <p className="mt-0.5 truncate text-sm text-slate">
+                                {staff.role}
+                            </p>
+                        </div>
+
+                        {/* Status */}
+                        <span
+                            className={`ml-auto flex-shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${statusClass}`}
+                        >
+                            {staff.status}
+                        </span>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-gray/15" />
+
+                    {/* Contact Information */}
+                    <div className="mt-3.5">
+                        <div className="mb-2 flex items-center gap-2 text-sm text-slate">
+                            <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+
+                            <span className="truncate">
+                                {staff.email}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-sm text-slate">
+                            <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+
+                            <span>
+                                {staff.phone}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Bottom Row */}
+                    <div className="mt-3.5 flex items-center justify-between border-t border-gray/15 pt-3">
+                        <div>
+                            <p className="text-xs text-slate">
+                                Today's Appointments
+                            </p>
+
+                            <p className="mt-0.5 text-sm font-bold text-navy">
+                                {staff.appointmentsToday} today
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={function (event) {
+                                event.stopPropagation();
+                                // TODO: navigate to staff schedule
+                            }}
+                            className="text-xs font-bold text-navy hover:underline"
+                        >
+                            View Schedule
+                        </button>
+                    </div>
+                </div>
+                        );
+                    })
+                ) : (
+                    /* Empty State */
+                    <div className="col-span-full flex min-h-[280px] flex-col items-center justify-center rounded-xl border border-gray/20 bg-white">
+                        <UserX className="h-10 w-10 text-gray" />
+
+                        <p className="mt-4 text-sm font-bold text-slate">
+                            No staff members found
+                        </p>
+
+                        <p className="mt-1 text-sm text-gray">
+                            Try adjusting your search or filters.
+                        </p>
+                    </div>
+                )}
+            </div>
 
                 </main>
             </div>
