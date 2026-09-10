@@ -149,12 +149,15 @@ function AppointmentManagement() {
                         </div>
 
                         <button
-                            type="button"
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy sm:w-auto"
-                        >
-                            <Plus className="w-4 h-4" />
-                            New Appointment
-                        </button>
+                        type="button"
+                        onClick={function () {
+                            navigate("/company/appointments/new");
+                        }}
+                        className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                    >
+                        <Plus className="h-4 w-4" />
+                        New Appointment
+                    </button>
                     </div>
 
                     {/* Stats */}
@@ -526,15 +529,16 @@ function AppointmentManagement() {
                                                 </div>
 
                                                 <button
-                                                    type="button"
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        navigate(`/appointments/${appointment.id}`)
-                                                    }}
-                                                    className="mt-4 text-sm font-bold text-navy hover:text-slate"
-                                                >
-                                                    View Details
-                                                </button>
+                                                type="button"
+                                                onClick={function () {
+                                                    navigate(
+                                                        `/company/appointments/${selectedAppointment.id}`
+                                                    );
+                                                }}
+                                                className="flex-1 rounded-lg bg-navy py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                                            >
+                                                View Details
+                                            </button>
                                             </div>
                                         ))}
 
