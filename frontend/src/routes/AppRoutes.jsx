@@ -6,12 +6,15 @@ import AccountCreated from "../pages/auth/AccountCreated";
 import Login from "../pages/auth/Login";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
+
 // Company
 import CompanyDashboard from "../pages/dashboard/CompanyDashboard";
 import AppointmentManagement from "../pages/appointments/AppointmentManagement";
 import AppointmentDetails from "../pages/appointments/AppointmentDetails";
 import CalenderSchedule from "../pages/calendar/CalendarSchedule";
 import StaffManagement from "../pages/staff/StaffManagement";
+import AddStaff from "../pages/staff/AddStaff";
+
 
 function AppRoutes(){
     return(
@@ -29,6 +32,7 @@ function AppRoutes(){
                 <Route path="/company/appointments/:appointmentId" element={<AppointmentDetails />} />
                 <Route path="/company/calendar" element={<CalenderSchedule />} />
                 <Route path="/company/staff" element={<StaffManagement />} />
+                <Route path="/company/staff/add" element={<AddStaff />}/>
             </Routes>
         </BrowserRouter>
     )
