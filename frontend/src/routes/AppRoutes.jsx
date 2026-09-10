@@ -10,6 +10,8 @@ import ResetPassword from "../pages/auth/ResetPassword";
 import CompanyDashboard from "../pages/dashboard/CompanyDashboard";
 import AppointmentManagement from "../pages/appointments/AppointmentManagement";
 import AppointmentDetails from "../pages/appointments/AppointmentDetails";
+import CalenderSchedule from "../pages/calendar/CalendarSchedule";
+
 
 function AppRoutes(){
     return(
@@ -25,6 +27,7 @@ function AppRoutes(){
                 <Route path="/company/dashboard" element={<CompanyDashboard />} />
                 <Route path="/company/appointments" element={<AppointmentManagement />} />
                 <Route path="/company/appointments/:appointmentId" element={<AppointmentDetails />} />
+                <Route path="/company/calendar" element={<CalenderSchedule />} />
             </Routes>
         </BrowserRouter>
     )

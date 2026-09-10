@@ -18,13 +18,12 @@ function Topbar({
     showGrid = false,
     showSupportText = false,
     showProfileDropdown = false,
-    showProfileIcon = false,
+    simpleProfileIcon = false,
     searchPlaceholder = "Search...",
 }) {
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
     const hasIcons = showBell || showHelp || showGrid;
-
 
     return (
         <header className="sticky top-0 z-10 w-full border-b border-gray/20 bg-white px-6 py-4 lg:px-8">
@@ -102,7 +101,7 @@ function Topbar({
                     )}
 
                     {/* Profile */}
-                    {/* <div className="relative">
+                    <div className="relative">
                         {simpleProfileIcon ? (
                             <button
                                 type="button"
@@ -153,7 +152,7 @@ function Topbar({
                                 )}
                             </>
                         )}
-                    </div> */}
+                    </div>
                 </div>
             </div>
         </header>
