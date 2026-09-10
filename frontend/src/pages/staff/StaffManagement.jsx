@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { useState } from "react";
 import {
     Plus,
     Users,
@@ -13,12 +12,12 @@ import {
     UserX,
 } from "lucide-react";
 
-
 import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
+
 
 const staffMembers = [
     {
@@ -80,14 +79,14 @@ const staffMembers = [
 function StaffManagement() {
     const navigate = useNavigate();
 
-    const [searchQuery, setSearchQuery] = React.useState("");
-    const [statusFilter, setStatusFilter] = React.useState("all");
-    const [roleFilter, setRoleFilter] = React.useState("all");
+const [searchQuery, setSearchQuery] = useState("");
+const [statusFilter, setStatusFilter] = useState("all");
+const [roleFilter, setRoleFilter] = useState("all");
 
-    const filteredStaff = staffMembers.filter(function (staff) {
+
+const filteredStaff = staffMembers.filter(function (staff) {
     const query = searchQuery.toLowerCase().trim();
-        // TODO: axios GET /api/company/staff to replace mock data
-// TODO: POST /api/company/staff for Add Staff
+
     const matchesSearch =
         staff.name.toLowerCase().includes(query) ||
         staff.role.toLowerCase().includes(query) ||
@@ -103,8 +102,9 @@ function StaffManagement() {
             roleFilter.toLowerCase()
         );
 
-        return matchesSearch && matchesStatus && matchesRole;
-    });
+    return matchesSearch && matchesStatus && matchesRole;
+});
+
 
     return (
         <div className="flex min-h-screen bg-beige">
@@ -142,7 +142,7 @@ function StaffManagement() {
                         <button
                             type="button"
                             onClick={function () {
-                                navigate("/company/staff/add");
+                                navigate("/company/staff/${staff.add}");
                             }}
                             className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-gold hover:text-navy"
                         >
@@ -263,6 +263,7 @@ function StaffManagement() {
                     key={staff.id}
                     onClick={function () {
                         // TODO: navigate to future staff detail page
+                        navigate(`/company/staff/${staff.id}`);
                     }}
                     className="cursor-pointer rounded-xl border border-gray/20 bg-white p-5 shadow-sm transition hover:shadow-md"
                 >
@@ -329,15 +330,15 @@ function StaffManagement() {
                         </div>
 
                         <button
-                            type="button"
-                            onClick={function (event) {
-                                event.stopPropagation();
-                                // TODO: navigate to staff schedule
-                            }}
-                            className="text-xs font-bold text-navy hover:underline"
-                        >
-                            View Schedule
-                        </button>
+                        type="button"
+                        onClick={function (event) {
+                            event.stopPropagation();
+                            navigate("/company/calendar");
+                        }}
+                        className="text-xs font-bold text-navy hover:underline"
+                    >
+                        View Schedule
+                    </button>
                     </div>
                 </div>
                         );
