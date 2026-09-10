@@ -164,6 +164,9 @@ function CompanyDashboard({
                 <Topbar
                     onMenuClick={() => setSidebarOpen(true)}
                     profileName={profileName}
+                    showBell
+                    showHelp
+                    showSupportText
                 />
 
                 <main className="px-6 lg:px-8 py-6">
