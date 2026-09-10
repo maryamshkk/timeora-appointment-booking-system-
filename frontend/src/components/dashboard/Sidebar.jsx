@@ -68,6 +68,7 @@ function Sidebar({
             icon: Settings,
             path: "/company/settings",
         },
+        
     ];
 
     return (

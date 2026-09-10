@@ -6,6 +6,7 @@ import {
     CircleHelp,
     Grid3X3,
     ChevronDown,
+    UserCircle
 } from "lucide-react";
 
 function Topbar({
@@ -17,6 +18,7 @@ function Topbar({
     showGrid = false,
     showSupportText = false,
     showProfileDropdown = false,
+    showProfileIcon = false,
     searchPlaceholder = "Search...",
 }) {
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -100,46 +102,58 @@ function Topbar({
                     )}
 
                     {/* Profile */}
-                    <div className="relative">
-                        <button
-                            type="button"
-                            onClick={() =>
-                                showProfileDropdown &&
-                                setProfileMenuOpen(!profileMenuOpen)
-                            }
-                            className="flex items-center gap-2.5"
-                        >
-                            {avatarUrl ? (
-                                <img
-                                    src={avatarUrl}
-                                    alt={profileName}
-                                    className="h-9 w-9 rounded-full object-cover"
-                                />
-                            ) : (
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray/30">
-                                    <span className="text-sm font-bold text-navy">
-                                        {profileName.charAt(0).toUpperCase()}
+                    {/* <div className="relative">
+                        {simpleProfileIcon ? (
+                            <button
+                                type="button"
+                                className="cursor-pointer text-slate transition hover:text-navy"
+                                aria-label="Profile"
+                            >
+                                <UserCircle className="h-6 w-6" />
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        showProfileDropdown &&
+                                        setProfileMenuOpen(!profileMenuOpen)
+                                    }
+                                    className="flex items-center gap-2.5"
+                                >
+                                    {avatarUrl ? (
+                                        <img
+                                            src={avatarUrl}
+                                            alt={profileName}
+                                            className="h-9 w-9 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray/30">
+                                            <span className="text-sm font-bold text-navy">
+                                                {profileName.charAt(0).toUpperCase()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    <span className="hidden text-sm font-bold text-navy sm:block">
+                                        Profile
                                     </span>
-                                </div>
-                            )}
 
-                            <span className="hidden text-sm font-bold text-navy sm:block">
-                                Profile
-                            </span>
+                                    {showProfileDropdown && (
+                                        <ChevronDown className="h-3.5 w-3.5 text-slate" />
+                                    )}
+                                </button>
 
-                            {showProfileDropdown && (
-                                <ChevronDown className="h-3.5 w-3.5 text-slate" />
-                            )}
-                        </button>
-
-                        {showProfileDropdown && profileMenuOpen && (
-                            <div className="absolute right-0 top-full z-20 mt-2 w-48 rounded-lg border border-gray/20 bg-white p-4 shadow-lg">
-                                <p className="text-sm text-slate">
-                                    Profile menu coming soon.
-                                </p>
-                            </div>
+                                {showProfileDropdown && profileMenuOpen && (
+                                    <div className="absolute right-0 top-full z-20 mt-2 w-48 rounded-lg border border-gray/20 bg-white p-4 shadow-lg">
+                                        <p className="text-sm text-slate">
+                                            Profile menu coming soon.
+                                        </p>
+                                    </div>
+                                )}
+                            </>
                         )}
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </header>
