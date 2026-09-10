@@ -454,129 +454,129 @@ function AppointmentManagement(){
                                 {appointment.payment}
                             </td>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                                ))}
+                            </tbody>
+                        </table>
 
-            {filteredAppointments.length === 0 && (
-                <div className="py-12 text-center">
-                    <p className="text-sm font-bold text-navy">
-                        No appointments found
-                    </p>
-
-                    <p className="mt-1 text-sm text-slate">
-                        Try adjusting your search or filters.
-                    </p>
-                </div>
-            )}
-        </div>
-    </>
-) : (
-    <>
-        {/* Columns View */}
-        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-
-            {filteredAppointments.map((appointment) => (
-                <div
-                    key={appointment.id}
-                    className="rounded-xl border border-gray/20 bg-white p-5 transition hover:shadow-sm"
-                >
-                    <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-
-                            <div
-                                className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                                    appointment.avatarColor === "gold"
-                                        ? "bg-gold"
-                                        : "bg-navy"
-                                }`}
-                            >
-                                <span
-                                    className={`text-xs font-bold ${
-                                        appointment.avatarColor === "gold"
-                                            ? "text-navy"
-                                            : "text-white"
-                                    }`}
-                                >
-                                    {appointment.initials}
-                                </span>
-                            </div>
-
-                            <div>
+                        {filteredAppointments.length === 0 && (
+                            <div className="py-12 text-center">
                                 <p className="text-sm font-bold text-navy">
-                                    {appointment.customer}
+                                    No appointments found
                                 </p>
 
-                                <p className="text-xs text-slate">
-                                    {appointment.service}
+                                <p className="mt-1 text-sm text-slate">
+                                    Try adjusting your search or filters.
                                 </p>
                             </div>
-                        </div>
-
-                        <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                                appointment.status === "Confirmed"
-                                    ? "bg-green-50 text-green-700"
-                                    : appointment.status === "Pending"
-                                    ? "bg-gold/20 text-amber-700"
-                                    : appointment.status === "Completed"
-                                    ? "bg-gray/20 text-slate"
-                                    : "bg-red-50 text-red-700"
-                            }`}
-                        >
-                            {appointment.status}
-                        </span>
+                        )}
                     </div>
+                </>
+            ) : (
+                <>
+                    {/* Columns View */}
+                    <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
 
-                    <div className="mt-5 grid grid-cols-2 gap-4 border-t border-gray/20 pt-4">
+                        {filteredAppointments.map((appointment) => (
+                            <div
+                                key={appointment.id}
+                                className="rounded-xl border border-gray/20 bg-white p-5 transition hover:shadow-sm"
+                            >
+                                <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-3">
 
-                        <div>
-                            <p className="text-xs text-slate">Date</p>
-                            <p className="mt-1 text-sm font-bold text-navy">
-                                {appointment.date}
-                            </p>
-                        </div>
+                                        <div
+                                            className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                                                appointment.avatarColor === "gold"
+                                                    ? "bg-gold"
+                                                    : "bg-navy"
+                                            }`}
+                                        >
+                                            <span
+                                                className={`text-xs font-bold ${
+                                                    appointment.avatarColor === "gold"
+                                                        ? "text-navy"
+                                                        : "text-white"
+                                                }`}
+                                            >
+                                                {appointment.initials}
+                                            </span>
+                                        </div>
 
-                        <div>
-                            <p className="text-xs text-slate">Time</p>
-                            <p className="mt-1 text-sm font-bold text-navy">
-                                {appointment.time}
-                            </p>
-                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-navy">
+                                                {appointment.customer}
+                                            </p>
 
-                        <div>
-                            <p className="text-xs text-slate">Staff</p>
-                            <p className="mt-1 text-sm font-bold text-navy">
-                                {appointment.staff}
-                            </p>
-                        </div>
+                                            <p className="text-xs text-slate">
+                                                {appointment.service}
+                                            </p>
+                                        </div>
+                                    </div>
 
-                        <div>
-                            <p className="text-xs text-slate">Payment</p>
-                            <p className="mt-1 text-sm font-bold text-navy">
-                                {appointment.payment}
-                            </p>
-                        </div>
+                                    <span
+                                        className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                                            appointment.status === "Confirmed"
+                                                ? "bg-green-50 text-green-700"
+                                                : appointment.status === "Pending"
+                                                ? "bg-gold/20 text-amber-700"
+                                                : appointment.status === "Completed"
+                                                ? "bg-gray/20 text-slate"
+                                                : "bg-red-50 text-red-700"
+                                        }`}
+                                    >
+                                        {appointment.status}
+                                    </span>
+                                </div>
+
+                                <div className="mt-5 grid grid-cols-2 gap-4 border-t border-gray/20 pt-4">
+
+                                    <div>
+                                        <p className="text-xs text-slate">Date</p>
+                                        <p className="mt-1 text-sm font-bold text-navy">
+                                            {appointment.date}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs text-slate">Time</p>
+                                        <p className="mt-1 text-sm font-bold text-navy">
+                                            {appointment.time}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs text-slate">Staff</p>
+                                        <p className="mt-1 text-sm font-bold text-navy">
+                                            {appointment.staff}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs text-slate">Payment</p>
+                                        <p className="mt-1 text-sm font-bold text-navy">
+                                            {appointment.payment}
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        ))}
+
+                        {filteredAppointments.length === 0 && (
+                            <div className="col-span-full py-12 text-center">
+                                <p className="text-sm font-bold text-navy">
+                                    No appointments found
+                                </p>
+
+                                <p className="mt-1 text-sm text-slate">
+                                    Try adjusting your search or filters.
+                                </p>
+                            </div>
+                        )}
 
                     </div>
-                </div>
-            ))}
-
-            {filteredAppointments.length === 0 && (
-                <div className="col-span-full py-12 text-center">
-                    <p className="text-sm font-bold text-navy">
-                        No appointments found
-                    </p>
-
-                    <p className="mt-1 text-sm text-slate">
-                        Try adjusting your search or filters.
-                    </p>
-                </div>
+                </>
             )}
-
-        </div>
-    </>
-)}
 
                         {/* Pagination */}
                         <div className="mt-5 flex flex-col gap-4 border-t border-gray/20 pt-5 sm:flex-row sm:items-center sm:justify-between">
