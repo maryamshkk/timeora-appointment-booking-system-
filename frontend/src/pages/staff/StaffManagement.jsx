@@ -105,7 +105,6 @@ const filteredStaff = staffMembers.filter(function (staff) {
     return matchesSearch && matchesStatus && matchesRole;
 });
 
-
     return (
         <div className="flex min-h-screen bg-beige">
             {/* Sidebar */}
@@ -142,9 +141,9 @@ const filteredStaff = staffMembers.filter(function (staff) {
                         <button
                             type="button"
                             onClick={function () {
-                                navigate("/company/staff/${staff.add}");
+                                navigate(`/company/staff/add`);
                             }}
-                            className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-gold hover:text-navy"
+                            className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm cursor-pointer font-bold uppercase tracking-wide text-white transition hover:bg-gold hover:text-navy"
                         >
                             <Plus className="h-4 w-4" />
                             Add Staff

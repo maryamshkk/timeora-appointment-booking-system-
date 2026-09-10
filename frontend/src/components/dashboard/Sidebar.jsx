@@ -23,52 +23,15 @@ function Sidebar({
     className = "",
 }) {
     const navItems = [
-        {
-            label: "Dashboard",
-            icon: LayoutGrid,
-            path: "/company/dashboard",
-        },
-        {
-            label: "Appointments",
-            icon: CalendarCheck,
-            path: "/company/appointments",
-        },
-        {
-            label: "Calendar",
-            icon: Calendar,
-            path: "/company/calendar",
-        },
-        {
-            label: "Staff",
-            icon: Users,
-            path: "/company/staff",
-        },
-        {
-            label: "Services",
-            icon: Scissors,
-            path: "/company/services",
-        },
-        {
-            label: "Customers",
-            icon: MapPin,
-            path: "/company/customers",
-        },
-        {
-            label: "Reports",
-            icon: BarChart3,
-            path: "/company/reports",
-        },
-        {
-            label: "Notifications",
-            icon: Bell,
-            path: "/company/notifications",
-        },
-        {
-            label: "Settings",
-            icon: Settings,
-            path: "/company/settings",
-        },
-        
+        { label: "Dashboard", icon: LayoutGrid, path: "/company/dashboard" },
+        { label: "Appointments", icon: CalendarCheck, path: "/company/appointments" },
+        { label: "Calendar", icon: Calendar, path: "/company/calendar" },
+        { label: "Staff", icon: Users, path: "/company/staff" },
+        { label: "Services", icon: Scissors, path: "/company/services" },
+        { label: "Customers", icon: MapPin, path: "/company/customers" },
+        { label: "Reports", icon: BarChart3, path: "/company/reports" },
+        { label: "Notifications", icon: Bell, path: "/company/notifications" },
+        { label: "Settings", icon: Settings, path: "/company/settings" },
     ];
 
     return (
@@ -127,10 +90,8 @@ function Sidebar({
 
             {/* Bottom — fixed */}
             <div className="flex-shrink-0">
-                {/* Divider */}
                 <div className="border-t border-white/10 my-4" />
 
-                {/* CTA */}
                 <Link
                     to="/company/appointments/new"
                     className="w-full flex items-center justify-center gap-2 bg-gold text-navy font-bold uppercase tracking-wide text-sm py-3 rounded-lg hover:bg-white transition mb-4"
@@ -139,14 +100,12 @@ function Sidebar({
                     {ctaLabel}
                 </Link>
 
-                {/* Bottom Links */}
                 <div className="flex flex-col gap-1">
                     <Link
                         to="/company/help"
                         className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
                     >
                         <CircleHelp className="w-[18px] h-[18px]" />
-
                         <span>Help Center</span>
                     </Link>
 
@@ -155,7 +114,6 @@ function Sidebar({
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
                     >
                         <LogOut className="w-[18px] h-[18px]" />
-
                         <span>Logout</span>
                     </button>
                 </div>

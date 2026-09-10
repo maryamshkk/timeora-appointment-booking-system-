@@ -151,7 +151,7 @@ function AppointmentManagement() {
                         <button
                         type="button"
                         onClick={function () {
-                            navigate("/company/appointments/new");
+                            navigate(`/company/appointments/new`);
                         }}
                         className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
                     >
