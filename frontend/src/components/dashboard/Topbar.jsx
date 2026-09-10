@@ -6,6 +6,7 @@ import {
     Search,
     UserCircle,
     ChevronDown,
+    
 } from "lucide-react";
 
 function Topbar({
@@ -20,6 +21,8 @@ function Topbar({
     simpleProfileIcon = false,
     profileInfo = null,
     searchPlaceholder = "Search...",
+    hasNotification = false,
+    
 }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -42,13 +45,17 @@ function Topbar({
             <div className="ml-6 flex items-center gap-4">
                 {/* Actions */}
                 {showBell && (
-                    <button
-                        type="button"
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate transition hover:bg-beige hover:text-navy"
-                    >
-                        <Bell className="h-5 w-5" />
-                    </button>
-                )}
+                <button
+                    type="button"
+                    className="relative flex h-9 w-9 items-center justify-center rounded-lg text-slate transition hover:bg-beige hover:text-navy"
+                >
+                    <Bell className="h-5 w-5" />
+
+                    {hasNotification && (
+                        <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+                    )}
+                </button>
+            )}
 
                 {showHelp && (
                     <button
