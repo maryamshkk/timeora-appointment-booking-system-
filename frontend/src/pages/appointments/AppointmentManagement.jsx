@@ -450,9 +450,9 @@ function AppointmentManagement() {
                                             <div
                                                 key={appointment.id}
                                                 onClick={() => goToDetails(appointment.id)}
-                                                className="cursor-pointer rounded-xl border border-gray/20 bg-white p-4 transition hover:shadow-sm md:p-5"
+                                                className="cursor-pointer rounded-xl border border-gray/20 bg-white p-4 shadow-md transition hover:shadow-lg md:p-5"
                                             >
-                                                <div className="flex items-center justify-between gap-3">
+                                                <div className="flex items-center justify-between gap-3 ">
                                                     <div className="flex items-center gap-3">
                                                         <div
                                                             className={`flex h-10 w-10 items-center justify-center rounded-full ${
@@ -535,7 +535,7 @@ function AppointmentManagement() {
                                                         `/company/appointments/${selectedAppointment.id}`
                                                     );
                                                 }}
-                                                className="flex-1 rounded-lg bg-navy py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                                                className="flex-1 rounded-lg bg-navy py-3 px-3 mt-5 text-sm font-bold text-white transition hover:bg-gold hover:text-navy border border-b-mauve-500"
                                             >
                                                 View Details
                                             </button>
