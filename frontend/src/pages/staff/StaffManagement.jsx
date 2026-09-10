@@ -13,7 +13,62 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
-
+const staffMembers = [
+    {
+        id: 1,
+        name: "Dr. Sara Ahmed",
+        role: "General Physician",
+        status: "Active",
+        email: "sara@shifaclinic.com",
+        phone: "0300 1234567",
+        appointmentsToday: 6,
+    },
+    {
+        id: 2,
+        name: "Ali Raza",
+        role: "Physiotherapist",
+        status: "Active",
+        email: "ali@shifaclinic.com",
+        phone: "0301 2345678",
+        appointmentsToday: 4,
+    },
+    {
+        id: 3,
+        name: "Hassan Iqbal",
+        role: "Consultant",
+        status: "On Leave",
+        email: "hassan@shifaclinic.com",
+        phone: "0302 3456789",
+        appointmentsToday: 0,
+    },
+    {
+        id: 4,
+        name: "Dr. Fatima Noor",
+        role: "Dentist",
+        status: "Active",
+        email: "fatima@shifaclinic.com",
+        phone: "0303 4567890",
+        appointmentsToday: 5,
+    },
+    {
+        id: 5,
+        name: "Bilal Sheikh",
+        role: "Receptionist",
+        status: "Active",
+        email: "bilal@shifaclinic.com",
+        phone: "0304 5678901",
+        appointmentsToday: 2,
+    },
+    {
+        id: 6,
+        name: "Ayesha Malik",
+        role: "Nurse",
+        status: "Inactive",
+        email: "ayesha@shifaclinic.com",
+        phone: "0305 6789012",
+        appointmentsToday: 0,
+    },
+];
 
 function StaffManagement() {
     const navigate = useNavigate();
@@ -22,6 +77,27 @@ function StaffManagement() {
     const [statusFilter, setStatusFilter] = React.useState("all");
     const [roleFilter, setRoleFilter] = React.useState("all");
 
+    const filteredStaff = staffMembers.filter(function (staff) {
+    const query = searchQuery.toLowerCase().trim();
+        // TODO: axios GET /api/company/staff to replace mock data
+// TODO: POST /api/company/staff for Add Staff
+    const matchesSearch =
+        staff.name.toLowerCase().includes(query) ||
+        staff.role.toLowerCase().includes(query) ||
+        String(staff.id).includes(query);
+
+    const matchesStatus =
+        statusFilter === "all" ||
+        staff.status === statusFilter;
+
+    const matchesRole =
+        roleFilter === "all" ||
+        staff.role.toLowerCase().includes(
+            roleFilter.toLowerCase()
+        );
+
+        return matchesSearch && matchesStatus && matchesRole;
+    });
 
     return (
         <div className="flex min-h-screen bg-beige">
