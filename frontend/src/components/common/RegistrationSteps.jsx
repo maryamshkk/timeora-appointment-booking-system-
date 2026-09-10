@@ -25,36 +25,33 @@ function RegistrationSteps({ currentStep = 2, variant = "default" }) {
                     {steps.map((step, index) => (
                         <React.Fragment key={step.number}>
                             {/* Step */}
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                                {/* Circle with check for all completed steps */}
-                                <div className="w-6 h-6 rounded-full bg-navy flex items-center justify-center">
-                                    <Check className="w-3 h-3 text-white" />
+                            <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
+                                {/* Circle */}
+                                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-navy">
+                                    <Check className="h-3 w-3 text-white" />
                                 </div>
 
-                                {/* Label */}
-                                <span className="text-xs font-bold uppercase tracking-wide text-navy">
-                                    <span className="hidden sm:inline">
-                                        0{step.number}{" "}
-                                    </span>
+                                {/* Label — hidden on very small screens */}
+                                <span className="hidden text-xs font-bold uppercase tracking-wide text-navy sm:inline">
                                     {step.label}
                                 </span>
                             </div>
 
                             {/* Connector */}
                             {index < steps.length - 1 && (
-                                <div className="flex-1 border-t border-navy/30 mx-3 min-w-[40px]" />
+                                <div className="mx-1 min-w-[16px] flex-1 border-t border-navy/30 sm:mx-2 sm:min-w-[24px] md:mx-3 md:min-w-[40px]" />
                             )}
                         </React.Fragment>
                     ))}
                 </div>
 
                 {/* Bottom Divider */}
-                <div className="border-b border-gray/20 mt-5" />
+                <div className="mt-4 border-b border-gray/20 sm:mt-5" />
             </div>
         );
     }
 
-    // Default variant (original logic)
+    // Default variant
     return (
         <div className="w-full">
             <div className="flex items-center">
@@ -65,44 +62,41 @@ function RegistrationSteps({ currentStep = 2, variant = "default" }) {
                     return (
                         <React.Fragment key={step.number}>
                             {/* Step */}
-                            <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
                                 {/* Circle */}
                                 {isCompleted ? (
-                                    <div className="w-6 h-6 rounded-full bg-gray/20 flex items-center justify-center">
-                                        <Check className="w-3 h-3 text-navy" />
+                                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray/20">
+                                        <Check className="h-3 w-3 text-navy" />
                                     </div>
                                 ) : isActive ? (
-                                    <div className="w-6 h-6 rounded-full bg-navy flex items-center justify-center">
+                                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-navy">
                                         <span className="text-xs font-bold text-white">
                                             {step.number}
                                         </span>
                                     </div>
                                 ) : (
-                                    <div className="w-6 h-6 rounded-full border border-gray bg-white flex items-center justify-center">
+                                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-gray bg-white">
                                         <span className="text-xs text-gray">
                                             {step.number}
                                         </span>
                                     </div>
                                 )}
 
-                                {/* Label */}
+                                {/* Label — hidden below sm */}
                                 <span
-                                    className={`text-xs font-bold uppercase tracking-wide ${
+                                    className={`hidden text-xs font-bold uppercase tracking-wide sm:inline ${
                                         isCompleted || isActive
                                             ? "text-navy"
                                             : "text-gray"
                                     }`}
                                 >
-                                    <span className="hidden sm:inline">
-                                        0{step.number}{" "}
-                                    </span>
                                     {step.label}
                                 </span>
                             </div>
 
                             {/* Connector */}
                             {index < steps.length - 1 && (
-                                <div className="flex-1 border-t border-gray/40 mx-3" />
+                                <div className="mx-1 min-w-[16px] flex-1 border-t border-gray/40 sm:mx-2 sm:min-w-[24px] md:mx-3 md:min-w-[40px]" />
                             )}
                         </React.Fragment>
                     );
@@ -110,7 +104,7 @@ function RegistrationSteps({ currentStep = 2, variant = "default" }) {
             </div>
 
             {/* Bottom Divider */}
-            <div className="border-b border-gray/20 mt-5" />
+            <div className="mt-4 border-b border-gray/20 sm:mt-5" />
         </div>
     );
 }
