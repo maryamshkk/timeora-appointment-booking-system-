@@ -20,6 +20,7 @@ function Sidebar({
     companyName = "Shifa Clinic",
     activeItem = "Dashboard",
     ctaLabel = "Book Appointment",
+    className = "",
 }) {
     const navItems = [
         {
@@ -70,10 +71,11 @@ function Sidebar({
     ];
 
     return (
-        <aside className="w-64 min-h-screen bg-navy text-white flex flex-col px-6 py-6 flex-shrink-0">
-
-            {/* Brand */}
-            <div className="flex items-center gap-3 mb-8">
+        <aside
+            className={`w-64 h-screen sticky top-0 bg-navy text-white flex flex-col px-6 py-6 flex-shrink-0 overflow-hidden ${className}`}
+        >
+            {/* Brand — fixed */}
+            <div className="flex items-center gap-3 mb-6 flex-shrink-0">
                 <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
                     <Building2 className="w-5 h-5 text-gold" />
                 </div>
@@ -89,8 +91,8 @@ function Sidebar({
                 </div>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 flex flex-col gap-1">
+            {/* Navigation — scrollable */}
+            <nav className="flex-1 flex flex-col gap-1 overflow-y-auto pr-1 sidebar-scroll">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeItem === item.label;
@@ -106,6 +108,7 @@ function Sidebar({
                                 text-sm
                                 transition
                                 border-l-4
+                                flex-shrink-0
                                 ${
                                     isActive
                                         ? "bg-gold/90 text-navy font-bold border-gold"
@@ -115,51 +118,46 @@ function Sidebar({
                         >
                             <Icon className="w-[18px] h-[18px] flex-shrink-0" />
 
-                            <span>
-                                {item.label}
-                            </span>
+                            <span>{item.label}</span>
                         </NavLink>
                     );
                 })}
             </nav>
 
-            {/* Divider */}
-            <div className="border-t border-white/10 my-4" />
+            {/* Bottom — fixed */}
+            <div className="flex-shrink-0">
+                {/* Divider */}
+                <div className="border-t border-white/10 my-4" />
 
-            {/* CTA */}
-            <Link
-                to="/company/appointments/new"
-                className="w-full flex items-center justify-center gap-2 bg-gold text-navy font-bold uppercase tracking-wide text-sm py-3 rounded-lg hover:bg-white transition mb-4"
-            >
-                <Plus className="w-4 h-4" />
-                {ctaLabel}
-            </Link>
-
-            {/* Bottom Links */}
-            <div className="mt-auto flex flex-col gap-1">
-
+                {/* CTA */}
                 <Link
-                    to="/company/help"
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
+                    to="/company/appointments/new"
+                    className="w-full flex items-center justify-center gap-2 bg-gold text-navy font-bold uppercase tracking-wide text-sm py-3 rounded-lg hover:bg-white transition mb-4"
                 >
-                    <CircleHelp className="w-[18px] h-[18px]" />
-
-                    <span>
-                        Help Center
-                    </span>
+                    <Plus className="w-4 h-4" />
+                    {ctaLabel}
                 </Link>
 
-                <button
-                    type="button"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
-                >
-                    <LogOut className="w-[18px] h-[18px]" />
+                {/* Bottom Links */}
+                <div className="flex flex-col gap-1">
+                    <Link
+                        to="/company/help"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
+                    >
+                        <CircleHelp className="w-[18px] h-[18px]" />
 
-                    <span>
-                        Logout
-                    </span>
-                </button>
+                        <span>Help Center</span>
+                    </Link>
 
+                    <button
+                        type="button"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:bg-white/5 hover:text-white transition"
+                    >
+                        <LogOut className="w-[18px] h-[18px]" />
+
+                        <span>Logout</span>
+                    </button>
+                </div>
             </div>
         </aside>
     );

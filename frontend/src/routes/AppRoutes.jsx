@@ -23,8 +23,8 @@ function AppRoutes(){
                 <Route path="/forget-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/company/dashboard" element={<CompanyDashboard />} />
-                <Route path="/appointments" element={<AppointmentManagement />} />
-                <Route path="/appointments/:appointmentId" element={<AppointmentDetails />} />
+                <Route path="/company/appointments" element={<AppointmentManagement />} />
+                <Route path="/company/appointments/:appointmentId" element={<AppointmentDetails />} />
             </Routes>
         </BrowserRouter>
     )

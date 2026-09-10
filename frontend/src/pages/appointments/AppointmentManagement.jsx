@@ -23,6 +23,7 @@ import StatCard from "../../components/dashboard/StatCard";
 function AppointmentManagement() {
     const navigate = useNavigate();
 
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [staffFilter, setStaffFilter] = useState("all");
@@ -31,31 +32,15 @@ function AppointmentManagement() {
     const [currentPage, setCurrentPage] = useState(1);
 
     const stats = [
-        {
-            label: "Today's Appointments",
-            value: "24",
-            icon: CalendarDays,
-        },
-        {
-            label: "Upcoming",
-            value: "12",
-            icon: ArrowLeftRight,
-        },
-        {
-            label: "Completed",
-            value: "8",
-            icon: CheckCircle2,
-        },
-        {
-            label: "Cancelled",
-            value: "2",
-            icon: XCircle,
-        },
+        { label: "Today's Appointments", value: "24", icon: CalendarDays },
+        { label: "Upcoming", value: "12", icon: ArrowLeftRight },
+        { label: "Completed", value: "8", icon: CheckCircle2 },
+        { label: "Cancelled", value: "2", icon: XCircle },
     ];
 
     const appointments = [
         {
-            id: 1,
+            id: "APT-2026-0048",
             date: "21 Aug 2026",
             time: "09:00 AM",
             customer: "Eleanor Astor",
@@ -97,19 +82,13 @@ function AppointmentManagement() {
             appointment.status.toLowerCase() === statusFilter;
 
         const matchesStaff =
-            staffFilter === "all" ||
-            appointment.staff === staffFilter;
+            staffFilter === "all" || appointment.staff === staffFilter;
 
         const matchesService =
             serviceFilter === "all" ||
             appointment.service === serviceFilter;
 
-        return (
-            matchesSearch &&
-            matchesStatus &&
-            matchesStaff &&
-            matchesService
-        );
+        return matchesSearch && matchesStatus && matchesStaff && matchesService;
     });
 
     function goToDetails(id) {
@@ -118,27 +97,49 @@ function AppointmentManagement() {
 
     return (
         <div className="flex min-h-screen bg-beige/30">
-            {/* Sidebar (scrolls with page) */}
-            <Sidebar
-                companyName="Shifa Clinic"
-                activeItem="Appointments"
-                ctaLabel="Book Appointment"
-            />
+            {/* Desktop Sidebar — inline */}
+            <div className="hidden lg:block">
+                <Sidebar
+                    companyName="Shifa Clinic"
+                    activeItem="Appointments"
+                    ctaLabel="Book Appointment"
+                />
+            </div>
+
+            {/* Mobile Sidebar — overlay */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen lg:hidden">
+                        <Sidebar
+                            companyName="Shifa Clinic"
+                            activeItem="Appointments"
+                            ctaLabel="Book Appointment"
+                        />
+                    </div>
+                </>
+            )}
 
             {/* Main Area */}
             <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar
+                    onMenuClick={() => setSidebarOpen(true)}
                     showHelp
                     showGrid
                     profileName="Admin"
                 />
 
-                <main className="p-6 lg:p-8">
-
+                <main className="p-3 md:p-6 lg:p-8">
                     {/* Page Header */}
-                    <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between mb-8">
+                    <div className="mb-4 flex flex-col gap-3 sm:mb-6 md:mb-8 md:flex-row md:items-center md:justify-between">
                         <div>
-                            <h1 className="font-serif text-3xl text-navy">
+                            <h1 className="font-serif text-2xl text-navy sm:text-3xl">
                                 Appointments
                             </h1>
 
@@ -149,7 +150,7 @@ function AppointmentManagement() {
 
                         <button
                             type="button"
-                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy sm:w-auto"
                         >
                             <Plus className="w-4 h-4" />
                             New Appointment
@@ -157,7 +158,7 @@ function AppointmentManagement() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 xl:grid-cols-4">
                         {stats.map((stat) => (
                             <StatCard
                                 key={stat.label}
@@ -169,13 +170,10 @@ function AppointmentManagement() {
                     </div>
 
                     {/* Appointments Content */}
-                    <div className="mt-6">
-                        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
-
-                            {/* Row 1 — Filters */}
-                            <div className="flex flex-wrap items-center gap-3">
-
-                                {/* Search */}
+                    <div className="mt-4 md:mt-6">
+                        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-3 md:p-6">
+                            {/* Filters */}
+                            <div className="flex flex-col gap-2 md:gap-3 md:flex-row md:flex-wrap md:items-center">
                                 <div className="relative w-full md:w-[260px]">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
 
@@ -191,27 +189,27 @@ function AppointmentManagement() {
                                     />
                                 </div>
 
-                                {/* Date */}
                                 <button
                                     type="button"
-                                    className="flex items-center gap-2 rounded-lg border border-gray/30 bg-white px-3 py-2.5 text-sm font-bold text-navy hover:bg-beige transition"
+                                    className="flex w-full items-center justify-between gap-2 rounded-lg border border-gray/30 bg-white px-3 py-2.5 text-sm font-bold text-navy hover:bg-beige transition md:w-auto md:justify-start"
                                 >
-                                    <Calendar className="w-4 h-4 text-slate" />
-                                    21 August 2026
+                                    <span className="flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 text-slate" />
+                                        21 August 2026
+                                    </span>
                                     <ChevronDown className="w-4 h-4 text-slate" />
                                 </button>
 
                                 <div className="hidden md:block h-7 w-px bg-gray/30" />
 
-                                {/* Status */}
-                                <div className="relative">
+                                <div className="relative w-full md:w-auto">
                                     <select
                                         value={statusFilter}
                                         onChange={(event) => {
                                             setStatusFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        className="appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold"
+                                        className="w-full appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold md:w-auto"
                                     >
                                         <option value="all">All Statuses</option>
                                         <option value="confirmed">Confirmed</option>
@@ -223,15 +221,14 @@ function AppointmentManagement() {
                                     <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
                                 </div>
 
-                                {/* Staff */}
-                                <div className="relative">
+                                <div className="relative w-full md:w-auto">
                                     <select
                                         value={staffFilter}
                                         onChange={(event) => {
                                             setStaffFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        className="appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold"
+                                        className="w-full appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold md:w-auto"
                                     >
                                         <option value="all">All Staff</option>
                                         <option value="M. Bennett">M. Bennett</option>
@@ -241,15 +238,14 @@ function AppointmentManagement() {
                                     <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
                                 </div>
 
-                                {/* Services */}
-                                <div className="relative">
+                                <div className="relative w-full md:w-auto">
                                     <select
                                         value={serviceFilter}
                                         onChange={(event) => {
                                             setServiceFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        className="appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold"
+                                        className="w-full appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold md:w-auto"
                                     >
                                         <option value="all">All Services</option>
                                         <option value="Executive Strategy Session">
@@ -262,17 +258,15 @@ function AppointmentManagement() {
 
                                     <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
                                 </div>
-
                             </div>
 
                             {/* View Toggle */}
                             <div className="mt-4 flex items-center justify-end">
-                                <div className="flex items-center rounded-lg border border-gray/30 overflow-hidden">
-
+                                <div className="flex w-full items-center overflow-hidden rounded-lg border border-gray/30 md:w-auto">
                                     <button
                                         type="button"
                                         onClick={() => setViewMode("list")}
-                                        className={`flex items-center gap-2 px-3 py-2 text-sm font-bold transition ${
+                                        className={`flex flex-1 items-center justify-center gap-2 px-3 py-2 text-sm font-bold transition md:flex-none ${
                                             viewMode === "list"
                                                 ? "bg-navy text-white"
                                                 : "bg-white text-slate hover:bg-beige"
@@ -280,13 +274,13 @@ function AppointmentManagement() {
                                         aria-label="List view"
                                     >
                                         <List className="w-4 h-4" />
-                                        <span className="hidden sm:inline">List</span>
+                                        <span className="hidden md:inline">List</span>
                                     </button>
 
                                     <button
                                         type="button"
                                         onClick={() => setViewMode("columns")}
-                                        className={`flex items-center gap-2 border-l border-gray/30 px-3 py-2 text-sm font-bold transition ${
+                                        className={`flex flex-1 items-center justify-center gap-2 border-l border-gray/30 px-3 py-2 text-sm font-bold transition md:flex-none ${
                                             viewMode === "columns"
                                                 ? "bg-navy text-white"
                                                 : "bg-white text-slate hover:bg-beige"
@@ -294,29 +288,28 @@ function AppointmentManagement() {
                                         aria-label="Columns view"
                                     >
                                         <Columns3 className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Columns</span>
+                                        <span className="hidden md:inline">Columns</span>
                                     </button>
-
                                 </div>
                             </div>
 
-                            {/* Divider */}
-                            <div className="mt-5 border-t border-gray/20" />
+                            <div className="mt-4 border-t border-gray/20 md:mt-5" />
 
-                            {/* Appointment Views */}
+                            {/* Views */}
                             {viewMode === "list" ? (
                                 <>
-                                    <div className="mt-5 overflow-x-auto">
-                                        <table className="w-full min-w-[950px] text-sm">
+                                    <div className="mt-4 overflow-x-auto md:mt-5">
+                                        <table className="w-full min-w-[1050px] text-sm">
                                             <thead>
                                                 <tr className="border-b border-gray/20">
-                                                    <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Date</th>
-                                                    <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Time</th>
-                                                    <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Customer</th>
-                                                    <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Service</th>
-                                                    <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Staff</th>
-                                                    <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Status</th>
-                                                    <th className="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Payment</th>
+                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Date</th>
+                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Time</th>
+                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Customer</th>
+                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Service</th>
+                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Staff</th>
+                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Status</th>
+                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Payment</th>
+                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Action</th>
                                                 </tr>
                                             </thead>
 
@@ -327,15 +320,15 @@ function AppointmentManagement() {
                                                         onClick={() => goToDetails(appointment.id)}
                                                         className="cursor-pointer border-b border-gray/10 last:border-0 hover:bg-beige/30 transition"
                                                     >
-                                                        <td className="px-3 py-4 whitespace-nowrap text-navy">
+                                                        <td className="px-2 py-3 whitespace-nowrap text-navy md:px-3 md:py-4">
                                                             {appointment.date}
                                                         </td>
 
-                                                        <td className="px-3 py-4 whitespace-nowrap font-bold text-navy">
+                                                        <td className="px-2 py-3 whitespace-nowrap font-bold text-navy md:px-3 md:py-4">
                                                             {appointment.time}
                                                         </td>
 
-                                                        <td className="px-3 py-4">
+                                                        <td className="px-2 py-3 md:px-3 md:py-4">
                                                             <div className="flex items-center gap-3">
                                                                 <div
                                                                     className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -361,7 +354,7 @@ function AppointmentManagement() {
                                                             </div>
                                                         </td>
 
-                                                        <td className="px-3 py-4">
+                                                        <td className="px-2 py-3 md:px-3 md:py-4">
                                                             <p className="font-bold text-navy whitespace-nowrap">
                                                                 {appointment.service}
                                                             </p>
@@ -371,7 +364,7 @@ function AppointmentManagement() {
                                                             </p>
                                                         </td>
 
-                                                        <td className="px-3 py-4">
+                                                        <td className="px-2 py-3 md:px-3 md:py-4">
                                                             <div className="flex items-center gap-2 whitespace-nowrap">
                                                                 <div className="w-7 h-7 rounded-full bg-beige flex items-center justify-center">
                                                                     <span className="text-[10px] font-bold text-navy">
@@ -385,7 +378,7 @@ function AppointmentManagement() {
                                                             </div>
                                                         </td>
 
-                                                        <td className="px-3 py-4">
+                                                        <td className="px-2 py-3 md:px-3 md:py-4">
                                                             <span
                                                                 className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap ${
                                                                     appointment.status === "Confirmed"
@@ -413,8 +406,21 @@ function AppointmentManagement() {
                                                             </span>
                                                         </td>
 
-                                                        <td className="px-3 py-4 font-bold text-navy">
+                                                        <td className="px-2 py-3 font-bold text-navy md:px-3 md:py-4">
                                                             {appointment.payment}
+                                                        </td>
+
+                                                        <td className="px-2 py-3 md:px-3 md:py-4">
+                                                            <button
+                                                                type="button"
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation();
+                                                                    goToDetails(appointment.id);
+                                                                }}
+                                                                className="text-sm font-bold text-navy hover:text-slate"
+                                                            >
+                                                                View Details
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -436,13 +442,12 @@ function AppointmentManagement() {
                                 </>
                             ) : (
                                 <>
-                                    <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-
+                                    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:mt-5 md:gap-4 xl:grid-cols-3">
                                         {filteredAppointments.map((appointment) => (
                                             <div
                                                 key={appointment.id}
                                                 onClick={() => goToDetails(appointment.id)}
-                                                className="cursor-pointer rounded-xl border border-gray/20 bg-white p-5 transition hover:shadow-sm"
+                                                className="cursor-pointer rounded-xl border border-gray/20 bg-white p-4 transition hover:shadow-sm md:p-5"
                                             >
                                                 <div className="flex items-center justify-between gap-3">
                                                     <div className="flex items-center gap-3">
@@ -519,6 +524,17 @@ function AppointmentManagement() {
                                                         </p>
                                                     </div>
                                                 </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        navigate(`/appointments/${appointment.id}`)
+                                                    }}
+                                                    className="mt-4 text-sm font-bold text-navy hover:text-slate"
+                                                >
+                                                    View Details
+                                                </button>
                                             </div>
                                         ))}
 
@@ -533,14 +549,12 @@ function AppointmentManagement() {
                                                 </p>
                                             </div>
                                         )}
-
                                     </div>
                                 </>
                             )}
 
                             {/* Pagination */}
-                            <div className="mt-5 flex flex-col gap-4 border-t border-gray/20 pt-5 sm:flex-row sm:items-center sm:justify-between">
-
+                            <div className="mt-4 flex flex-col items-center gap-3 border-t border-gray/20 pt-4 sm:flex-row sm:items-center sm:justify-between md:mt-5 md:gap-4 md:pt-5">
                                 <p className="text-sm text-slate">
                                     Showing <span className="font-bold text-navy">1-10</span> of{" "}
                                     <span className="font-bold text-navy">48</span>
@@ -575,7 +589,6 @@ function AppointmentManagement() {
                                     </button>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </main>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     CalendarDays,
     Clock,
@@ -22,6 +22,8 @@ function CompanyDashboard({
     companyName = "Shifa Clinic",
     profileName = "Admin",
 }) {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
     // TODO: axios GET /api/company/dashboard
 
     // Temporary dashboard data
@@ -109,14 +111,8 @@ function CompanyDashboard({
     function getGreeting() {
         const hour = new Date().getHours();
 
-        if (hour < 12) {
-            return "Good morning";
-        }
-
-        if (hour < 18) {
-            return "Good afternoon";
-        }
-
+        if (hour < 12) return "Good morning";
+        if (hour < 18) return "Good afternoon";
         return "Good evening";
     }
 
@@ -131,16 +127,39 @@ function CompanyDashboard({
 
     return (
         <div className="flex min-h-screen bg-beige">
-            {/* Sidebar (scrolls with page) */}
-            <Sidebar
-                companyName={companyName}
-                activeItem="Dashboard"
-                ctaLabel="Book New"
-            />
+            {/* Desktop Sidebar — inline, scrolls with page */}
+            <div className="hidden lg:block">
+                <Sidebar
+                    companyName={companyName}
+                    activeItem="Dashboard"
+                    ctaLabel="Book New"
+                />
+            </div>
+
+            {/* Mobile Sidebar — overlay */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen lg:hidden">
+                        <Sidebar
+                            companyName={companyName}
+                            activeItem="Dashboard"
+                            ctaLabel="Book New"
+                        />
+                    </div>
+                </>
+            )}
 
             {/* Main Area */}
             <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar
+                    onMenuClick={() => setSidebarOpen(true)}
                     profileName={profileName}
                     showBell
                     showHelp
@@ -207,11 +226,7 @@ function CompanyDashboard({
                             trend="+12%"
                         />
 
-                        <StatCard
-                            label="UPCOMING"
-                            value={12}
-                            icon={Clock}
-                        />
+                        <StatCard label="UPCOMING" value={12} icon={Clock} />
 
                         <StatCard
                             label="COMPLETED"
@@ -230,24 +245,16 @@ function CompanyDashboard({
                     <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.9fr)] gap-6">
                         {/* Left Column */}
                         <div className="flex flex-col gap-6 min-w-0">
-                            <AppointmentsTable
-                                appointments={appointments}
-                            />
+                            <AppointmentsTable appointments={appointments} />
 
-                            <PerformanceChart
-                                data={performanceData}
-                            />
+                            <PerformanceChart data={performanceData} />
                         </div>
 
                         {/* Right Column */}
                         <div className="flex flex-col gap-6 min-w-0">
-                            <ScheduleTimeline
-                                schedule={scheduleData}
-                            />
+                            <ScheduleTimeline schedule={scheduleData} />
 
-                            <StaffOverview
-                                staff={staffData}
-                            />
+                            <StaffOverview staff={staffData} />
 
                             <RecentActivity
                                 activities={recentActivityData}
@@ -260,4 +267,4 @@ function CompanyDashboard({
     );
 }
 
-export default CompanyDashboard;
+export default CompanyDashboard;    
