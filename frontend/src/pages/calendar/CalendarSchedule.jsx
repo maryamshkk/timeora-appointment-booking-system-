@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Plus,
     ChevronLeft,
@@ -8,8 +9,6 @@ import {
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
-import { useNavigate } from "react-router-dom";
-
 
 const START_HOUR = 8;
 const END_HOUR = 18;
@@ -110,16 +109,12 @@ function getStatusColor(status) {
 function getCurrentTimePosition() {
     const now = new Date();
 
-    const currentMinutes =
-        now.getHours() * 60 + now.getMinutes();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
     const startMinutes = START_HOUR * 60;
     const endMinutes = END_HOUR * 60;
 
-    if (
-        currentMinutes < startMinutes ||
-        currentMinutes > endMinutes
-    ) {
+    if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
         return null;
     }
 
@@ -161,16 +156,15 @@ function isToday(date) {
 }
 
 function CalendarSchedule() {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [viewMode, setViewMode] = useState("week");
     const [currentDate, setCurrentDate] = useState(new Date());
     const [staffFilter, setStaffFilter] = useState("all");
     const [serviceFilter, setServiceFilter] = useState("all");
     const [selectedAppointment, setSelectedAppointment] = useState(null);
 
-    
     const weekStart = getStartOfWeek(currentDate);
     const navigate = useNavigate();
-
 
     const visibleDays =
         viewMode === "week"
@@ -192,8 +186,7 @@ function CalendarSchedule() {
 
     const filteredAppointments = appointments.filter(function (appointment) {
         const staffMatches =
-            staffFilter === "all" ||
-            appointment.staff === staffFilter;
+            staffFilter === "all" || appointment.staff === staffFilter;
 
         const serviceMatches =
             serviceFilter === "all" ||
@@ -242,25 +235,52 @@ function CalendarSchedule() {
 
     return (
         <div className="flex min-h-screen bg-beige">
-            <Sidebar activeItem="Calendar" />
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block lg:flex-shrink-0">
+                <Sidebar
+                    companyName="Shifa Clinic"
+                    activeItem="Calendar"
+                    ctaLabel="Book Appointment"
+                />
+            </div>
+
+            {/* Mobile Sidebar — overlay */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen w-64 overflow-y-auto lg:hidden">
+                        <Sidebar
+                            companyName="Shifa Clinic"
+                            activeItem="Calendar"
+                            ctaLabel="Book Appointment"
+                        />
+                    </div>
+                </>
+            )}
 
             <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar
+                    onMenuClick={() => setSidebarOpen(true)}
                     showBell
                     simpleProfileIcon
                     searchPlaceholder="Search..."
                 />
 
-                <main className="flex-1 bg-beige px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
-
+                <main className="flex-1 bg-beige px-3 py-4 sm:px-4 sm:py-5 md:px-6 lg:px-8 lg:py-6">
                     {/* Page Header */}
-                    <div className="mb-5 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
+                    <div className="mb-4 flex flex-col items-start justify-between gap-3 sm:mb-5 md:flex-row md:items-center">
                         <div>
-                            <h1 className="font-serif text-3xl text-navy">
+                            <h1 className="font-serif text-2xl text-navy sm:text-3xl">
                                 Calendar / Schedule
                             </h1>
 
-                            <p className="mt-1 text-sm text-slate">
+                            <p className="mt-1 text-xs text-slate sm:text-sm">
                                 Manage appointments, staff schedules, and daily
                                 availability.
                             </p>
@@ -271,7 +291,7 @@ function CalendarSchedule() {
                             onClick={function () {
                                 navigate("/company/appointments/new");
                             }}
-                            className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-bold text-white transition hover:bg-gold hover:text-navy sm:w-auto sm:px-5 sm:py-3"
                         >
                             <Plus className="h-4 w-4" />
                             New Appointment
@@ -280,17 +300,15 @@ function CalendarSchedule() {
 
                     {/* Calendar Card */}
                     <div className="overflow-hidden rounded-xl border border-gray/20 bg-white shadow-sm">
-
                         {/* Toolbar */}
-                        <div className="border-b border-gray/20 p-4 sm:px-5">
-                            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-
+                        <div className="border-b border-gray/20 p-3 sm:p-4 md:px-5">
+                            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                                 {/* Date Navigation */}
                                 <div className="flex flex-wrap items-center gap-2">
                                     <button
                                         type="button"
                                         onClick={handleToday}
-                                        className="rounded-md border border-gray/30 px-4 py-2 text-sm font-bold text-navy transition hover:border-gold hover:bg-gold/10"
+                                        className="rounded-md border border-gray/30 px-3 py-1.5 text-xs font-bold text-navy transition hover:border-gold hover:bg-gold/10 sm:px-4 sm:py-2 sm:text-sm"
                                     >
                                         Today
                                     </button>
@@ -298,7 +316,8 @@ function CalendarSchedule() {
                                     <button
                                         type="button"
                                         onClick={handlePrev}
-                                        className="flex h-9 w-9 items-center justify-center rounded-md border border-gray/30 text-slate transition hover:border-gold hover:text-navy"
+                                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray/30 text-slate transition hover:border-gold hover:text-navy sm:h-9 sm:w-9"
+                                        aria-label="Previous"
                                     >
                                         <ChevronLeft className="h-4 w-4" />
                                     </button>
@@ -306,21 +325,21 @@ function CalendarSchedule() {
                                     <button
                                         type="button"
                                         onClick={handleNext}
-                                        className="flex h-9 w-9 items-center justify-center rounded-md border border-gray/30 text-slate transition hover:border-gold hover:text-navy"
+                                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray/30 text-slate transition hover:border-gold hover:text-navy sm:h-9 sm:w-9"
+                                        aria-label="Next"
                                     >
                                         <ChevronRight className="h-4 w-4" />
                                     </button>
 
-                                    <h2 className="ml-1 font-serif text-lg text-navy sm:ml-2">
+                                    <h2 className="ml-1 font-serif text-sm text-navy sm:ml-2 sm:text-base md:text-lg">
                                         {rangeLabel}
                                     </h2>
                                 </div>
 
                                 {/* Filters */}
-                                <div className="flex flex-wrap items-center gap-2">
-
+                                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                                     {/* Staff */}
-                                    <div className="relative">
+                                    <div className="relative w-full sm:w-auto">
                                         <select
                                             value={staffFilter}
                                             onChange={function (event) {
@@ -328,7 +347,7 @@ function CalendarSchedule() {
                                                     event.target.value
                                                 );
                                             }}
-                                            className="appearance-none rounded-md border border-gray/30 bg-white py-2 pl-3 pr-9 text-sm text-slate outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                                            className="w-full appearance-none rounded-md border border-gray/30 bg-white py-2 pl-3 pr-9 text-sm text-slate outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:w-auto"
                                         >
                                             <option value="all">
                                                 All Staff
@@ -351,7 +370,7 @@ function CalendarSchedule() {
                                     </div>
 
                                     {/* Service */}
-                                    <div className="relative">
+                                    <div className="relative w-full sm:w-auto">
                                         <select
                                             value={serviceFilter}
                                             onChange={function (event) {
@@ -359,7 +378,7 @@ function CalendarSchedule() {
                                                     event.target.value
                                                 );
                                             }}
-                                            className="appearance-none rounded-md border border-gray/30 bg-white py-2 pl-3 pr-9 text-sm text-slate outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                                            className="w-full appearance-none rounded-md border border-gray/30 bg-white py-2 pl-3 pr-9 text-sm text-slate outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:w-auto"
                                         >
                                             <option value="all">
                                                 All Services
@@ -382,13 +401,13 @@ function CalendarSchedule() {
                                     </div>
 
                                     {/* Day / Week */}
-                                    <div className="flex items-center rounded-md border border-gray/30 bg-beige p-1">
+                                    <div className="flex w-full items-center rounded-md border border-gray/30 bg-beige p-1 sm:w-auto">
                                         <button
                                             type="button"
                                             onClick={function () {
                                                 setViewMode("day");
                                             }}
-                                            className={`rounded px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition ${
+                                            className={`flex-1 rounded px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition sm:flex-none ${
                                                 viewMode === "day"
                                                     ? "bg-white text-navy shadow-sm"
                                                     : "text-slate hover:text-navy"
@@ -402,7 +421,7 @@ function CalendarSchedule() {
                                             onClick={function () {
                                                 setViewMode("week");
                                             }}
-                                            className={`rounded px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition ${
+                                            className={`flex-1 rounded px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition sm:flex-none ${
                                                 viewMode === "week"
                                                     ? "bg-white text-navy shadow-sm"
                                                     : "text-slate hover:text-navy"
@@ -427,16 +446,17 @@ function CalendarSchedule() {
                                             : "64px minmax(500px, 1fr)",
                                 }}
                             >
-
                                 {/* Empty Header */}
                                 <div className="border-b border-r border-gray/20 bg-white" />
 
                                 {/* Day Headers */}
                                 {visibleDays.map(function (day) {
-                                    const dayName =
-                                        day.toLocaleDateString("en-US", {
+                                    const dayName = day.toLocaleDateString(
+                                        "en-US",
+                                        {
                                             weekday: "short",
-                                        });
+                                        }
+                                    );
 
                                     const dayNumber = day.getDate();
 
@@ -490,10 +510,12 @@ function CalendarSchedule() {
 
                                 {/* Day Columns */}
                                 {visibleDays.map(function (day) {
-                                    const dayName =
-                                        day.toLocaleDateString("en-US", {
+                                    const dayName = day.toLocaleDateString(
+                                        "en-US",
+                                        {
                                             weekday: "short",
-                                        });
+                                        }
+                                    );
 
                                     const dayAppointments =
                                         filteredAppointments.filter(
@@ -510,7 +532,6 @@ function CalendarSchedule() {
                                             key={day.toISOString()}
                                             className="relative"
                                         >
-
                                             {/* Hour Grid */}
                                             {hours.map(function (hour) {
                                                 return (
@@ -541,7 +562,8 @@ function CalendarSchedule() {
 
                                             {/* Current Time Indicator */}
                                             {isToday(day) &&
-                                                currentTimePosition !== null && (
+                                                currentTimePosition !==
+                                                    null && (
                                                     <div
                                                         className="pointer-events-none absolute left-0 right-0 z-20"
                                                         style={{
@@ -578,14 +600,16 @@ function CalendarSchedule() {
                                                         <div
                                                             key={appointment.id}
                                                             onClick={function () {
-                                                                setSelectedAppointment(appointment);
+                                                                setSelectedAppointment(
+                                                                    appointment
+                                                                );
                                                             }}
                                                             className={`absolute left-1 right-1 cursor-pointer overflow-hidden rounded-md border-l-4 px-2 py-1 shadow-sm transition hover:shadow-md ${getStatusColor(
                                                                 appointment.status
                                                             )}`}
                                                             style={blockStyle}
                                                         >
-                                                                                                                    {isCompact ? (
+                                                            {isCompact ? (
                                                                 <div
                                                                     className={`truncate text-xs font-bold ${
                                                                         appointment.status ===
@@ -650,7 +674,7 @@ function CalendarSchedule() {
                         </div>
 
                         {/* Legend */}
-                        <div className="flex flex-wrap items-center gap-5 border-t border-gray/20 px-5 py-4">
+                        <div className="flex flex-wrap items-center gap-3 border-t border-gray/20 px-3 py-3 sm:gap-5 sm:px-5 sm:py-4">
                             <span className="text-xs font-bold text-navy">
                                 Status
                             </span>
@@ -685,103 +709,111 @@ function CalendarSchedule() {
                         </div>
                     </div>
 
+                    {/* Appointment Drawer */}
                     {selectedAppointment && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-end bg-navy/20">
-                        <div className="h-full w-full max-w-md bg-white p-6 shadow-xl">
+                        <div className="fixed inset-0 z-50 flex items-center justify-end bg-navy/20">
+                            <div className="h-full w-full max-w-md bg-white p-6 shadow-xl">
+                                <div className="flex items-start justify-between border-b border-gray/20 pb-5">
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-widest text-slate">
+                                            Appointment Details
+                                        </p>
 
-                            <div className="flex items-start justify-between border-b border-gray/20 pb-5">
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-widest text-slate">
-                                        Appointment Details
-                                    </p>
+                                        <h2 className="mt-1 font-serif text-2xl text-navy">
+                                            {
+                                                selectedAppointment.customer
+                                            }
+                                        </h2>
+                                    </div>
 
-                                    <h2 className="mt-1 font-serif text-2xl text-navy">
-                                        {selectedAppointment.customer}
-                                    </h2>
+                                    <button
+                                        type="button"
+                                        onClick={function () {
+                                            setSelectedAppointment(null);
+                                        }}
+                                        className="flex h-8 w-8 items-center justify-center rounded-md text-xl text-slate transition hover:bg-beige hover:text-navy"
+                                        aria-label="Close"
+                                    >
+                                        ×
+                                    </button>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    onClick={function () {
-                                        setSelectedAppointment(null);
-                                    }}
-                                    className="flex h-8 w-8 items-center justify-center rounded-md text-xl text-slate transition hover:bg-beige hover:text-navy"
-                                >
-                                    ×
-                                </button>
-                            </div>
+                                <div className="mt-6 space-y-5">
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Time
+                                        </p>
 
-                            <div className="mt-6 space-y-5">
+                                        <p className="mt-1 text-sm text-navy">
+                                            {
+                                                selectedAppointment.startTime
+                                            }{" "}
+                                            –{" "}
+                                            {
+                                                selectedAppointment.endTime
+                                            }
+                                        </p>
+                                    </div>
 
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                        Time
-                                    </p>
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Service
+                                        </p>
 
-                                    <p className="mt-1 text-sm text-navy">
-                                        {selectedAppointment.startTime} –{" "}
-                                        {selectedAppointment.endTime}
-                                    </p>
+                                        <p className="mt-1 text-sm text-navy">
+                                            {selectedAppointment.service ||
+                                                "Not specified"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Staff
+                                        </p>
+
+                                        <p className="mt-1 text-sm text-navy">
+                                            {selectedAppointment.staff ||
+                                                "Not assigned"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Status
+                                        </p>
+
+                                        <span className="mt-2 inline-flex rounded-full bg-beige px-3 py-1 text-xs font-bold capitalize text-navy">
+                                            {selectedAppointment.status}
+                                        </span>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                        Service
-                                    </p>
+                                <div className="mt-8 flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={function () {
+                                            navigate(
+                                                `/company/appointments/${selectedAppointment.id}`
+                                            );
+                                        }}
+                                        className="flex-1 rounded-lg bg-navy py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                                    >
+                                        View Details
+                                    </button>
 
-                                    <p className="mt-1 text-sm text-navy">
-                                        {selectedAppointment.service || "Not specified"}
-                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={function () {
+                                            setSelectedAppointment(null);
+                                        }}
+                                        className="rounded-lg border border-gray/30 px-5 py-3 text-sm font-bold text-slate transition hover:border-navy hover:text-navy"
+                                    >
+                                        Close
+                                    </button>
                                 </div>
-
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                        Staff
-                                    </p>
-
-                                    <p className="mt-1 text-sm text-navy">
-                                        {selectedAppointment.staff || "Not assigned"}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                        Status
-                                    </p>
-
-                                    <span className="mt-2 inline-flex rounded-full bg-beige px-3 py-1 text-xs font-bold capitalize text-navy">
-                                        {selectedAppointment.status}
-                                    </span>
-                                </div>
-
-                            </div>
-
-                            <div className="mt-8 flex gap-3">
-                                <button
-                                type="button"
-                                onClick={function () {
-                                    navigate(
-                                        `/company/appointments/${selectedAppointment.id}`
-                                    );
-                                }}
-                                className="flex-1 rounded-lg bg-navy py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
-                            >
-                                View Details
-                            </button> 
-
-                                <button
-                                    type="button"
-                                    onClick={function () {
-                                        setSelectedAppointment(null);
-                                    }}
-                                    className="rounded-lg border border-gray/30 px-5 py-3 text-sm font-bold text-slate transition hover:border-navy hover:text-navy"
-                                >
-                                    Close
-                                </button>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
                 </main>
             </div>
         </div>
