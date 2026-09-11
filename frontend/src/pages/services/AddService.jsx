@@ -135,6 +135,93 @@ function AddService() {
 
                             </div>
 
+                            {/* Pricing & Duration */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-8 shadow-sm">
+
+                                <h2 className="font-serif text-2xl text-navy">
+                                    Pricing & Duration
+                                </h2>
+
+                                <div className="mb-5 mt-4 border-b border-gray/20" />
+
+                                {/* Price + Duration */}
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                                    {/* Price */}
+                                    <div>
+                                        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-navy">
+                                            Price (Rs.)
+                                        </label>
+
+                                        <div className="relative">
+                                            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate">
+                                                Rs.
+                                            </span>
+
+                                            <input
+                                                type="number"
+                                                name="price"
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="0.00"
+                                                className="
+                                                    w-full rounded-lg border border-gray
+                                                    py-2.5 pl-10 pr-4 font-serif text-sm text-navy
+                                                    outline-none
+                                                    focus:border-navy
+                                                    focus:ring-2 focus:ring-gold
+                                                "
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Duration */}
+                                    <div>
+                                        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-navy">
+                                            Duration
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value="1 hour"
+                                            readOnly
+                                            className="
+                                                w-full cursor-not-allowed rounded-lg
+                                                border border-gray bg-gray/10
+                                                px-4 py-2.5 font-serif text-sm text-slate
+                                                outline-none
+                                            "
+                                        />
+
+                                        <p className="mt-1.5 text-xs text-slate">
+                                            TIMEORA appointments use fixed 1-hour slots.
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                {/* Payment Method */}
+                                <div className="mt-5">
+
+                                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-navy">
+                                        Payment Method
+                                    </label>
+
+                                    <div className="flex cursor-not-allowed items-center gap-2.5 rounded-lg border border-gray/20 bg-gray/10 px-4 py-3">
+                                        <span className="text-slate">
+                                            Rs.
+                                        </span>
+
+                                        <span className="text-sm font-bold text-navy">
+                                            Cash on Reception
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            
+
                         </div>
 
                         {/* Right Column */}
@@ -144,7 +231,7 @@ function AddService() {
 
                     </div>
 
-                    
+
                 </main>
             </div>
         </div>
