@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
     ArrowRight,
     Briefcase,
@@ -15,7 +15,6 @@ import {
     Scissors,
     TrendingUp,
 } from "lucide-react";
-
 import {
     Area,
     AreaChart,
@@ -30,19 +29,20 @@ import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 
-import { Link, useNavigate, useParams } from "react-router-dom";
-
 const mockStaffData = {
     id: 1,
     name: "Dr. Sara Ahmed",
     role: "DOCTOR",
     professionalRole: "Senior Doctor",
     staffId: "STF-0012",
-    phone: "0300 1234567",
-    email: "sara@shifaclinic.com",
+    phone: "+1 (555) 123-4567",
+    email: "sara.ahmed@timeora.com",
     status: "Active",
     availableToday: true,
     avatarUrl: "",
+    joinedDate: "14 October, 2021",
+    todayDate: "Friday, 21 Aug",
+    todayHours: "09:00 AM – 05:00 PM",
 };
 
 const upcomingAppointments = [
@@ -104,12 +104,19 @@ const recentActivity = [
     { time: "18 Aug, 11:15 AM", text: "Completed appointment with James Lin." },
 ];
 
+const staffStats = [
+    { value: 6, label: "TODAY" },
+    { value: 12, label: "UPCOMING" },
+    { value: 4, label: "COMPLETED" },
+    { value: 1, label: "CANCELLED", valueColor: "text-red-600" },
+];
+
 function StaffDetails() {
     const { staffId } = useParams();
     const navigate = useNavigate();
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [staffData, setStaffData] = useState(mockStaffData);
+    const [staffData] = useState(mockStaffData);
     const [chartRange, setChartRange] = useState("7");
 
     // TODO: axios GET /api/company/staff/:staffId on mount
@@ -145,6 +152,7 @@ function StaffDetails() {
                 </>
             )}
 
+            {/* Main Area */}
             <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar
                     onMenuClick={() => setSidebarOpen(true)}
@@ -174,9 +182,8 @@ function StaffDetails() {
 
                     {/* Profile Header */}
                     <div className="mb-5 flex flex-col gap-4 sm:mb-6 lg:mb-7 lg:flex-row lg:items-start lg:justify-between">
-                        {/* Profile Information */}
+                        {/* Profile Info */}
                         <div className="flex items-start gap-3 sm:gap-5">
-                            {/* Avatar */}
                             <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray/20 sm:h-20 sm:w-20 lg:h-24 lg:w-24">
                                 {staffData.avatarUrl ? (
                                     <img
@@ -195,7 +202,6 @@ function StaffDetails() {
                                 )}
                             </div>
 
-                            {/* Info */}
                             <div className="min-w-0">
                                 <h1 className="font-serif text-xl text-navy sm:text-2xl lg:text-3xl">
                                     {staffData.name}
@@ -252,149 +258,124 @@ function StaffDetails() {
                         </div>
                     </div>
 
-                    {/* Top Information Cards */}
-                    <div className="mb-4 grid grid-cols-1 gap-4 sm:mb-5 md:gap-5 lg:mb-6 lg:grid-cols-3 lg:gap-6">
-                        {/* Personal Information */}
-                        <div className="rounded-xl border border-gray/20 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
-                            <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                                <CircleUser className="h-[18px] w-[18px] text-slate" />
-
-                                <h2 className="font-serif text-lg text-navy sm:text-xl">
-                                    Personal Information
-                                </h2>
-                            </div>
-
-                            <div className="mb-4 border-b border-gray/20"></div>
-
-                            <div className="space-y-3.5">
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                        Full Name
-                                    </p>
-                                    <p className="mt-1 text-sm font-bold text-navy">
-                                        {staffData.name}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                        Phone
-                                    </p>
-                                    <p className="mt-1 text-sm font-bold text-navy">
-                                        {staffData.phone}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                        Email
-                                    </p>
-                                    <p className="mt-1 break-all text-sm font-bold text-navy">
-                                        {staffData.email}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                        Staff ID
-                                    </p>
-                                    <span className="mt-1 inline-block rounded bg-gray/10 px-2 py-1 text-xs font-bold text-navy">
-                                        {staffData.staffId}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Professional Profile */}
-                        <div className="rounded-xl border border-gray/20 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
-                            <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                                <Briefcase className="h-[18px] w-[18px] text-slate" />
-
-                                <h2 className="font-serif text-lg text-navy sm:text-xl">
-                                    Professional Profile
-                                </h2>
-                            </div>
-
-                            <div className="mb-4 border-b border-gray/20"></div>
-
-                            <div className="mb-3.5">
-                                <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                    Role
-                                </p>
-                                <p className="mt-1 text-sm font-bold text-navy">
-                                    {staffData.professionalRole}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray">
-                                    Services
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="rounded-full border border-gray/40 bg-white px-2.5 py-1 text-xs font-bold text-navy sm:px-3 sm:py-1.5">
-                                        Consultation
-                                    </span>
-                                    <span className="rounded-full border border-gray/40 bg-white px-2.5 py-1 text-xs font-bold text-navy sm:px-3 sm:py-1.5">
-                                        Follow-up
-                                    </span>
-                                    <span className="rounded-full border border-gray/40 bg-white px-2.5 py-1 text-xs font-bold text-navy sm:px-3 sm:py-1.5">
-                                        Therapy Session
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="mb-3.5 mt-3.5">
-                                <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                    Joined Date
-                                </p>
-                                <p className="mt-1 text-sm font-bold text-navy">
-                                    14 October, 2021
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                    Account Status
-                                </p>
-                                <div className="mt-1 flex items-center gap-1.5">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-                                    <span className="text-sm font-bold text-navy">
-                                        Active &amp; Verified
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Today's Availability */}
-                        <div className="relative rounded-xl bg-navy p-4 text-white sm:p-5 lg:p-6">
-                            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-white/60">
-                                Today's Availability
-                            </p>
-
-                            <h2 className="font-serif text-xl text-white sm:text-2xl">
-                                Friday, 21 Aug
-                            </h2>
-
-                            <p className="mt-1 text-sm text-white/70">
-                                09:00 AM – 05:00 PM
-                            </p>
-
-                            <div className="mt-5 flex items-center justify-between">
-                                <span className="rounded-full bg-gold px-3 py-1.5 text-xs font-bold uppercase text-navy">
-                                    Available
-                                </span>
-
-                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-                                    <CalendarPlus className="h-4 w-4 text-white" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Main Details Grid */}
-                    <div className="grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-3 lg:gap-6">
-                        {/* Left Column */}
+                    {/* ===== MAIN LAYOUT ===== */}
+                    <div className="grid auto-rows-fr grid-cols-1 gap-4 md:gap-5 lg:grid-cols-3 lg:gap-6">
+                        {/* ===== LEFT SIDE (2 cols) ===== */}
                         <div className="flex flex-col gap-4 md:gap-5 lg:col-span-2 lg:gap-6">
+                            {/* Top row: Personal Info + Professional Profile */}
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:gap-6">
+                                {/* Personal Information */}
+                                <div className="rounded-xl border border-gray/20 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
+                                    <div className="mb-3 flex items-center gap-2 sm:mb-4">
+                                        <CircleUser className="h-[18px] w-[18px] text-slate" />
+
+                                        <h2 className="font-serif text-lg text-navy sm:text-xl">
+                                            Personal Information
+                                        </h2>
+                                    </div>
+
+                                    <div className="mb-4 border-b border-gray/20"></div>
+
+                                    <div className="space-y-3.5">
+                                        <div>
+                                            <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                                Full Name
+                                            </p>
+                                            <p className="mt-1 text-sm font-bold text-navy">
+                                                {staffData.name}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                                Phone
+                                            </p>
+                                            <p className="mt-1 text-sm font-bold text-navy">
+                                                {staffData.phone}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                                Email
+                                            </p>
+                                            <p className="mt-1 break-all text-sm font-bold text-navy">
+                                                {staffData.email}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                                Staff ID
+                                            </p>
+                                            <span className="mt-1 inline-block rounded bg-gray/10 px-2 py-1 text-xs font-bold text-navy">
+                                                {staffData.staffId}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Professional Profile */}
+                                <div className="rounded-xl border border-gray/20 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
+                                    <div className="mb-3 flex items-center gap-2 sm:mb-4">
+                                        <Briefcase className="h-[18px] w-[18px] text-slate" />
+
+                                        <h2 className="font-serif text-lg text-navy sm:text-xl">
+                                            Professional Profile
+                                        </h2>
+                                    </div>
+
+                                    <div className="mb-4 border-b border-gray/20"></div>
+
+                                    <div className="mb-3.5">
+                                        <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                            Role
+                                        </p>
+                                        <p className="mt-1 text-sm font-bold text-navy">
+                                            {staffData.professionalRole}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray">
+                                            Services
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <span className="rounded-full border border-gray/40 bg-white px-2.5 py-1 text-xs font-bold text-navy sm:px-3 sm:py-1.5">
+                                                Consultation
+                                            </span>
+                                            <span className="rounded-full border border-gray/40 bg-white px-2.5 py-1 text-xs font-bold text-navy sm:px-3 sm:py-1.5">
+                                                Follow-up
+                                            </span>
+                                            <span className="rounded-full border border-gray/40 bg-white px-2.5 py-1 text-xs font-bold text-navy sm:px-3 sm:py-1.5">
+                                                Therapy Session
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-3.5 mt-3.5">
+                                        <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                            Joined Date
+                                        </p>
+                                        <p className="mt-1 text-sm font-bold text-navy">
+                                            {staffData.joinedDate}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                            Account Status
+                                        </p>
+                                        <div className="mt-1 flex items-center gap-1.5">
+                                            <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+                                            <span className="text-sm font-bold text-navy">
+                                                Active &amp; Verified
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Upcoming Appointments */}
                             <div className="rounded-xl border border-gray/20 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
                                 <div className="mb-4 flex items-center justify-between gap-3">
@@ -415,7 +396,6 @@ function StaffDetails() {
                                     </Link>
                                 </div>
 
-                                {/* Table */}
                                 <div className="-mx-4 overflow-x-auto sm:-mx-5 lg:-mx-6">
                                     <div className="inline-block min-w-full px-4 sm:px-5 lg:px-6">
                                         <table className="w-full min-w-[560px]">
@@ -437,48 +417,61 @@ function StaffDetails() {
                                             </thead>
 
                                             <tbody>
-                                                {upcomingAppointments.map((appointment) => (
-                                                    <tr
-                                                        key={`${appointment.time}-${appointment.customer}`}
-                                                        className="border-b border-gray/10"
-                                                    >
-                                                        <td className="py-3 text-xs font-bold text-navy sm:text-sm">
-                                                            {appointment.time}
-                                                        </td>
+                                                {upcomingAppointments.map(
+                                                    (appointment) => (
+                                                        <tr
+                                                            key={`${appointment.time}-${appointment.customer}`}
+                                                            className="border-b border-gray/10"
+                                                        >
+                                                            <td className="py-3 text-xs font-bold text-navy sm:text-sm">
+                                                                {
+                                                                    appointment.time
+                                                                }
+                                                            </td>
 
-                                                        <td className="py-3">
-                                                            <div className="flex items-center gap-2.5">
-                                                                <div
-                                                                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${appointment.avatarClass}`}
-                                                                >
-                                                                    <span className="text-xs font-bold text-navy">
-                                                                        {appointment.initials}
+                                                            <td className="py-3">
+                                                                <div className="flex items-center gap-2.5">
+                                                                    <div
+                                                                        className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${appointment.avatarClass}`}
+                                                                    >
+                                                                        <span className="text-xs font-bold text-navy">
+                                                                            {
+                                                                                appointment.initials
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <span className="text-xs text-navy sm:text-sm">
+                                                                        {
+                                                                            appointment.customer
+                                                                        }
                                                                     </span>
                                                                 </div>
+                                                            </td>
 
-                                                                <span className="text-xs text-navy sm:text-sm">
-                                                                    {appointment.customer}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-
-                                                        <td className="py-3 text-xs text-slate sm:text-sm">
-                                                            {appointment.service}
-                                                        </td>
-
-                                                        <td className="py-3">
-                                                            <span
-                                                                className={
-                                                                    appointment.status === "Confirmed"
-                                                                        ? "rounded-full bg-navy/10 px-2 py-1 text-[10px] font-bold uppercase text-navy sm:px-2.5 sm:text-xs"
-                                                                        : "rounded-full bg-gold/20 px-2 py-1 text-[10px] font-bold uppercase text-amber-700 sm:px-2.5 sm:text-xs"
+                                                            <td className="py-3 text-xs text-slate sm:text-sm">
+                                                                {
+                                                                    appointment.service
                                                                 }
-                                                            >
-                                                                {appointment.status}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                            </td>
+
+                                                            <td className="py-3">
+                                                                <span
+                                                                    className={
+                                                                        appointment.status ===
+                                                                        "Confirmed"
+                                                                            ? "rounded-full bg-navy/10 px-2 py-1 text-[10px] font-bold uppercase text-navy sm:px-2.5 sm:text-xs"
+                                                                            : "rounded-full bg-gold/20 px-2 py-1 text-[10px] font-bold uppercase text-amber-700 sm:px-2.5 sm:text-xs"
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        appointment.status
+                                                                    }
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
@@ -501,7 +494,9 @@ function StaffDetails() {
                                             <button
                                                 key={range}
                                                 type="button"
-                                                onClick={() => setChartRange(range)}
+                                                onClick={() =>
+                                                    setChartRange(range)
+                                                }
                                                 className={
                                                     chartRange === range
                                                         ? "rounded-md bg-white px-2.5 py-1.5 text-[10px] font-bold text-navy shadow-sm sm:px-3 sm:text-xs"
@@ -515,10 +510,18 @@ function StaffDetails() {
                                 </div>
 
                                 <div className="h-[220px] w-full sm:h-[260px] lg:h-[280px]">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer
+                                        width="100%"
+                                        height="100%"
+                                    >
                                         <AreaChart
                                             data={appointmentChartData}
-                                            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                                            margin={{
+                                                top: 10,
+                                                right: 10,
+                                                left: 0,
+                                                bottom: 0,
+                                            }}
                                         >
                                             <defs>
                                                 <linearGradient
@@ -528,18 +531,32 @@ function StaffDetails() {
                                                     x2="0"
                                                     y2="1"
                                                 >
-                                                    <stop offset="0%" stopColor="#000C1E" stopOpacity={0.15} />
-                                                    <stop offset="100%" stopColor="#000C1E" stopOpacity={0} />
+                                                    <stop
+                                                        offset="0%"
+                                                        stopColor="#000C1E"
+                                                        stopOpacity={0.15}
+                                                    />
+                                                    <stop
+                                                        offset="100%"
+                                                        stopColor="#000C1E"
+                                                        stopOpacity={0}
+                                                    />
                                                 </linearGradient>
                                             </defs>
 
-                                            <CartesianGrid vertical={false} stroke="#E4E2DD" />
+                                            <CartesianGrid
+                                                vertical={false}
+                                                stroke="#E4E2DD"
+                                            />
 
                                             <XAxis
                                                 dataKey="day"
                                                 axisLine={false}
                                                 tickLine={false}
-                                                tick={{ fill: "#43474E", fontSize: 12 }}
+                                                tick={{
+                                                    fill: "#43474E",
+                                                    fontSize: 12,
+                                                }}
                                             />
 
                                             <YAxis
@@ -547,7 +564,10 @@ function StaffDetails() {
                                                 ticks={[0, 5, 10, 15, 20]}
                                                 axisLine={false}
                                                 tickLine={false}
-                                                tick={{ fill: "#43474E", fontSize: 12 }}
+                                                tick={{
+                                                    fill: "#43474E",
+                                                    fontSize: 12,
+                                                }}
                                             />
 
                                             <Tooltip
@@ -568,7 +588,11 @@ function StaffDetails() {
                                                 stroke="#000C1E"
                                                 strokeWidth={2.5}
                                                 fill="url(#appointmentAreaGradient)"
-                                                dot={{ fill: "#FED488", stroke: "#FED488", r: 5 }}
+                                                dot={{
+                                                    fill: "#FED488",
+                                                    stroke: "#FED488",
+                                                    r: 5,
+                                                }}
                                                 activeDot={{
                                                     fill: "#FED488",
                                                     stroke: "#000C1E",
@@ -582,18 +606,43 @@ function StaffDetails() {
                             </div>
                         </div>
 
-                        {/* Right Column */}
-                        <div className="flex flex-col gap-4 md:gap-5 lg:gap-6">
-                            {/* Staff Statistics */}
+                        {/* ===== RIGHT COLUMN (1 col) ===== */}
+                        <div className="flex h-full flex-col gap-4 md:gap-5 lg:gap-6">
+                            {/* Today's Availability */}
+                            <div className="relative rounded-xl bg-navy p-4 text-white sm:p-5 lg:p-6">
+                                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-white/60">
+                                    Today's Availability
+                                </p>
+
+                                <h2 className="font-serif text-xl text-white sm:text-2xl">
+                                    {staffData.todayDate}
+                                </h2>
+
+                                <p className="mt-1 text-sm text-white/70">
+                                    {staffData.todayHours}
+                                </p>
+
+                                <div className="mt-4 flex items-center justify-between">
+                                    <span className="rounded-full bg-gold px-3 py-1.5 text-xs font-bold uppercase text-navy">
+                                        Available
+                                    </span>
+
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                                        <CalendarPlus className="h-4 w-4 text-white" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Stat Cards 2×2 */}
                             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                                <StatCard value={6} label="TODAY" />
-                                <StatCard value={12} label="UPCOMING" />
-                                <StatCard value={4} label="COMPLETED" />
-                                <StatCard
-                                    value={1}
-                                    label="CANCELLED"
-                                    valueColor="text-red-600"
-                                />
+                                {staffStats.map((stat) => (
+                                    <StatCard
+                                        key={stat.label}
+                                        value={stat.value}
+                                        label={stat.label}
+                                        valueColor={stat.valueColor}
+                                    />
+                                ))}
                             </div>
 
                             {/* Weekly Hours */}
@@ -616,8 +665,17 @@ function StaffDetails() {
                                                 flex items-center justify-between gap-3
                                                 border-b border-gray/10
                                                 py-2.5
-                                                ${index === weeklyHours.length - 1 ? "border-b-0" : ""}
-                                                ${item.isToday ? "border-l-4 border-navy bg-beige/30 pl-2.5" : ""}
+                                                ${
+                                                    index ===
+                                                    weeklyHours.length - 1
+                                                        ? "border-b-0"
+                                                        : ""
+                                                }
+                                                ${
+                                                    item.isToday
+                                                        ? "border-l-4 border-navy bg-beige/30 pl-2.5"
+                                                        : ""
+                                                }
                                             `}
                                         >
                                             <span
@@ -664,7 +722,8 @@ function StaffDetails() {
                                                 flex items-start justify-between gap-4
                                                 py-3
                                                 ${
-                                                    index === assignedServices.length - 1
+                                                    index ===
+                                                    assignedServices.length - 1
                                                         ? ""
                                                         : "border-b border-gray/10"
                                                 }
@@ -689,7 +748,7 @@ function StaffDetails() {
                             </div>
 
                             {/* Recent Activity */}
-                            <div className="rounded-xl border border-gray/20 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
+                            <div className="flex flex-1 flex-col rounded-xl border border-gray/20 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
                                 <div className="mb-3 flex items-center gap-2 sm:mb-4">
                                     <History className="h-[18px] w-[18px] text-slate" />
 
@@ -704,36 +763,38 @@ function StaffDetails() {
                                     <div className="absolute bottom-3 left-[3px] top-3 w-px bg-gray/20"></div>
 
                                     <div className="space-y-5">
-                                        {recentActivity.map((activity, index) => (
-                                            <div
-                                                key={`${activity.time}-${activity.text}`}
-                                                className="relative flex gap-3"
-                                            >
-                                                <div className="relative z-10 mt-1 flex h-2 w-2 flex-shrink-0">
-                                                    <span
-                                                        className={
-                                                            index === 0
-                                                                ? "h-2 w-2 rounded-full bg-navy"
-                                                                : "h-2 w-2 rounded-full bg-gray"
-                                                        }
-                                                    ></span>
-                                                </div>
+                                        {recentActivity.map(
+                                            (activity, index) => (
+                                                <div
+                                                    key={`${activity.time}-${activity.text}`}
+                                                    className="relative flex gap-3"
+                                                >
+                                                    <div className="relative z-10 mt-1 flex h-2 w-2 flex-shrink-0">
+                                                        <span
+                                                            className={
+                                                                index === 0
+                                                                    ? "h-2 w-2 rounded-full bg-navy"
+                                                                    : "h-2 w-2 rounded-full bg-gray"
+                                                            }
+                                                        ></span>
+                                                    </div>
 
-                                                <div className="min-w-0">
-                                                    <p className="text-xs text-gray">
-                                                        {activity.time}
-                                                    </p>
+                                                    <div className="min-w-0">
+                                                        <p className="text-xs text-gray">
+                                                            {activity.time}
+                                                        </p>
 
-                                                    <p className="mt-0.5 text-sm text-navy">
-                                                        {activity.text}
-                                                    </p>
+                                                        <p className="mt-0.5 text-sm text-navy">
+                                                            {activity.text}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            )
+                                        )}
                                     </div>
                                 </div>
 
-                                <div className="mt-6 border-t border-gray/10 pt-4 text-center">
+                                <div className="mt-auto border-t border-gray/10 pt-4 text-center">
                                     <button
                                         type="button"
                                         className="text-xs font-bold uppercase tracking-wide text-navy hover:underline"

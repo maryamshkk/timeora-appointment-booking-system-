@@ -7,7 +7,7 @@ function StatCard({
     valueColor = "text-navy",
 }) {
     return (
-        <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm">
+        <div className="flex h-full w-full flex-col justify-center rounded-xl border border-gray/20 bg-white p-5 shadow-sm">
 
             {Icon && (
                 <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-beige">
