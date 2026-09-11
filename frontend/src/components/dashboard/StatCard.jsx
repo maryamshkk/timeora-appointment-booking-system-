@@ -1,38 +1,28 @@
-
 import React from "react";
-import { TrendingUp } from "lucide-react";
 
 function StatCard({
-    label,
     value,
+    label,
     icon: Icon,
-    trend,
+    valueColor = "text-navy",
 }) {
     return (
-        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                    {label}
-                </p>
+        <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm">
 
-                <div className="w-9 h-9 bg-gray/10 rounded-full flex items-center justify-center">
-                    <Icon className="w-[18px] h-[18px] text-slate" />
+            {Icon && (
+                <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-beige">
+                    <Icon className="h-4.5 w-4.5 text-navy" />
                 </div>
-            </div>
+            )}
 
-            {/* Value */}
-            <p className="font-serif text-3xl text-navy mt-2">
+            <p className={`font-serif text-2xl font-bold ${valueColor}`}>
                 {value}
             </p>
 
-            {/* Trend */}
-            {trend && (
-                <div className="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full mt-2">
-                    <TrendingUp className="w-3 h-3" />
-                    {trend}
-                </div>
-            )}
+            <p className="mt-1 text-xs font-bold uppercase tracking-wide text-slate">
+                {label}
+            </p>
+
         </div>
     );
 }
