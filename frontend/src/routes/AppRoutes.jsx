@@ -14,7 +14,7 @@ import AppointmentDetails from "../pages/appointments/AppointmentDetails";
 import CalenderSchedule from "../pages/calendar/CalendarSchedule";
 import StaffManagement from "../pages/staff/StaffManagement";
 import AddStaff from "../pages/staff/AddStaff";
-
+import StaffDetails from "../pages/staff/StaffDetails";
 
 function AppRoutes(){
     return(
@@ -33,6 +33,7 @@ function AppRoutes(){
                 <Route path="/company/calendar" element={<CalenderSchedule />} />
                 <Route path="/company/staff" element={<StaffManagement />} />
                 <Route path="/company/staff/add" element={<AddStaff />}/>
+                <Route path="/company/staff/details" element={<StaffDetails />} />
             </Routes>
         </BrowserRouter>
     )
