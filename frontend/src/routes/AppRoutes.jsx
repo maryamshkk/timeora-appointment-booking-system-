@@ -18,7 +18,7 @@ import StaffDetails from "../pages/staff/StaffDetails";
 import ServicesManagement from "../pages/services/ServicesManagement";
 import AddService from "../pages/services/AddService";
 import CustomerManagement from "../pages/customers/CustomerManagement";
-
+import CustomerDetails from "../pages/customers/CustomerDetails";
 
 function AppRoutes(){
     return(
@@ -41,6 +41,7 @@ function AppRoutes(){
                 <Route path="/company/services" element={<ServicesManagement />}/>
                 <Route path="/company/services/add" element={<AddService />} />
                 <Route path="/company/customers" element={<CustomerManagement/>}/>
+                <Route path="/company/customers/:customerId"element={<CustomerDetails />} />
             </Routes>
         </BrowserRouter>
     )
