@@ -20,7 +20,7 @@ import AddService from "../pages/services/AddService";
 import CustomerManagement from "../pages/customers/CustomerManagement";
 import CustomerDetails from "../pages/customers/CustomerDetails";
 import AvailabilityManagement from "../pages/settings/AvailabilityManagement";
-
+import BookingManagement from "../pages/bookings/BookingManagement";
 
 function AppRoutes(){
     return(
@@ -45,6 +45,7 @@ function AppRoutes(){
                 <Route path="/company/customers" element={<CustomerManagement/>}/>
                 <Route path="/company/customers/:customerId"element={<CustomerDetails />} />
                 <Route path="/company/availability" element={<AvailabilityManagement />} />
+                <Route path="/company/bookings" element={<BookingManagement />}/>
             </Routes>
         </BrowserRouter>
     )

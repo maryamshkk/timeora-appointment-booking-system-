@@ -168,6 +168,10 @@ function AppointmentManagement() {
                                 label={stat.label}
                                 value={stat.value}
                                 icon={stat.icon}
+                                value={24}
+                                label="Today"
+                                accentColor="bg-navy"
+
                             />
                         ))}
                     </div>

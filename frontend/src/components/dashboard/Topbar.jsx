@@ -5,6 +5,7 @@ import {
     CircleHelp,
     Grid2X2,
     Search,
+    User,
     UserCircle,
     ChevronDown,
     Settings,
@@ -111,28 +112,32 @@ function Topbar({
 
                 {/* Profile */}
                 {profileInfo ? (
-                    <div className="flex items-center gap-3">
-                        <div className="hidden text-right sm:block">
-                            <p className="text-sm font-bold uppercase tracking-wide text-navy">
-                                {profileInfo.name}
-                            </p>
-
-                            <p className="mt-px text-xs text-slate">
-                                {profileInfo.role}
-                            </p>
+                    <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-beige">
+                            {profileInfo.avatarUrl ? (
+                                <img
+                                    src={profileInfo.avatarUrl}
+                                    alt={profileInfo.name}
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <User className="h-4 w-4 text-navy" />
+                            )}
                         </div>
 
-                        {profileInfo.avatarUrl ? (
-                            <img
-                                src={profileInfo.avatarUrl}
-                                alt={profileInfo.name}
-                                className="h-9 w-9 rounded-full object-cover"
-                            />
-                        ) : (
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-beige">
-                                <UserCircle className="h-6 w-6 text-slate" />
-                            </div>
-                        )}
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold text-navy">
+                                {profileInfo.name}
+                            </span>
+
+                            {profileInfo.role && (
+                                <span className="text-xs text-slate">
+                                    {profileInfo.role}
+                                </span>
+                            )}
+                        </div>
+
+                        <ChevronDown className="h-3.5 w-3.5 text-slate" />
                     </div>
                 ) : simpleProfileIcon ? (
                     <button

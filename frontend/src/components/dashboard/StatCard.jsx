@@ -5,9 +5,15 @@ function StatCard({
     label,
     icon: Icon,
     valueColor = "text-navy",
+    accentColor = null,
 }) {
     return (
-        <div className="flex h-full w-full flex-col justify-center rounded-xl border border-gray/20 bg-white p-5 shadow-sm">
+        <div className="relative overflow-hidden rounded-xl border border-gray/20 bg-white p-5 shadow-sm">
+            {accentColor && (
+                <div
+                    className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${accentColor}`}
+                />
+            )}
 
             {Icon && (
                 <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-beige">
@@ -22,7 +28,6 @@ function StatCard({
             <p className="mt-1 text-xs font-bold uppercase tracking-wide text-slate">
                 {label}
             </p>
-
         </div>
     );
 }
