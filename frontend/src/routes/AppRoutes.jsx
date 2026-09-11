@@ -16,6 +16,9 @@ import StaffManagement from "../pages/staff/StaffManagement";
 import AddStaff from "../pages/staff/AddStaff";
 import StaffDetails from "../pages/staff/StaffDetails";
 import ServicesManagement from "../pages/services/ServicesManagement";
+import AddService from "../pages/services/AddService";
+
+
 
 function AppRoutes(){
     return(
@@ -35,8 +38,8 @@ function AppRoutes(){
                 <Route path="/company/staff" element={<StaffManagement />} />
                 <Route path="/company/staff/add" element={<AddStaff />}/>
                 <Route path="/company/staff/:staffId" element={<StaffDetails />} />
-                <Route path="/company/services" element={<ServicesManagement />}
-/>
+                <Route path="/company/services" element={<ServicesManagement />}/>
+                <Route path="/company/services/add" element={<AddService />} />
             </Routes>
         </BrowserRouter>
     )
