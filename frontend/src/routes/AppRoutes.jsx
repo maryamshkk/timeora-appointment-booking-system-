@@ -19,6 +19,8 @@ import ServicesManagement from "../pages/services/ServicesManagement";
 import AddService from "../pages/services/AddService";
 import CustomerManagement from "../pages/customers/CustomerManagement";
 import CustomerDetails from "../pages/customers/CustomerDetails";
+import AvailabilityManagement from "../pages/settings/AvailabilityManagement";
+
 
 function AppRoutes(){
     return(
@@ -42,6 +44,7 @@ function AppRoutes(){
                 <Route path="/company/services/add" element={<AddService />} />
                 <Route path="/company/customers" element={<CustomerManagement/>}/>
                 <Route path="/company/customers/:customerId"element={<CustomerDetails />} />
+                <Route path="/company/availability" element={<AvailabilityManagement />} />
             </Routes>
         </BrowserRouter>
     )
