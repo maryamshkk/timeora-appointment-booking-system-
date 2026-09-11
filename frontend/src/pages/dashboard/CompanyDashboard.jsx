@@ -143,6 +143,7 @@ function CompanyDashboard({
 
                             <button
                                 type="button"
+                                
                                 className="flex w-full items-center justify-center gap-2 rounded-lg border border-navy bg-white px-4 py-2.5 text-sm font-bold text-navy transition hover:bg-navy hover:text-white sm:w-auto"
                             >
                                 <UserPlus className="w-4 h-4" />
