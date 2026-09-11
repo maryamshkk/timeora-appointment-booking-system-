@@ -220,7 +220,107 @@ function AddService() {
                                 </div>
 
                             </div>
-                            
+
+                            {/* Staff Assignment */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-8 shadow-sm">
+
+                                <h2 className="font-serif text-2xl text-navy">
+                                    Staff Assignment
+                                </h2>
+
+                                <div className="mb-3 mt-4 border-b border-gray/20" />
+
+                                <p className="mb-4 text-sm text-slate">
+                                    Select the staff members qualified to perform this service.
+                                </p>
+
+                                {/* Staff List */}
+                                <div className="flex flex-col gap-2.5">
+
+                                    {/* Dr. Sara Ahmed */}
+                                    <div className="flex cursor-pointer items-center justify-between rounded-lg border border-gray/20 p-3.5 transition hover:border-navy/40">
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                                                <span className="text-sm font-bold text-navy">
+                                                    SA
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <p className="text-sm font-bold text-navy">
+                                                    Dr. Sara Ahmed
+                                                </p>
+
+                                                <p className="mt-0.5 text-xs text-slate">
+                                                    Senior Specialist
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex h-6 w-6 items-center justify-center rounded-md border-2 border-navy bg-navy">
+                                            {/* Check icon will be connected next */}
+                                        </div>
+
+                                    </div>
+
+                                    {/* Ali Khan */}
+                                    <div className="flex cursor-pointer items-center justify-between rounded-lg border border-gray/20 p-3.5 transition hover:border-navy/40">
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                                                <span className="text-sm font-bold text-navy">
+                                                    AK
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <p className="text-sm font-bold text-navy">
+                                                    Ali Khan
+                                                </p>
+
+                                                <p className="mt-0.5 text-xs text-slate">
+                                                    Consultant
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex h-6 w-6 items-center justify-center rounded-md border-2 border-navy bg-navy">
+                                            {/* Check icon will be connected next */}
+                                        </div>
+
+                                    </div>
+
+                                    {/* Hina Malik */}
+                                    <div className="flex cursor-pointer items-center justify-between rounded-lg border border-gray/20 p-3.5 transition hover:border-navy/40">
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/40">
+                                                <span className="text-sm font-bold text-navy">
+                                                    HM
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <p className="text-sm font-bold text-navy">
+                                                    Hina Malik
+                                                </p>
+
+                                                <p className="mt-0.5 text-xs text-slate">
+                                                    Therapist
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex h-6 w-6 items-center justify-center rounded-md border-2 border-navy bg-navy">
+                                            {/* Check icon will be connected next */}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                         </div>
 
