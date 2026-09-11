@@ -6,11 +6,27 @@ import {
     CalendarClock,
     CalendarDays,
     CalendarPlus,
+    CalendarRange,
     CheckCircle2,
     ChevronRight,
     CircleUser,
+    History,
     Pencil,
+    Scissors,
+    TrendingUp,
+    
 } from "lucide-react";
+
+import {
+    Area,
+    AreaChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from "recharts";
+
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
@@ -60,11 +76,66 @@ const upcomingAppointments = [
     },
 ];
 
+const appointmentChartData = [
+    { day: "Mon", count: 10 },
+    { day: "Tue", count: 8 },
+    { day: "Wed", count: 6 },
+    { day: "Thu", count: 16 },
+    { day: "Fri", count: 11 },
+    { day: "Sat", count: 17 },
+    { day: "Sun", count: 3 },
+];
+
+const weeklyHours = [
+    { day: "Mon", hours: "09:00 AM – 05:00 PM" },
+    { day: "Tue", hours: "09:00 AM – 05:00 PM" },
+    { day: "Wed", hours: "09:00 AM – 05:00 PM" },
+    { day: "Thu", hours: "09:00 AM – 05:00 PM" },
+    { day: "Fri", hours: "09:00 AM – 05:00 PM", isToday: true },
+    { day: "Sat", hours: "OFF" },
+    { day: "Sun", hours: "OFF" },
+];
+
+const assignedServices = [
+    {
+        name: "Consultation",
+        subtitle: "GENERAL CHECKUP",
+        duration: "1 Hr",
+    },
+    {
+        name: "Follow-up",
+        subtitle: "POST-TREATMENT",
+        duration: "30 Min",
+    },
+    {
+        name: "Therapy Session",
+        subtitle: "SPECIALIZED CARE",
+        duration: "1 Hr",
+    },
+];
+
+const recentActivity = [
+    {
+        time: "Today, 08:45 AM",
+        text: "Checked in for the day.",
+    },
+    {
+        time: "Yesterday, 04:30 PM",
+        text: "Updated availability for next week.",
+    },
+    {
+        time: "18 Aug, 11:15 AM",
+        text: "Completed appointment with James Lin.",
+    },
+];
+
 function StaffDetails() {
     const { staffId } = useParams();
     const navigate = useNavigate();
-
+    
     const [staffData, setStaffData] = useState(mockStaffData);
+    const [chartRange, setChartRange] = useState("7");
+
 
     // TODO: axios GET /api/company/staff/:staffId on mount
     // TODO: Replace mockStaffData with API response
@@ -488,6 +559,143 @@ function StaffDetails() {
 
                             </div>
 
+                            {/* Appointment Activity */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-6 shadow-sm">
+
+                                <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-[18px] w-[18px] text-slate" />
+
+                                        <h2 className="font-serif text-xl text-navy">
+                                            Appointment Activity
+                                        </h2>
+                                    </div>
+
+                                    {/* Range Filter */}
+                                    <div className="flex w-fit items-center gap-1 rounded-lg bg-gray/10 p-1">
+
+                                        {["7", "30", "90"].map((range) => (
+                                            <button
+                                                key={range}
+                                                type="button"
+                                                onClick={() => setChartRange(range)}
+                                                className={
+                                                    chartRange === range
+                                                        ? "rounded-md bg-white px-3 py-1.5 text-xs font-bold text-navy shadow-sm"
+                                                        : "rounded-md px-3 py-1.5 text-xs font-bold text-slate"
+                                                }
+                                            >
+                                                {range} DAYS
+                                            </button>
+                                        ))}
+
+                                    </div>
+
+                                </div>
+
+                                {/* Chart */}
+                                <div className="h-[280px] w-full">
+
+                                    <ResponsiveContainer width="100%" height="100%">
+
+                                        <AreaChart
+                                            data={appointmentChartData}
+                                            margin={{
+                                                top: 10,
+                                                right: 10,
+                                                left: 0,
+                                                bottom: 0,
+                                            }}
+                                        >
+
+                                            <defs>
+                                                <linearGradient
+                                                    id="appointmentAreaGradient"
+                                                    x1="0"
+                                                    y1="0"
+                                                    x2="0"
+                                                    y2="1"
+                                                >
+                                                    <stop
+                                                        offset="0%"
+                                                        stopColor="#000C1E"
+                                                        stopOpacity={0.15}
+                                                    />
+
+                                                    <stop
+                                                        offset="100%"
+                                                        stopColor="#000C1E"
+                                                        stopOpacity={0}
+                                                    />
+                                                </linearGradient>
+                                            </defs>
+
+                                            <CartesianGrid
+                                                vertical={false}
+                                                stroke="#E4E2DD"
+                                            />
+
+                                            <XAxis
+                                                dataKey="day"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{
+                                                    fill: "#43474E",
+                                                    fontSize: 12,
+                                                }}
+                                            />
+
+                                            <YAxis
+                                                domain={[0, 20]}
+                                                ticks={[0, 5, 10, 15, 20]}
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{
+                                                    fill: "#43474E",
+                                                    fontSize: 12,
+                                                }}
+                                            />
+
+                                            <Tooltip
+                                                contentStyle={{
+                                                    border: "1px solid #C3C6CF",
+                                                    borderRadius: "8px",
+                                                    fontSize: "12px",
+                                                }}
+                                                labelStyle={{
+                                                    color: "#000C1E",
+                                                    fontWeight: "700",
+                                                }}
+                                            />
+
+                                            <Area
+                                                type="monotone"
+                                                dataKey="count"
+                                                stroke="#000C1E"
+                                                strokeWidth={2.5}
+                                                fill="url(#appointmentAreaGradient)"
+                                                dot={{
+                                                    fill: "#FED488",
+                                                    stroke: "#FED488",
+                                                    r: 5,
+                                                }}
+                                                activeDot={{
+                                                    fill: "#FED488",
+                                                    stroke: "#000C1E",
+                                                    strokeWidth: 2,
+                                                    r: 6,
+                                                }}
+                                            />
+
+                                        </AreaChart>
+
+                                    </ResponsiveContainer>
+
+                                </div>
+
+                            </div>
+
                         </div>
 
                         {/* Right Column */}
@@ -519,11 +727,195 @@ function StaffDetails() {
 
                             </div>
 
+                            {/* Weekly Hours */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-6 shadow-sm">
+
+                                <div className="mb-4 flex items-center gap-2">
+                                    <CalendarRange className="h-[18px] w-[18px] text-slate" />
+
+                                    <h2 className="font-serif text-xl text-navy">
+                                        Weekly Hours
+                                    </h2>
+                                </div>
+
+                                <div className="mb-2 border-b border-gray/20"></div>
+
+                                <div>
+                                    {weeklyHours.map((item, index) => (
+                                        <div
+                                            key={item.day}
+                                            className={`
+                                                flex items-center justify-between
+                                                border-b border-gray/10
+                                                py-2.5
+                                                ${
+                                                    index === weeklyHours.length - 1
+                                                        ? "border-b-0"
+                                                        : ""
+                                                }
+                                                ${
+                                                    item.isToday
+                                                        ? "border-l-4 border-navy bg-beige/30 pl-2.5"
+                                                        : ""
+                                                }
+                                            `}
+                                        >
+
+                                            <span
+                                                className={
+                                                    item.isToday
+                                                        ? "text-sm font-bold text-navy"
+                                                        : "text-sm text-slate"
+                                                }
+                                            >
+                                                {item.day}
+                                            </span>
+
+                                            <span
+                                                className={
+                                                    item.hours === "OFF"
+                                                        ? "text-sm font-bold text-gray"
+                                                        : "text-sm text-navy"
+                                                }
+                                            >
+                                                {item.hours}
+                                            </span>
+
+                                        </div>
+                                    ))}
+                                </div>
+
+                            </div>
+
+                            {/* Assigned Services */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-6 shadow-sm">
+
+                                <div className="mb-4 flex items-center gap-2">
+                                    <Scissors className="h-[18px] w-[18px] text-slate" />
+
+                                    <h2 className="font-serif text-xl text-navy">
+                                        Assigned Services
+                                    </h2>
+                                </div>
+
+                                <div className="mb-1 border-b border-gray/20"></div>
+
+                                <div>
+                                    {assignedServices.map((service, index) => (
+                                        <div
+                                            key={service.name}
+                                            className={`
+                                                flex items-start justify-between gap-4
+                                                py-3
+                                                ${
+                                                    index === assignedServices.length - 1
+                                                        ? ""
+                                                        : "border-b border-gray/10"
+                                                }
+                                            `}
+                                        >
+
+                                            <div className="min-w-0">
+
+                                                <p className="text-sm font-bold text-navy">
+                                                    {service.name}
+                                                </p>
+
+                                                <p className="mt-1 text-xs uppercase text-gray">
+                                                    {service.subtitle}
+                                                </p>
+
+                                            </div>
+
+                                            <span className="flex-shrink-0 rounded bg-gray/10 px-2.5 py-1 text-xs font-bold text-navy">
+                                                {service.duration}
+                                            </span>
+
+                                        </div>
+                                    ))}
+                                </div>
+
+                            </div>
+
+                                                        {/* Recent Activity */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-6 shadow-sm">
+
+                                <div className="mb-4 flex items-center gap-2">
+                                    <History className="h-[18px] w-[18px] text-slate" />
+
+                                    <h2 className="font-serif text-xl text-navy">
+                                        Recent Activity
+                                    </h2>
+                                </div>
+
+                                <div className="mb-4 border-b border-gray/20"></div>
+
+                                {/* Activity Timeline */}
+                                <div className="relative">
+
+                                    {/* Connecting Line */}
+                                    <div className="absolute bottom-3 left-[3px] top-3 w-px bg-gray/20"></div>
+
+                                    <div className="space-y-5">
+
+                                        {recentActivity.map((activity, index) => (
+                                            <div
+                                                key={`${activity.time}-${activity.text}`}
+                                                className="relative flex gap-3"
+                                            >
+
+                                                {/* Timeline Dot */}
+                                                <div className="relative z-10 mt-1 flex h-2 w-2 flex-shrink-0">
+                                                    <span
+                                                        className={
+                                                            index === 0
+                                                                ? "h-2 w-2 rounded-full bg-navy"
+                                                                : "h-2 w-2 rounded-full bg-gray"
+                                                        }
+                                                    ></span>
+                                                </div>
+
+                                                {/* Activity Content */}
+                                                <div className="min-w-0">
+
+                                                    <p className="text-xs text-gray">
+                                                        {activity.time}
+                                                    </p>
+
+                                                    <p className="mt-0.5 text-sm text-navy">
+                                                        {activity.text}
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+                                        ))}
+
+                                    </div>
+
+                                </div>
+
+                                {/* Full Log */}
+                                <div className="mt-6 border-t border-gray/10 pt-4 text-center">
+
+                                    <button
+                                        type="button"
+                                        className="text-xs font-bold uppercase tracking-wide text-navy hover:underline"
+                                    >
+                                        View Full Log
+                                    </button>
+
+                                </div>
+
+                            </div>  
+
                         </div>
 
                     </div>
 
-                    
+
+
+
 
                 </main>
 

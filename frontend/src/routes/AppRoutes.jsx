@@ -33,7 +33,7 @@ function AppRoutes(){
                 <Route path="/company/calendar" element={<CalenderSchedule />} />
                 <Route path="/company/staff" element={<StaffManagement />} />
                 <Route path="/company/staff/add" element={<AddStaff />}/>
-                <Route path="/company/staff/details" element={<StaffDetails />} />
+                <Route path="/company/staff/:staffId" element={<StaffDetails />} />
             </Routes>
         </BrowserRouter>
     )
