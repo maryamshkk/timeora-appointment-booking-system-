@@ -17,7 +17,7 @@ import AddStaff from "../pages/staff/AddStaff";
 import StaffDetails from "../pages/staff/StaffDetails";
 import ServicesManagement from "../pages/services/ServicesManagement";
 import AddService from "../pages/services/AddService";
-
+import CustomerManagement from "../pages/customers/CustomerManagement";
 
 
 function AppRoutes(){
@@ -40,6 +40,7 @@ function AppRoutes(){
                 <Route path="/company/staff/:staffId" element={<StaffDetails />} />
                 <Route path="/company/services" element={<ServicesManagement />}/>
                 <Route path="/company/services/add" element={<AddService />} />
+                <Route path="/company/customers" element={<CustomerManagement/>}/>
             </Routes>
         </BrowserRouter>
     )

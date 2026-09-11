@@ -7,6 +7,7 @@ import {
     Search,
     UserCircle,
     ChevronDown,
+    Settings,
 } from "lucide-react";
 
 function Topbar({
@@ -14,18 +15,19 @@ function Topbar({
     profileName = "Admin",
     avatarUrl = "",
     showBell = false,
+    hasNotification = false,
     showHelp = false,
     showGrid = false,
+    showSettings = false,
     showSupportText = false,
     showProfileDropdown = false,
     simpleProfileIcon = false,
     profileInfo = null,
     searchPlaceholder = "Search...",
-    hasNotification = false,
 }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-    const hasActions = showBell || showHelp || showGrid;
+    const hasActions = showBell || showHelp || showGrid || showSettings;
 
     return (
         <header className="flex h-16 items-center justify-between gap-3 border-b border-gray/20 bg-white px-3 sm:px-4 md:px-6">
@@ -42,7 +44,7 @@ function Topbar({
                 </button>
 
                 {/* Search */}
-                <div className="relative min-w-0 flex-1 max-w-md">
+                <div className="relative min-w-0 max-w-md flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
 
                     <input
@@ -89,6 +91,17 @@ function Topbar({
                         aria-label="Apps"
                     >
                         <Grid2X2 className="h-5 w-5" />
+                    </button>
+                )}
+
+                {/* Settings */}
+                {showSettings && (
+                    <button
+                        type="button"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate transition hover:bg-beige hover:text-navy"
+                        aria-label="Settings"
+                    >
+                        <Settings className="h-5 w-5" />
                     </button>
                 )}
 
