@@ -15,6 +15,7 @@ import CalenderSchedule from "../pages/calendar/CalendarSchedule";
 import StaffManagement from "../pages/staff/StaffManagement";
 import AddStaff from "../pages/staff/AddStaff";
 import StaffDetails from "../pages/staff/StaffDetails";
+import ServicesManagement from "../pages/services/ServicesManagement";
 
 function AppRoutes(){
     return(
@@ -34,6 +35,8 @@ function AppRoutes(){
                 <Route path="/company/staff" element={<StaffManagement />} />
                 <Route path="/company/staff/add" element={<AddStaff />}/>
                 <Route path="/company/staff/:staffId" element={<StaffDetails />} />
+                <Route path="/company/services" element={<ServicesManagement />}
+/>
             </Routes>
         </BrowserRouter>
     )
