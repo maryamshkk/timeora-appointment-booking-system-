@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+
 import {
+    ArrowRight,
     Briefcase,
     CalendarClock,
+    CalendarDays,
     CalendarPlus,
     CheckCircle2,
     ChevronRight,
@@ -9,10 +12,12 @@ import {
     Pencil,
 } from "lucide-react";
 
-import { Link, useNavigate, useParams } from "react-router-dom";
-
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
+import StatCard from "../../components/dashboard/StatCard";
+
+
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 
 const mockStaffData = {
@@ -27,6 +32,33 @@ const mockStaffData = {
     availableToday: true,
     avatarUrl: "",
 };
+
+const upcomingAppointments = [
+    {
+        time: "09:00 AM",
+        customer: "Ayesha Khan",
+        initials: "AK",
+        service: "Consultation",
+        status: "Confirmed",
+        avatarClass: "bg-blue-100",
+    },
+    {
+        time: "10:30 AM",
+        customer: "James Lin",
+        initials: "JL",
+        service: "Therapy Session",
+        status: "Confirmed",
+        avatarClass: "bg-gold/30",
+    },
+    {
+        time: "01:00 PM",
+        customer: "Maria Rodriguez",
+        initials: "MR",
+        service: "Follow-up",
+        status: "Pending",
+        avatarClass: "bg-gray/30",
+    },
+];
 
 function StaffDetails() {
     const { staffId } = useParams();
@@ -178,7 +210,7 @@ function StaffDetails() {
 
 
                     {/* {/* Top Information Cards */}
-                <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
 
                         {/* Personal Information */}
                         <div className="rounded-xl border border-gray/20 bg-white p-6 shadow-sm">
@@ -339,7 +371,160 @@ function StaffDetails() {
 
                         </div>
 
-                    </div> 
+                    </div>
+
+                    {/* Main Details Grid */}
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+                        {/* Left Column */}
+                        <div className="flex flex-col gap-6 lg:col-span-2">
+
+                            {/* Upcoming Appointments */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-6 shadow-sm">
+
+                                <div className="mb-4 flex items-center justify-between">
+
+                                    <div className="flex items-center gap-2">
+                                        <CalendarDays className="h-[18px] w-[18px] text-slate" />
+
+                                        <h2 className="font-serif text-xl text-navy">
+                                            Upcoming Appointments
+                                        </h2>
+                                    </div>
+
+                                    <Link
+                                        to="/company/appointments"
+                                        className="flex items-center gap-1 text-sm font-bold text-navy hover:underline"
+                                    >
+                                        View All
+                                        <ArrowRight className="h-3.5 w-3.5" />
+                                    </Link>
+
+                                </div>
+
+                                {/* Table */}
+                                <div className="overflow-x-auto">
+
+                                    <table className="w-full min-w-[600px]">
+
+                                        <thead>
+                                            <tr className="border-b border-gray/20 text-left">
+
+                                                <th className="pb-3 text-xs font-bold uppercase tracking-wide text-slate">
+                                                    Time
+                                                </th>
+
+                                                <th className="pb-3 text-xs font-bold uppercase tracking-wide text-slate">
+                                                    Customer
+                                                </th>
+
+                                                <th className="pb-3 text-xs font-bold uppercase tracking-wide text-slate">
+                                                    Service
+                                                </th>
+
+                                                <th className="pb-3 text-xs font-bold uppercase tracking-wide text-slate">
+                                                    Status
+                                                </th>
+
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+
+                                            {upcomingAppointments.map((appointment) => (
+                                                <tr
+                                                    key={`${appointment.time}-${appointment.customer}`}
+                                                    className="border-b border-gray/10"
+                                                >
+
+                                                    <td className="py-3 text-sm font-bold text-navy">
+                                                        {appointment.time}
+                                                    </td>
+
+                                                    <td className="py-3">
+                                                        <div className="flex items-center gap-2.5">
+
+                                                            <div
+                                                                className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${appointment.avatarClass}`}
+                                                            >
+                                                                <span className="text-xs font-bold text-navy">
+                                                                    {appointment.initials}
+                                                                </span>
+                                                            </div>
+
+                                                            <span className="text-sm text-navy">
+                                                                {appointment.customer}
+                                                            </span>
+
+                                                        </div>
+                                                    </td>
+
+                                                    <td className="py-3 text-sm text-slate">
+                                                        {appointment.service}
+                                                    </td>
+
+                                                    <td className="py-3">
+
+                                                        <span
+                                                            className={
+                                                                appointment.status === "Confirmed"
+                                                                    ? "rounded-full bg-navy/10 px-2.5 py-1 text-xs font-bold uppercase text-navy"
+                                                                    : "rounded-full bg-gold/20 px-2.5 py-1 text-xs font-bold uppercase text-amber-700"
+                                                            }
+                                                        >
+                                                            {appointment.status}
+                                                        </span>
+
+                                                    </td>
+
+                                                </tr>
+                                            ))}
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {/* Right Column */}
+                        <div className="flex flex-col gap-6">
+
+                            {/* Staff Statistics */}
+                            <div className="grid grid-cols-2 gap-4">
+
+                                <StatCard
+                                    value={6}
+                                    label="TODAY"
+                                />
+
+                                <StatCard
+                                    value={12}
+                                    label="UPCOMING"
+                                />
+
+                                <StatCard
+                                    value={4}
+                                    label="COMPLETED"
+                                />
+
+                                <StatCard
+                                    value={1}
+                                    label="CANCELLED"
+                                    valueColor="text-red-600"
+                                />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    
+
                 </main>
 
 
