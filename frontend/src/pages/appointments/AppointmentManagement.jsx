@@ -293,7 +293,7 @@ function AppointmentManagement() {
 
                         <button
                             type="button"
-                            onClick={() => navigate("/company/appointments/new")}
+                            onClick={() => navigate("/company/appointments/create")}
                             className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
                         >
                             <Plus className="h-4 w-4" />

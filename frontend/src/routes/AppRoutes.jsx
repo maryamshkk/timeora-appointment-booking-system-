@@ -20,6 +20,8 @@ import AddService from "../pages/services/AddService";
 import CustomerManagement from "../pages/customers/CustomerManagement";
 import CustomerDetails from "../pages/customers/CustomerDetails";
 import AvailabilityManagement from "../pages/settings/AvailabilityManagement";
+import CreateAppointment from "../pages/appointments/CreateAppointment";
+
 
 function AppRoutes(){
     return(
@@ -35,6 +37,7 @@ function AppRoutes(){
                 <Route path="/company/dashboard" element={<CompanyDashboard />} />
                 <Route path="/company/appointments" element={<AppointmentManagement />} />
                 <Route path="/company/appointments/:appointmentId" element={<AppointmentDetails />} />
+                <Route path="/company/appointments/create" element={<CreateAppointment />} />
                 <Route path="/company/calendar" element={<CalenderSchedule />} />
                 <Route path="/company/staff" element={<StaffManagement />} />
                 <Route path="/company/staff/add" element={<AddStaff />}/>
