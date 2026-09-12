@@ -17,6 +17,7 @@ import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 
+
 // TODO: axios GET /api/company/bookings
 // Query params: date, search, page
 const bookings = [
@@ -162,15 +163,25 @@ function BookingManagement() {
 
                     {/* Header */}
                     <div className="mb-6 flex flex-col items-start justify-between gap-5 md:flex-row md:items-start">
-                        <div>
-                            <h1 className="font-serif text-4xl text-navy">
-                                Booking Management
-                            </h1>
+                        <div className="rounded-xl border border-gray/20 bg-white p-12 text-center shadow-sm">
+    <Calendar className="mx-auto mb-3 h-8 w-8 text-slate" />
 
-                            <p className="mt-1.5 text-sm text-slate">
-                                View and manage appointments across your company.
-                            </p>
-                        </div>
+    <h2 className="font-serif text-xl text-navy">
+        Calendar View
+    </h2>
+
+    <p className="mt-2 text-sm text-slate">
+        View and manage your appointments from the company calendar.
+    </p>
+
+    <button
+        type="button"
+        onClick={() => navigate("/company/calendar")}
+        className="mt-5 rounded-lg bg-navy px-5 py-2.5 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+    >
+        Open Calendar
+    </button>
+</div>
 
                         <button
                             type="button"
@@ -457,39 +468,39 @@ function BookingManagement() {
                                     )}
 
                                 </div>
-                            </div>
+                                </div>
 
-                            {/* Footer */}
-                            <div className="flex items-center justify-between border-t border-gray/20 px-5 py-4">
+                                {/* Footer */}
+                                <div className="flex items-center justify-between border-t border-gray/20 px-5 py-4">
 
-                                <p className="text-sm text-slate">
-                                    Showing 1-10 of 42 appointments
-                                </p>
+                                    <p className="text-sm text-slate">
+                                        Showing 1-10 of 42 appointments
+                                    </p>
 
-                                <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2">
 
-                                    <button
-                                        type="button"
-                                        disabled={currentPage === 1}
-                                        onClick={() =>
-                                            setCurrentPage((page) =>
-                                                Math.max(1, page - 1)
-                                            )
-                                        }
-                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                    </button>
+                                        <button
+                                            type="button"
+                                            disabled={currentPage === 1}
+                                            onClick={() =>
+                                                setCurrentPage((page) =>
+                                                    Math.max(1, page - 1)
+                                                )
+                                            }
+                                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                        </button>
 
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setCurrentPage((page) => page + 1)
-                                        }
-                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige"
-                                    >
-                                        <ChevronRight className="h-4 w-4" />
-                                    </button>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setCurrentPage((page) => page + 1)
+                                            }
+                                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige"
+                                        >
+                                            <ChevronRight className="h-4 w-4" />
+                                        </button>
 
                                 </div>
 
