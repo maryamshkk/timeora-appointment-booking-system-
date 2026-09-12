@@ -1,604 +1,763 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from "react";
 import {
-    CalendarDays,
-    ArrowLeftRight,
-    CheckCircle2,
-    XCircle,
-    Plus,
-    Search,
     Calendar,
-    ChevronDown,
-    List,
-    Columns3,
     ChevronLeft,
     ChevronRight,
+    CheckCircle2,
+    List,
+    MoreHorizontal,
+    Plus,
+    Search,
+    SlidersHorizontal,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
+import CalendarScheduleView from "../../components/dashboard/CalendarScheduleView";
 
+// TODO: axios GET /api/company/bookings
+// Query params: date, search, page
+const bookings = [
+    {
+        id: 1,
+        date: "2026-09-12",
+        time: "09:00 - 10:00",
+        customer: "Ayesha Khan",
+        service: "Consultation",
+        staff: "Dr. Sara Ahmed",
+        status: "Confirmed",
+        payment: { type: "method", value: "Cash on Reception" },
+    },
+    {
+        id: 2,
+        date: "2026-09-12",
+        time: "10:30 - 11:30",
+        customer: "Hina Malik",
+        service: "Follow-up",
+        staff: "Dr. Sara Ahmed",
+        status: "Completed",
+        payment: { type: "paid" },
+    },
+    {
+        id: 3,
+        date: "2026-09-13",
+        time: "13:00 - 14:00",
+        customer: "Maham Ali",
+        service: "Consultation",
+        staff: "Ali Khan",
+        status: "Cancelled",
+        payment: { type: "none" },
+    },
+    {
+        id: 4,
+        date: "2026-09-13",
+        time: "15:00 - 15:30",
+        customer: "Omar Tariq",
+        service: "Consultation",
+        staff: "Ali Khan",
+        status: "Pending",
+        payment: { type: "none" },
+    },
+    {
+        id: 5,
+        date: "2026-09-14",
+        time: "11:00 - 12:00",
+        customer: "Sana Iqbal",
+        service: "Follow-up",
+        staff: "Dr. Sara Ahmed",
+        status: "Confirmed",
+        payment: { type: "paid" },
+    },
+    {
+        id: 6,
+        date: "2026-09-14",
+        time: "14:00 - 15:00",
+        customer: "Bilal Raza",
+        service: "Consultation",
+        staff: "Ali Khan",
+        status: "Confirmed",
+        payment: { type: "method", value: "Cash on Reception" },
+    },
+    {
+        id: 7,
+        date: "2026-09-15",
+        time: "09:30 - 10:00",
+        customer: "Fatima Noor",
+        service: "Follow-up",
+        staff: "Dr. Sara Ahmed",
+        status: "Pending",
+        payment: { type: "none" },
+    },
+    {
+        id: 8,
+        date: "2026-09-15",
+        time: "12:00 - 13:00",
+        customer: "Usman Shah",
+        service: "Consultation",
+        staff: "Ali Khan",
+        status: "Completed",
+        payment: { type: "paid" },
+    },
+    {
+        id: 9,
+        date: "2026-09-16",
+        time: "10:00 - 11:00",
+        customer: "Nida Rehman",
+        service: "Consultation",
+        staff: "Dr. Sara Ahmed",
+        status: "Cancelled",
+        payment: { type: "none" },
+    },
+    {
+        id: 10,
+        date: "2026-09-16",
+        time: "16:00 - 17:00",
+        customer: "Kamran Yousaf",
+        service: "Follow-up",
+        staff: "Ali Khan",
+        status: "Confirmed",
+        payment: { type: "method", value: "Cash on Reception" },
+    },
+    {
+        id: 11,
+        date: "2026-09-17",
+        time: "11:30 - 12:30",
+        customer: "Rabia Saeed",
+        service: "Consultation",
+        staff: "Dr. Sara Ahmed",
+        status: "Completed",
+        payment: { type: "paid" },
+    },
+    {
+        id: 12,
+        date: "2026-09-17",
+        time: "15:00 - 16:00",
+        customer: "Hamza Iqbal",
+        service: "Follow-up",
+        staff: "Ali Khan",
+        status: "Pending",
+        payment: { type: "none" },
+    },
+];
 
 function AppointmentManagement() {
     const navigate = useNavigate();
 
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [viewMode, setViewMode] = useState("list");
+
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [showFilters, setShowFilters] = useState(false);
+
     const [statusFilter, setStatusFilter] = useState("all");
     const [staffFilter, setStaffFilter] = useState("all");
     const [serviceFilter, setServiceFilter] = useState("all");
-    const [viewMode, setViewMode] = useState("list");
-    const [currentPage, setCurrentPage] = useState(1);
+    const [paymentFilter, setPaymentFilter] = useState("all");
+    const [bookingDate, setBookingDate] = useState("");
 
-    const stats = [
-        { label: "Today's Appointments", value: "24", icon: CalendarDays },
-        { label: "Upcoming", value: "12", icon: ArrowLeftRight },
-        { label: "Completed", value: "8", icon: CheckCircle2 },
-        { label: "Cancelled", value: "2", icon: XCircle },
-    ];
+    const [openActionId, setOpenActionId] = useState(null);
 
-    const appointments = [
-        {
-            id: "APT-2026-0048",
-            date: "21 Aug 2026",
-            time: "09:00 AM",
-            customer: "Eleanor Astor",
-            initials: "EA",
-            avatarColor: "gold",
-            service: "Executive Strategy Session",
-            duration: "60 min",
-            staff: "M. Bennett",
-            staffInitials: "MB",
-            status: "Confirmed",
-            payment: "Card",
-        },
-        {
-            id: 2,
-            date: "21 Aug 2026",
-            time: "10:30 AM",
-            customer: "Charles Harrington",
-            initials: "CH",
-            avatarColor: "navy",
-            service: "Initial Consultation",
-            duration: "45 min",
-            staff: "J. Wright",
-            staffInitials: "JW",
-            status: "Pending",
-            payment: "-",
-        },
-    ];
+    // TODO: axios GET /api/company/bookings
+    // Query params: date, search, page
+    const filteredBookings = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
 
-    const filteredAppointments = appointments.filter((appointment) => {
-        const normalizedSearch = searchQuery.toLowerCase().trim();
+        return bookings.filter((booking) => {
+            const matchesSearch =
+                !query ||
+                [
+                    booking.customer,
+                    booking.service,
+                    booking.staff,
+                    booking.status,
+                    booking.payment?.value,
+                ]
+                    .filter(Boolean)
+                    .some((value) => value.toLowerCase().includes(query));
 
-        const matchesSearch =
-            appointment.customer.toLowerCase().includes(normalizedSearch) ||
-            appointment.service.toLowerCase().includes(normalizedSearch) ||
-            appointment.staff.toLowerCase().includes(normalizedSearch);
+            const matchesDate =
+                !bookingDate || booking.date === bookingDate;
 
-        const matchesStatus =
-            statusFilter === "all" ||
-            appointment.status.toLowerCase() === statusFilter;
+            const matchesStatus =
+                statusFilter === "all" || booking.status === statusFilter;
 
-        const matchesStaff =
-            staffFilter === "all" || appointment.staff === staffFilter;
+            const matchesStaff =
+                staffFilter === "all" || booking.staff === staffFilter;
 
-        const matchesService =
-            serviceFilter === "all" ||
-            appointment.service === serviceFilter;
+            const matchesService =
+                serviceFilter === "all" ||
+                booking.service === serviceFilter;
 
-        return matchesSearch && matchesStatus && matchesStaff && matchesService;
-    });
+            const matchesPayment =
+                paymentFilter === "all" ||
+                booking.payment?.type === paymentFilter;
 
-    function goToDetails(id) {
-        navigate(`/company/appointments/${id}`);
+            return (
+                matchesSearch &&
+                matchesDate &&
+                matchesStatus &&
+                matchesStaff &&
+                matchesService &&
+                matchesPayment
+            );
+        });
+    }, [
+        searchQuery,
+        bookingDate,
+        statusFilter,
+        staffFilter,
+        serviceFilter,
+        paymentFilter,
+    ]);
+
+    // Pagination
+    const itemsPerPage = 10;
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(filteredBookings.length / itemsPerPage)
+    );
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    const paginatedBookings = filteredBookings.slice(
+        startIndex,
+        startIndex + itemsPerPage
+    );
+
+    const activeFilterCount =
+        (bookingDate ? 1 : 0) +
+        (statusFilter !== "all" ? 1 : 0) +
+        (staffFilter !== "all" ? 1 : 0) +
+        (serviceFilter !== "all" ? 1 : 0) +
+        (paymentFilter !== "all" ? 1 : 0);
+
+    function getStatusAccent(status) {
+        if (status === "Confirmed") return "bg-navy";
+        if (status === "Completed") return "bg-gray";
+        if (status === "Cancelled") return "bg-red-400";
+        if (status === "Pending") return "bg-gold";
+        return "bg-gray";
+    }
+
+    function getStatusStyle(status) {
+        if (status === "Confirmed") return "bg-navy/10 text-navy";
+        if (status === "Completed") return "bg-gray/15 text-slate";
+        if (status === "Cancelled") return "bg-red-50 text-red-600";
+        if (status === "Pending") return "bg-gold/20 text-amber-700";
+        return "bg-gray/15 text-slate";
+    }
+
+    function clearFilters() {
+        setStatusFilter("all");
+        setStaffFilter("all");
+        setServiceFilter("all");
+        setPaymentFilter("all");
+        setBookingDate("");
+        setSearchQuery("");
+        setCurrentPage(1);
+    }
+
+    function handleToday() {
+        const today = new Date();
+        const iso = today.toISOString().slice(0, 10);
+        setBookingDate(iso);
+        setCurrentPage(1);
     }
 
     return (
-        <div className="flex min-h-screen bg-beige/30">
-            {/* Desktop Sidebar — inline */}
-            <div className="hidden lg:block">
-                <Sidebar
-                    companyName="Shifa Clinic"
-                    activeItem="Appointments"
-                    ctaLabel="Book Appointment"
-                />
-            </div>
+        <div className="flex min-h-screen bg-beige">
+            <Sidebar activeItem="Appointments" />
 
-            {/* Mobile Sidebar — overlay */}
-            {sidebarOpen && (
-                <>
-                    <button
-                        type="button"
-                        onClick={() => setSidebarOpen(false)}
-                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
-                        aria-label="Close menu"
-                    />
-
-                    <div className="fixed left-0 top-0 z-40 h-screen lg:hidden">
-                        <Sidebar
-                            companyName="Shifa Clinic"
-                            activeItem="Appointments"
-                            ctaLabel="Book Appointment"
-                        />
-                    </div>
-                </>
-            )}
-
-            {/* Main Area */}
             <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar
-                    onMenuClick={() => setSidebarOpen(true)}
-                    showHelp
-                    showGrid
-                    profileName="Admin"
+                    showBell
+                    hasNotification
+                    profileInfo={{ name: "Company Profile" }}
+                    searchPlaceholder="Search..."
                 />
 
-                <main className="p-3 md:p-6 lg:p-8">
-                    {/* Page Header */}
-                    <div className="mb-4 flex flex-col gap-3 sm:mb-6 md:mb-8 md:flex-row md:items-center md:justify-between">
+                <main className="flex-1 bg-beige px-8 py-6">
+                    {/* Header */}
+                    <div className="mb-6 flex flex-col items-start justify-between gap-5 md:flex-row md:items-start">
                         <div>
-                            <h1 className="font-serif text-2xl text-navy sm:text-3xl">
-                                Appointments
+                            <h1 className="font-serif text-4xl text-navy">
+                                Appointment Management
                             </h1>
-
-                            <p className="mt-1 text-sm text-slate">
-                                Manage, track, and organize all your appointments.
+                            <p className="mt-1.5 text-sm text-slate">
+                                View and manage appointments across your company.
                             </p>
                         </div>
 
                         <button
-                        type="button"
-                        onClick={function () {
-                            navigate(`/company/appointments/new`);
-                        }}
-                        className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
-                    >
-                        <Plus className="h-4 w-4" />
-                        New Appointment
-                    </button>
+                            type="button"
+                            onClick={() => navigate("/company/appointments/new")}
+                            className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Create Appointment
+                        </button>
                     </div>
 
-                    {/* Stats */}
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 xl:grid-cols-4">
-                        {stats.map((stat) => (
-                            <StatCard
-                                key={stat.label}
-                                label={stat.label}
-                                value={stat.value}
-                                icon={stat.icon}
-                                value={24}
-                                label="Today"
-                                accentColor="bg-navy"
-
-                            />
-                        ))}
+                    {/* Stat Cards */}
+                    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <StatCard value={24} label="Today" accentColor="bg-navy" />
+                        <StatCard value={12} label="Upcoming" accentColor="bg-gold" />
+                        <StatCard value={8} label="Completed" accentColor="bg-gray" />
+                        <StatCard value={2} label="Cancelled" accentColor="bg-red-400" />
                     </div>
 
-                    {/* Appointments Content */}
-                    <div className="mt-4 md:mt-6">
-                        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-3 md:p-6">
-                            {/* Filters */}
-                            <div className="flex flex-col gap-2 md:gap-3 md:flex-row md:flex-wrap md:items-center">
-                                <div className="relative w-full md:w-[260px]">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
+                    {/* Toolbar */}
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                        {/* Left Controls */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* View Toggle */}
+                            <div className="flex overflow-hidden rounded-lg border border-gray/30 bg-white">
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMode("list")}
+                                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition ${
+                                        viewMode === "list"
+                                            ? "bg-beige text-navy"
+                                            : "text-slate hover:bg-beige/50"
+                                    }`}
+                                >
+                                    <List className="h-4 w-4" />
+                                    List
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMode("calendar")}
+                                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition ${
+                                        viewMode === "calendar"
+                                            ? "bg-beige text-navy"
+                                            : "text-slate hover:bg-beige/50"
+                                    }`}
+                                >
+                                    <Calendar className="h-4 w-4" />
+                                    Calendar
+                                </button>
+                            </div>
+
+                            {/* Date Picker */}
+                            <div className="flex items-center gap-2">
+                                <div className="relative">
+                                    <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
 
                                     <input
-                                        type="text"
-                                        value={searchQuery}
+                                        type="date"
+                                        value={bookingDate}
                                         onChange={(event) => {
-                                            setSearchQuery(event.target.value);
+                                            setBookingDate(event.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        placeholder="Search appointments..."
-                                        className="w-full rounded-lg border border-gray/30 bg-white pl-10 pr-4 py-2.5 text-sm text-navy placeholder:text-slate outline-none focus:border-navy focus:ring-2 focus:ring-gold"
+                                        className="h-[42px] rounded-lg border border-gray/30 bg-white pl-9 pr-3 text-sm font-bold text-navy outline-none transition hover:border-navy focus:border-navy"
                                     />
+
+                                    {bookingDate && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setBookingDate("");
+                                                setCurrentPage(1);
+                                            }}
+                                            className="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-slate transition hover:bg-beige hover:text-navy"
+                                            aria-label="Clear date"
+                                        >
+                                            ×
+                                        </button>
+                                    )}
                                 </div>
 
                                 <button
                                     type="button"
-                                    className="flex w-full items-center justify-between gap-2 rounded-lg border border-gray/30 bg-white px-3 py-2.5 text-sm font-bold text-navy hover:bg-beige transition md:w-auto md:justify-start"
+                                    onClick={handleToday}
+                                    className="h-[42px] rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy transition hover:border-navy"
                                 >
-                                    <span className="flex items-center gap-2">
-                                        <Calendar className="w-4 h-4 text-slate" />
-                                        21 August 2026
-                                    </span>
-                                    <ChevronDown className="w-4 h-4 text-slate" />
+                                    Today
                                 </button>
+                            </div>
+                        </div>
 
-                                <div className="hidden md:block h-7 w-px bg-gray/30" />
+                        {/* Right Controls */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* Search */}
+                            <div className="relative min-w-[220px]">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
 
-                                <div className="relative w-full md:w-auto">
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(event) => {
+                                        setSearchQuery(event.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    placeholder="Search bookings..."
+                                    className="w-full rounded-lg border border-gray/30 bg-white py-2.5 pl-9 pr-4 text-sm text-navy outline-none transition focus:border-navy"
+                                />
+                            </div>
+
+                            {/* Filters */}
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowFilters((current) => !current)
+                                }
+                                className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold transition ${
+                                    showFilters || activeFilterCount > 0
+                                        ? "border-navy bg-navy text-white"
+                                        : "border-gray/30 bg-white text-navy hover:border-navy"
+                                }`}
+                            >
+                                <SlidersHorizontal className="h-4 w-4" />
+                                Filters
+
+                                {activeFilterCount > 0 && (
+                                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gold px-1.5 text-[11px] font-bold text-navy">
+                                        {activeFilterCount}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Filter Panel */}
+                    {showFilters && (
+                        <div className="mb-4 rounded-xl border border-gray/20 bg-beige/30 p-4">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                {/* Status */}
+                                <div>
+                                    <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
+                                        Status
+                                    </label>
+
                                     <select
                                         value={statusFilter}
                                         onChange={(event) => {
                                             setStatusFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        className="w-full appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold md:w-auto"
+                                        className="h-10 w-full rounded-lg border border-gray/30 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
                                     >
                                         <option value="all">All Statuses</option>
-                                        <option value="confirmed">Confirmed</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="completed">Completed</option>
-                                        <option value="cancelled">Cancelled</option>
+                                        <option value="Confirmed">Confirmed</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Cancelled">Cancelled</option>
                                     </select>
-
-                                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
                                 </div>
 
-                                <div className="relative w-full md:w-auto">
+                                {/* Staff */}
+                                <div>
+                                    <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
+                                        Staff
+                                    </label>
+
                                     <select
                                         value={staffFilter}
                                         onChange={(event) => {
                                             setStaffFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        className="w-full appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold md:w-auto"
+                                        className="h-10 w-full rounded-lg border border-gray/30 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
                                     >
                                         <option value="all">All Staff</option>
-                                        <option value="M. Bennett">M. Bennett</option>
-                                        <option value="J. Wright">J. Wright</option>
+                                        <option value="Dr. Sara Ahmed">Dr. Sara Ahmed</option>
+                                        <option value="Ali Khan">Ali Khan</option>
                                     </select>
-
-                                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
                                 </div>
 
-                                <div className="relative w-full md:w-auto">
+                                {/* Service */}
+                                <div>
+                                    <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
+                                        Service
+                                    </label>
+
                                     <select
                                         value={serviceFilter}
                                         onChange={(event) => {
                                             setServiceFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        className="w-full appearance-none rounded-lg border border-gray/30 bg-white py-2.5 pl-3 pr-9 text-sm font-bold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-gold md:w-auto"
+                                        className="h-10 w-full rounded-lg border border-gray/30 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
                                     >
                                         <option value="all">All Services</option>
-                                        <option value="Executive Strategy Session">
-                                            Executive Strategy Session
-                                        </option>
-                                        <option value="Initial Consultation">
-                                            Initial Consultation
-                                        </option>
+                                        <option value="Consultation">Consultation</option>
+                                        <option value="Follow-up">Follow-up</option>
                                     </select>
+                                </div>
 
-                                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
+                                {/* Payment */}
+                                <div>
+                                    <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
+                                        Payment
+                                    </label>
+
+                                    <select
+                                        value={paymentFilter}
+                                        onChange={(event) => {
+                                            setPaymentFilter(event.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className="h-10 w-full rounded-lg border border-gray/30 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
+                                    >
+                                        <option value="all">All Payments</option>
+                                        <option value="paid">Paid</option>
+                                        <option value="method">Cash on Reception</option>
+                                        <option value="none">Unpaid</option>
+                                    </select>
                                 </div>
                             </div>
 
-                            {/* View Toggle */}
-                            <div className="mt-4 flex items-center justify-end">
-                                <div className="flex w-full items-center overflow-hidden rounded-lg border border-gray/30 md:w-auto">
-                                    <button
-                                        type="button"
-                                        onClick={() => setViewMode("list")}
-                                        className={`flex flex-1 items-center justify-center gap-2 px-3 py-2 text-sm font-bold transition md:flex-none ${
-                                            viewMode === "list"
-                                                ? "bg-navy text-white"
-                                                : "bg-white text-slate hover:bg-beige"
-                                        }`}
-                                        aria-label="List view"
-                                    >
-                                        <List className="w-4 h-4" />
-                                        <span className="hidden md:inline">List</span>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => setViewMode("columns")}
-                                        className={`flex flex-1 items-center justify-center gap-2 border-l border-gray/30 px-3 py-2 text-sm font-bold transition md:flex-none ${
-                                            viewMode === "columns"
-                                                ? "bg-navy text-white"
-                                                : "bg-white text-slate hover:bg-beige"
-                                        }`}
-                                        aria-label="Columns view"
-                                    >
-                                        <Columns3 className="w-4 h-4" />
-                                        <span className="hidden md:inline">Columns</span>
-                                    </button>
-                                </div>
+                            {/* Clear Filters */}
+                            <div className="mt-4 flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                    className="text-xs font-bold text-navy hover:underline"
+                                >
+                                    Clear Filters
+                                </button>
                             </div>
+                        </div>
+                    )}
 
-                            <div className="mt-4 border-t border-gray/20 md:mt-5" />
+                    {/* Booking Content */}
+                    {viewMode === "list" ? (
+                        <div className="overflow-hidden rounded-xl border border-gray/20 bg-white shadow-sm">
+                            <div className="overflow-x-auto">
+                                <div className="min-w-[1050px]">
+                                    {/* Header */}
+                                    <div className="grid grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 border-b border-gray/20 bg-beige/40 px-5 py-3.5 text-xs font-bold uppercase tracking-wide text-slate">
+                                        <span></span>
+                                        <span>Time</span>
+                                        <span>Customer</span>
+                                        <span>Service</span>
+                                        <span>Staff</span>
+                                        <span>Status</span>
+                                        <span>Payment</span>
+                                        <span>Actions</span>
+                                    </div>
 
-                            {/* Views */}
-                            {viewMode === "list" ? (
-                                <>
-                                    <div className="mt-4 overflow-x-auto md:mt-5">
-                                        <table className="w-full min-w-[1050px] text-sm">
-                                            <thead>
-                                                <tr className="border-b border-gray/20">
-                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Date</th>
-                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Time</th>
-                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Customer</th>
-                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Service</th>
-                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Staff</th>
-                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Status</th>
-                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Payment</th>
-                                                    <th className="px-2 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate md:px-3 md:py-3">Action</th>
-                                                </tr>
-                                            </thead>
+                                    {/* Rows */}
+                                    {paginatedBookings.length > 0 ? (
+                                        paginatedBookings.map((booking, index) => (
+                                            <div
+                                                key={booking.id}
+                                                className={`relative grid grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 px-5 py-4 transition hover:bg-beige/20 ${
+                                                    index !== paginatedBookings.length - 1
+                                                        ? "border-b border-gray/10"
+                                                        : ""
+                                                }`}
+                                            >
+                                                {/* Status Accent */}
+                                                <span
+                                                    className={`absolute bottom-2 left-0 top-2 w-1 rounded-full ${getStatusAccent(
+                                                        booking.status
+                                                    )}`}
+                                                />
 
-                                            <tbody>
-                                                {filteredAppointments.map((appointment) => (
-                                                    <tr
-                                                        key={appointment.id}
-                                                        onClick={() => goToDetails(appointment.id)}
-                                                        className="cursor-pointer border-b border-gray/10 last:border-0 hover:bg-beige/30 transition"
+                                                {/* Gutter */}
+                                                <span></span>
+
+                                                {/* Time */}
+                                                <span
+                                                    className={`text-sm font-bold ${
+                                                        booking.status === "Cancelled"
+                                                            ? "text-gray line-through"
+                                                            : "text-navy"
+                                                    }`}
+                                                >
+                                                    {booking.time}
+                                                </span>
+
+                                                {/* Customer */}
+                                                <span className="text-sm font-bold text-navy">
+                                                    {booking.customer}
+                                                </span>
+
+                                                {/* Service */}
+                                                <span
+                                                    className={`text-sm ${
+                                                        booking.status === "Cancelled"
+                                                            ? "text-gray line-through"
+                                                            : "text-navy"
+                                                    }`}
+                                                >
+                                                    {booking.service}
+                                                </span>
+
+                                                {/* Staff */}
+                                                <span className="text-sm text-navy">
+                                                    {booking.staff}
+                                                </span>
+
+                                                {/* Status */}
+                                                <span
+                                                    className={`w-fit rounded-full px-2.5 py-1 text-xs font-bold ${getStatusStyle(
+                                                        booking.status
+                                                    )}`}
+                                                >
+                                                    {booking.status}
+                                                </span>
+
+                                                {/* Payment */}
+                                                <div>
+                                                    {booking.payment.type === "paid" && (
+                                                        <span className="flex items-center gap-1.5 text-sm font-bold text-navy">
+                                                            <CheckCircle2 className="h-3.5 w-3.5 text-navy" />
+                                                            Paid
+                                                        </span>
+                                                    )}
+
+                                                    {booking.payment.type === "method" && (
+                                                        <span className="text-sm text-slate">
+                                                            {booking.payment.value}
+                                                        </span>
+                                                    )}
+
+                                                    {booking.payment.type === "none" && (
+                                                        <span className="text-sm text-gray">—</span>
+                                                    )}
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="relative flex justify-end">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setOpenActionId(
+                                                                openActionId === booking.id
+                                                                    ? null
+                                                                    : booking.id
+                                                            )
+                                                        }
+                                                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate transition hover:bg-beige hover:text-navy"
                                                     >
-                                                        <td className="px-2 py-3 whitespace-nowrap text-navy md:px-3 md:py-4">
-                                                            {appointment.date}
-                                                        </td>
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </button>
 
-                                                        <td className="px-2 py-3 whitespace-nowrap font-bold text-navy md:px-3 md:py-4">
-                                                            {appointment.time}
-                                                        </td>
-
-                                                        <td className="px-2 py-3 md:px-3 md:py-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div
-                                                                    className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                                                        appointment.avatarColor === "gold"
-                                                                            ? "bg-gold"
-                                                                            : "bg-navy"
-                                                                    }`}
-                                                                >
-                                                                    <span
-                                                                        className={`text-xs font-bold ${
-                                                                            appointment.avatarColor === "gold"
-                                                                                ? "text-navy"
-                                                                                : "text-white"
-                                                                        }`}
-                                                                    >
-                                                                        {appointment.initials}
-                                                                    </span>
-                                                                </div>
-
-                                                                <span className="font-bold text-navy whitespace-nowrap">
-                                                                    {appointment.customer}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-
-                                                        <td className="px-2 py-3 md:px-3 md:py-4">
-                                                            <p className="font-bold text-navy whitespace-nowrap">
-                                                                {appointment.service}
-                                                            </p>
-
-                                                            <p className="mt-0.5 text-xs text-slate">
-                                                                {appointment.duration}
-                                                            </p>
-                                                        </td>
-
-                                                        <td className="px-2 py-3 md:px-3 md:py-4">
-                                                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                <div className="w-7 h-7 rounded-full bg-beige flex items-center justify-center">
-                                                                    <span className="text-[10px] font-bold text-navy">
-                                                                        {appointment.staffInitials}
-                                                                    </span>
-                                                                </div>
-
-                                                                <span className="text-navy">
-                                                                    {appointment.staff}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-
-                                                        <td className="px-2 py-3 md:px-3 md:py-4">
-                                                            <span
-                                                                className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap ${
-                                                                    appointment.status === "Confirmed"
-                                                                        ? "bg-green-50 text-green-700"
-                                                                        : appointment.status === "Pending"
-                                                                        ? "bg-gold/20 text-amber-700"
-                                                                        : appointment.status === "Completed"
-                                                                        ? "bg-gray/20 text-slate"
-                                                                        : "bg-red-50 text-red-700"
-                                                                }`}
-                                                            >
-                                                                <span
-                                                                    className={`w-1.5 h-1.5 rounded-full ${
-                                                                        appointment.status === "Confirmed"
-                                                                            ? "bg-green-600"
-                                                                            : appointment.status === "Pending"
-                                                                            ? "bg-gold"
-                                                                            : appointment.status === "Completed"
-                                                                            ? "bg-slate"
-                                                                            : "bg-red-600"
-                                                                    }`}
-                                                                />
-
-                                                                {appointment.status}
-                                                            </span>
-                                                        </td>
-
-                                                        <td className="px-2 py-3 font-bold text-navy md:px-3 md:py-4">
-                                                            {appointment.payment}
-                                                        </td>
-
-                                                        <td className="px-2 py-3 md:px-3 md:py-4">
+                                                    {openActionId === booking.id && (
+                                                        <div className="absolute right-0 top-9 z-30 w-44 rounded-lg border border-gray/20 bg-white py-1 shadow-lg">
                                                             <button
                                                                 type="button"
-                                                                onClick={(event) => {
-                                                                    event.stopPropagation();
-                                                                    goToDetails(appointment.id);
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    navigate(
+                                                                        `/company/appointments/${booking.id}`
+                                                                    );
                                                                 }}
-                                                                className="text-sm font-bold text-navy hover:text-slate"
+                                                                className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
                                                             >
                                                                 View Details
                                                             </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
 
-                                        {filteredAppointments.length === 0 && (
-                                            <div className="py-12 text-center">
-                                                <p className="text-sm font-bold text-navy">
-                                                    No appointments found
-                                                </p>
-
-                                                <p className="mt-1 text-sm text-slate">
-                                                    Try adjusting your search or filters.
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:mt-5 md:gap-4 xl:grid-cols-3">
-                                        {filteredAppointments.map((appointment) => (
-                                            <div
-                                                key={appointment.id}
-                                                onClick={() => goToDetails(appointment.id)}
-                                                className="cursor-pointer rounded-xl border border-gray/20 bg-white p-4 shadow-md transition hover:shadow-lg md:p-5"
-                                            >
-                                                <div className="flex items-center justify-between gap-3 ">
-                                                    <div className="flex items-center gap-3">
-                                                        <div
-                                                            className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                                                                appointment.avatarColor === "gold"
-                                                                    ? "bg-gold"
-                                                                    : "bg-navy"
-                                                            }`}
-                                                        >
-                                                            <span
-                                                                className={`text-xs font-bold ${
-                                                                    appointment.avatarColor === "gold"
-                                                                        ? "text-navy"
-                                                                        : "text-white"
-                                                                }`}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setOpenActionId(null);
+                                                                    navigate(
+                                                                        `/company/appointments/${booking.id}/edit`
+                                                                    );
+                                                                }}
+                                                                className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
                                                             >
-                                                                {appointment.initials}
-                                                            </span>
+                                                                Edit / Reschedule
+                                                            </button>
+
+                                                            {booking.status !== "Cancelled" &&
+                                                                booking.status !== "Completed" && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            setOpenActionId(null);
+                                                                            // TODO: cancel booking API
+                                                                        }}
+                                                                        className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
+                                                                    >
+                                                                        Cancel Appointment
+                                                                    </button>
+                                                                )}
                                                         </div>
-
-                                                        <div>
-                                                            <p className="text-sm font-bold text-navy">
-                                                                {appointment.customer}
-                                                            </p>
-
-                                                            <p className="text-xs text-slate">
-                                                                {appointment.service}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <span
-                                                        className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                                                            appointment.status === "Confirmed"
-                                                                ? "bg-green-50 text-green-700"
-                                                                : appointment.status === "Pending"
-                                                                ? "bg-gold/20 text-amber-700"
-                                                                : appointment.status === "Completed"
-                                                                ? "bg-gray/20 text-slate"
-                                                                : "bg-red-50 text-red-700"
-                                                        }`}
-                                                    >
-                                                        {appointment.status}
-                                                    </span>
+                                                    )}
                                                 </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="px-5 py-12 text-center">
+                                            <p className="text-sm text-slate">
+                                                No bookings found.
+                                            </p>
 
-                                                <div className="mt-5 grid grid-cols-2 gap-4 border-t border-gray/20 pt-4">
-                                                    <div>
-                                                        <p className="text-xs text-slate">Date</p>
-                                                        <p className="mt-1 text-sm font-bold text-navy">
-                                                            {appointment.date}
-                                                        </p>
-                                                    </div>
-
-                                                    <div>
-                                                        <p className="text-xs text-slate">Time</p>
-                                                        <p className="mt-1 text-sm font-bold text-navy">
-                                                            {appointment.time}
-                                                        </p>
-                                                    </div>
-
-                                                    <div>
-                                                        <p className="text-xs text-slate">Staff</p>
-                                                        <p className="mt-1 text-sm font-bold text-navy">
-                                                            {appointment.staff}
-                                                        </p>
-                                                    </div>
-
-                                                    <div>
-                                                        <p className="text-xs text-slate">Payment</p>
-                                                        <p className="mt-1 text-sm font-bold text-navy">
-                                                            {appointment.payment}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
+                                            {activeFilterCount > 0 && (
                                                 <button
-                                                type="button"
-                                                onClick={function () {
-                                                    navigate(
-                                                        `/company/appointments/${selectedAppointment.id}`
-                                                    );
-                                                }}
-                                                className="flex-1 rounded-lg bg-navy py-3 px-3 mt-5 text-sm font-bold text-white transition hover:bg-gold hover:text-navy border border-b-mauve-500"
-                                            >
-                                                View Details
-                                            </button>
-                                            </div>
-                                        ))}
+                                                    type="button"
+                                                    onClick={clearFilters}
+                                                    className="mt-3 text-xs font-bold text-navy hover:underline"
+                                                >
+                                                    Clear filters
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
-                                        {filteredAppointments.length === 0 && (
-                                            <div className="col-span-full py-12 text-center">
-                                                <p className="text-sm font-bold text-navy">
-                                                    No appointments found
-                                                </p>
-
-                                                <p className="mt-1 text-sm text-slate">
-                                                    Try adjusting your search or filters.
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            )}
-
-                            {/* Pagination */}
-                            <div className="mt-4 flex flex-col items-center gap-3 border-t border-gray/20 pt-4 sm:flex-row sm:items-center sm:justify-between md:mt-5 md:gap-4 md:pt-5">
-                                <p className="text-sm text-slate">
-                                    Showing <span className="font-bold text-navy">1-10</span> of{" "}
-                                    <span className="font-bold text-navy">48</span>
+                            {/* Footer — Dynamic Pagination */}
+                            <div className="flex items-center justify-between border-t border-gray/20 px-5 py-4">
+                                <p className="text-xs text-slate">
+                                    {filteredBookings.length === 0
+                                        ? "0 bookings"
+                                        : `${startIndex + 1}-${Math.min(
+                                              startIndex + itemsPerPage,
+                                              filteredBookings.length
+                                          )} of ${filteredBookings.length}`}
                                 </p>
 
                                 <div className="flex items-center gap-2">
                                     <button
                                         type="button"
                                         disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
-                                        className={`flex h-9 w-9 items-center justify-center rounded-lg border border-gray/30 transition ${
-                                            currentPage === 1
-                                                ? "cursor-not-allowed opacity-40"
-                                                : "text-navy hover:bg-beige"
-                                        }`}
-                                        aria-label="Previous page"
+                                        onClick={() =>
+                                            setCurrentPage((page) =>
+                                                Math.max(1, page - 1)
+                                            )
+                                        }
+                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
                                     >
-                                        <ChevronLeft className="w-4 h-4" />
+                                        <ChevronLeft className="h-4 w-4" />
                                     </button>
 
-                                    <span className="flex h-9 min-w-9 items-center justify-center rounded-lg bg-navy px-3 text-sm font-bold text-white">
-                                        {currentPage}
+                                    <span className="text-xs font-bold text-navy">
+                                        {currentPage} / {totalPages}
                                     </span>
 
                                     <button
                                         type="button"
-                                        onClick={() => setCurrentPage((page) => page + 1)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray/30 text-navy transition hover:bg-beige"
-                                        aria-label="Next page"
+                                        disabled={currentPage === totalPages}
+                                        onClick={() =>
+                                            setCurrentPage((page) => page + 1)
+                                        }
+                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
                                     >
-                                        <ChevronRight className="w-4 h-4" />
+                                        <ChevronRight className="h-4 w-4" />
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    ) : (
+                        <CalendarScheduleView
+                            onViewDetails={(appointment) =>
+                                navigate(`/company/appointments/${appointment.id}`)
+                            }
+                            onCreateAppointment={() =>
+                                navigate("/company/appointments/new")
+                            }
+                        />
+                    )}
                 </main>
             </div>
         </div>
